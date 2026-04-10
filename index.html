@@ -55,6 +55,14 @@ tr:hover td{background:#141e2e!important}
 tr:hover td.last{background:#1a3060!important}
 .tog{font-size:9px;cursor:pointer;color:#2c3f5c;margin-right:4px;user-select:none}
 .tog:hover{color:#4d9ef0}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.charts-grid{grid-template-columns:1fr}}
+.chart-card{background:#0d1725;border:1px solid #1c2a3e;border-radius:10px;padding:18px 20px}
+.chart-title{font-size:12px;font-weight:700;color:#8099b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.chart-sub{font-size:11px;color:#3a5070;margin-top:6px}
+.plan-hdr{font-size:15px;font-weight:700;color:#e8edf5;margin-bottom:4px}
+.plan-sub{font-size:12px;color:#4d6180;margin-bottom:18px}
+.plan-badge{display:inline-block;background:rgba(77,158,240,0.18);color:#4d9ef0;border-radius:5px;padding:2px 9px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -72,6 +80,8 @@ tr:hover td.last{background:#1a3060!important}
     <div class="tab" onclick="switchTab('demanda')">Demanda</div>
     <div class="tab" onclick="switchTab('nps')">NPS</div>
     <div class="tab" onclick="switchTab('pl')">P&amp;L</div>
+    <div class="tab" onclick="switchTab('charts')">Gráficos</div>
+    <div class="tab" onclick="switchTab('plan')">Plan</div>
   </div>
   <div class="tbl">
     <div id="t-growth">
@@ -99,6 +109,19 @@ tr:hover td.last{background:#1a3060!important}
       <div id="s-total"><table><thead id="hpt"></thead><tbody id="bpt"></tbody></table></div>
       <div id="s-tiendas" style="display:none"><table><thead id="hpti"></thead><tbody id="bpti"></tbody></table></div>
       <div id="s-vert" style="display:none"><table><thead id="hpv"></thead><tbody id="bpv"></tbody></table></div>
+    </div>
+    <div id="t-charts" style="display:none">
+      <div class="charts-grid">
+        <div class="chart-card"><div class="chart-title">NMV Mensual</div><svg id="c-nmv" width="100%" style="overflow:visible"></svg><div class="chart-sub" id="c-nmv-sub"></div></div>
+        <div class="chart-card"><div class="chart-title">Órdenes Mensual</div><svg id="c-ord" width="100%" style="overflow:visible"></svg></div>
+        <div class="chart-card"><div class="chart-title">Fill Rate Items</div><svg id="c-fr" width="100%" style="overflow:visible"></svg></div>
+        <div class="chart-card"><div class="chart-title">Visitas Mensuales</div><svg id="c-vis" width="100%" style="overflow:visible"></svg></div>
+      </div>
+    </div>
+    <div id="t-plan" style="display:none">
+      <div class="plan-hdr">Plan V2 <span class="plan-badge">En construcción</span></div>
+      <div class="plan-sub">Proximity Groceries · Targets vs Real</div>
+      <div class="tbl"><table><thead id="h-plan"></thead><tbody id="b-plan"></tbody></table></div>
     </div>
   </div>
 </div>
@@ -328,14 +351,170 @@ window.tog=function(bid,mi){EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildBody(bid,bid==
 window.togPL=function(bid,li){EXP[bid+'_'+li]=!EXP[bid+'_'+li];if(bid==='bpt')buildPLBody('bpt',plLines,nmvVals,MONTHS,false);else buildPLBody('bpti',plTiendas,tiendasNmv,tiendasNames,true);};
 
 window.switchTab=function(tab){
-  ['growth','ops','demanda','nps','pl'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','demanda','nps','pl'][i]===tab));
+  ['growth','ops','demanda','nps','pl','charts','plan'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','demanda','nps','pl','charts','plan'][i]===tab));
+  if(tab==='charts')buildCharts();
+  if(tab==='plan')buildPlan();
 };
 
 window.switchSub=function(sub){
   ['s-total','s-tiendas','s-vert'].forEach(s=>document.getElementById(s).style.display=s===sub?'':'none');
   document.querySelectorAll('.subtab').forEach((el,i)=>el.classList.toggle('active',['s-total','s-tiendas','s-vert'][i]===sub));
 };
+
+// ── CHARTS ────────────────────────────────────────────────────────────────────
+function getW(id){const r=document.getElementById(id).getBoundingClientRect();return r.width||380;}
+
+function drawLineArea(svgId,vals,labels,color,fmt){
+  const W=getW(svgId),H=180,PL=48,PR=12,PT=16,PB=32;
+  const cW=W-PL-PR,cH=H-PT-PB;
+  const pts=vals.map((v,i)=>{return{v,i,lbl:labels[i]}}).filter(p=>p.v!=null);
+  if(pts.length<2)return;
+  const ys=pts.map(p=>p.v),mnY=Math.min(...ys),mxY=Math.max(...ys),rng=mxY-mnY||mxY||1;
+  const N=vals.length;
+  const sx=i=>PL+i/(N-1)*cW;
+  const sy=v=>PT+cH-(v-mnY)/rng*cH;
+  let svg=`<defs><linearGradient id="ag${svgId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.25"/><stop offset="100%" stop-color="${color}" stop-opacity="0.02"/></linearGradient></defs>`;
+  // grid lines
+  for(let g=0;g<4;g++){
+    const yg=PT+cH*g/3;
+    const val=mxY-(rng*g/3);
+    const lbl=fmt==='pct'?(val*100).toFixed(1)+'%':fmt==='money'?(val>=1e6?'$'+(val/1e6).toFixed(1)+'M':'$'+(val/1e3).toFixed(0)+'K'):(val>=1e3?(val/1e3).toFixed(0)+'K':Math.round(val));
+    svg+=`<line x1="${PL}" y1="${yg.toFixed(1)}" x2="${W-PR}" y2="${yg.toFixed(1)}" stroke="#1c2a3e" stroke-width="1"/>`;
+    svg+=`<text x="${PL-5}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#3a5070">${lbl}</text>`;
+  }
+  // area fill
+  const path=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
+  const lastP=pts[pts.length-1],firstP=pts[0];
+  svg+=`<path d="${path} L${sx(lastP.i).toFixed(1)},${(PT+cH).toFixed(1)} L${sx(firstP.i).toFixed(1)},${(PT+cH).toFixed(1)} Z" fill="url(#ag${svgId})"/>`;
+  svg+=`<path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  // dots + labels
+  pts.forEach((p,pi)=>{
+    const isLast=pi===pts.length-1;
+    svg+=`<circle cx="${sx(p.i).toFixed(1)}" cy="${sy(p.v).toFixed(1)}" r="${isLast?4:2.5}" fill="${isLast?color:'#111827'}" stroke="${color}" stroke-width="1.5"/>`;
+    if(isLast){
+      const lbl=fmt==='pct'?(p.v*100).toFixed(1)+'%':fmt==='money'?(p.v>=1e6?'$'+(p.v/1e6).toFixed(1)+'M':'$'+(p.v/1e3).toFixed(0)+'K'):(p.v>=1e3?(p.v/1e3).toFixed(0)+'K':Math.round(p.v));
+      svg+=`<text x="${sx(p.i).toFixed(1)}" y="${(sy(p.v)-8).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="${color}">${lbl}</text>`;
+    }
+  });
+  // x axis labels
+  labels.forEach((lbl,i)=>{
+    svg+=`<text x="${sx(i).toFixed(1)}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#3a5070">${lbl}</text>`;
+  });
+  document.getElementById(svgId).setAttribute('height',H);
+  document.getElementById(svgId).innerHTML=svg;
+}
+
+function drawBars(svgId,vals,labels,color,fmt){
+  const W=getW(svgId),H=180,PL=48,PR=12,PT=16,PB=32;
+  const cW=W-PL-PR,cH=H-PT-PB;
+  const N=vals.length,gap=4,bW=(cW-gap*(N-1))/N;
+  const clean=vals.filter(v=>v!=null),mxY=Math.max(...clean)||1;
+  let svg='';
+  for(let g=0;g<4;g++){
+    const yg=PT+cH*g/3;
+    const val=mxY*(1-g/3);
+    const lbl=fmt==='num'?(val>=1e6?'$'+(val/1e6).toFixed(1)+'M':(val>=1e3?(val/1e3).toFixed(0)+'K':Math.round(val))):(val>=1e3?(val/1e3).toFixed(0)+'K':Math.round(val));
+    svg+=`<line x1="${PL}" y1="${yg.toFixed(1)}" x2="${W-PR}" y2="${yg.toFixed(1)}" stroke="#1c2a3e" stroke-width="1"/>`;
+    svg+=`<text x="${PL-5}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#3a5070">${lbl}</text>`;
+  }
+  vals.forEach((v,i)=>{
+    if(v==null)return;
+    const x=PL+i*(bW+gap);
+    const bH=v/mxY*cH;
+    const isLast=i===N-1;
+    const col=isLast?color:color+'99';
+    svg+=`<rect x="${x.toFixed(1)}" y="${(PT+cH-bH).toFixed(1)}" width="${bW.toFixed(1)}" height="${bH.toFixed(1)}" rx="3" fill="${col}"/>`;
+    const lbl=fmt==='num'?(v>=1e6?(v/1e6).toFixed(1)+'M':(v>=1e3?(v/1e3).toFixed(0)+'K':v)):v;
+    if(isLast) svg+=`<text x="${(x+bW/2).toFixed(1)}" y="${(PT+cH-bH-5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="${color}">${lbl}</text>`;
+    svg+=`<text x="${(x+bW/2).toFixed(1)}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#3a5070">${labels[i]}</text>`;
+  });
+  document.getElementById(svgId).setAttribute('height',H);
+  document.getElementById(svgId).innerHTML=svg;
+}
+
+function drawMultiLine(svgId,seriesList,labels){
+  const W=getW(svgId),H=190,PL=48,PR=60,PT=16,PB=32;
+  const cW=W-PL-PR,cH=H-PT-PB;
+  const N=labels.length;
+  const allV=seriesList.flatMap(s=>s.vals.filter(v=>v!=null));
+  const mnY=Math.min(...allV),mxY=Math.max(...allV),rng=mxY-mnY||0.01;
+  const sx=i=>PL+i/(N-1)*cW;
+  const sy=v=>PT+cH-(v-mnY)/rng*cH;
+  let svg='';
+  for(let g=0;g<4;g++){
+    const yg=PT+cH*g/3;
+    const val=mnY+(mxY-mnY)*(1-g/3);
+    svg+=`<line x1="${PL}" y1="${yg.toFixed(1)}" x2="${W-PR}" y2="${yg.toFixed(1)}" stroke="#1c2a3e" stroke-width="1"/>`;
+    svg+=`<text x="${PL-5}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#3a5070">${(val*100).toFixed(0)}%</text>`;
+  }
+  seriesList.forEach((s,si)=>{
+    const pts=s.vals.map((v,i)=>{return{v,i}}).filter(p=>p.v!=null);
+    if(pts.length<2)return;
+    const path=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
+    svg+=`<path d="${path}" fill="none" stroke="${s.color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>`;
+    pts.forEach(p=>{svg+=`<circle cx="${sx(p.i).toFixed(1)}" cy="${sy(p.v).toFixed(1)}" r="2" fill="${s.color}"/>`;});
+    const last=pts[pts.length-1];
+    svg+=`<text x="${(W-PR+6).toFixed(1)}" y="${(sy(last.v)+4).toFixed(1)}" font-size="9" fill="${s.color}" font-weight="600">${s.label}</text>`;
+  });
+  labels.forEach((lbl,i)=>{
+    svg+=`<text x="${sx(i).toFixed(1)}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#3a5070">${lbl}</text>`;
+  });
+  document.getElementById(svgId).setAttribute('height',H);
+  document.getElementById(svgId).innerHTML=svg;
+}
+
+function buildCharts(){
+  const nmvValsGrowth=growthData.find(m=>m.metric==='NMV').rows[0].v;
+  const ordVals=growthData.find(m=>m.metric==='Órdenes').rows[0].v;
+  const visVals=demandaData.find(m=>m.metric==='Visitas').rows[0].v;
+  const frItems=opsData.find(m=>m.metric==='Fill Rate Items').rows[0].v;
+  const frCompras=opsData.find(m=>m.metric==='Fill Rate Compras').rows[0].v;
+  drawLineArea('c-nmv',nmvValsGrowth,MONTHS,'#4d9ef0','money');
+  drawBars('c-ord',ordVals,MONTHS,'#34c47a','num');
+  drawMultiLine('c-fr',[
+    {vals:frItems,color:'#4d9ef0',label:'Items'},
+    {vals:frCompras,color:'#f59e0b',label:'Compras'}
+  ],MONTHS);
+  drawBars('c-vis',visVals,MONTHS,'#a78bfa','num');
+}
+
+// ── PLAN ──────────────────────────────────────────────────────────────────────
+const planData=[
+  {metric:'NMV',fmt:'money',target:null,real:306868637},
+  {metric:'Órdenes',fmt:'num',target:null,real:33162},
+  {metric:'Compras',fmt:'num',target:null,real:5262},
+  {metric:'Fill Rate Items',fmt:'pct',target:null,real:0.8898},
+  {metric:'Fill Rate Compras',fmt:'pct',target:null,real:0.5930},
+  {metric:'On Time',fmt:'pct',target:null,real:0.8558},
+  {metric:'Cancelaciones',fmt:'pct',target:null,real:0.0668},
+  {metric:'Visitas',fmt:'num',target:null,real:153449},
+  {metric:'NPS',fmt:'pp',target:null,real:0.15},
+];
+
+function buildPlan(){
+  document.getElementById('h-plan').innerHTML=`<tr>
+    <th class="left" style="min-width:200px"><span class="dt">Métrica</span></th>
+    <th><span class="rel">objetivo</span><span class="dt">Plan Mar'26</span></th>
+    <th class="hl"><span class="rel">real</span><span class="dt">Real Mar'26</span></th>
+    <th class="last"><span class="rel">diferencia</span><span class="dt">vs Plan</span></th>
+    <th><span class="dt">Notas</span></th></tr>`;
+  const tb=document.getElementById('b-plan');tb.innerHTML='';
+  planData.forEach(row=>{
+    const tr=document.createElement('tr');
+    const rv=fv(row.real,row.fmt);
+    const tv=row.target!=null?fv(row.target,row.fmt):'<span style="color:#2c3f5c">—</span>';
+    let vs='<td class="last neu">—</td>';
+    if(row.target!=null){
+      const d=row.fmt==='pct'||row.fmt==='pp'?(row.real-row.target)*100:(row.real-row.target)/row.target*100;
+      const s=d>=0?'+':'';
+      const txt=row.fmt==='pct'||row.fmt==='pp'?s+d.toFixed(2)+'pp':s+d.toFixed(1)+'%';
+      vs=`<td class="last ${d>=0?'pos':'neg'}">${txt}</td>`;
+    }
+    tr.innerHTML=`<td class="metric left">${row.metric}</td><td>${tv}</td><td class="hl">${rv}</td>${vs}<td style="color:#2c3f5c;font-size:11px">—</td>`;
+    tb.appendChild(tr);
+  });
+}
 
 function rebuildAll(){
   buildHead('hg',MONTHS,4);
