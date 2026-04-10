@@ -204,11 +204,11 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgro
 .subtabs{{display:flex;gap:6px;margin-bottom:1rem}}
 .subtab{{padding:4px 14px;font-size:12px;cursor:pointer;border-radius:20px;color:#4d6180;border:1px solid #1c2a3e;font-weight:500;background:#0b1220}}
 .subtab.active{{background:rgba(77,158,240,0.15);color:#4d9ef0;border-color:#4d9ef0;font-weight:600}}
-.filter-bar{{display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap}}
-.filter-lbl{{font-size:11px;color:#4d6180;font-weight:500;margin-right:4px}}
-.fpill{{padding:4px 13px;font-size:11px;cursor:pointer;border-radius:20px;border:1px solid #1c2a3e;color:#4d6180;background:#0b1220;transition:all .15s;font-weight:500}}
-.fpill.active{{background:rgba(77,158,240,0.18);color:#4d9ef0;border-color:#4d9ef0;font-weight:600}}
-.fpill:hover{{color:#a0b4cc;border-color:#2c3f5c}}
+.filter-bar{{display:flex;align-items:center;gap:8px;margin-bottom:14px}}
+.filter-lbl{{font-size:11px;color:#4d6180;font-weight:500}}
+.fsel{{background:#0b1220;color:#c0cedd;border:1px solid #1c2a3e;border-radius:7px;padding:5px 28px 5px 10px;font-size:12px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234d6180'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;font-family:inherit;transition:border-color .15s}}
+.fsel:hover,.fsel:focus{{border-color:#4d9ef0;color:#e8edf5}}
+.fsel option{{background:#111827;color:#c0cedd}}
 .tbl{{overflow-x:auto}}
 table{{width:100%;border-collapse:collapse;font-size:12px;min-width:920px}}
 th{{background:#0a1018;color:#8099b8;font-weight:600;padding:0 10px;text-align:right;white-space:nowrap;font-size:11px;letter-spacing:.02em;line-height:1.3}}
@@ -262,7 +262,13 @@ tr:hover td.last{{background:#1a3060!important}}
     <div id="t-growth">
       <div class="filter-bar">
         <span class="filter-lbl">Apertura:</span>
-        <div id="store-filter"></div>
+        <select class="fsel" id="store-filter" onchange="setStore(this.value)">
+          <option value="Todas">Todas las tiendas</option>
+          <option value="Caballito">Caballito</option>
+          <option value="Scalabrini">Scalabrini</option>
+          <option value="Vicente Lopez">Vicente Lopez</option>
+          <option value="Villa Urquiza">Villa Urquiza</option>
+        </select>
       </div>
       <table><thead id="hg"></thead><tbody id="bg"></tbody></table>
     </div>
@@ -296,7 +302,7 @@ const tiendasNmv={j(tiendas_nmv)};
 const plTiendas={j(pl_tiendas)};
 const verticals={j(verticals)};
 
-const STORES=['Todas','Caballito','Scalabrini','Vicente Lopez','Villa Urquiza'];
+
 let activeStore='Todas';
 
 function relLabel(months,i){{
@@ -305,12 +311,7 @@ function relLabel(months,i){{
   return'M-'+offset;
 }}
 
-function buildStoreFilter(){{
-  const el=document.getElementById('store-filter');
-  el.innerHTML=STORES.map(s=>`<div class="fpill${{activeStore===s?' active':''}}" onclick="setStore('${{s}}')">${{s}}</div>`).join('');
-}}
-
-window.setStore=function(s){{activeStore=s;buildStoreFilter();buildBody('bg',growthData,MONTHS,5,5);}};
+window.setStore=function(s){{activeStore=s;buildBody('bg',growthData,MONTHS,4,5);}};
 
 function fv(v,fmt){{
   if(v===null||v===undefined)return'-';
@@ -522,7 +523,6 @@ window.switchSub=function(sub){{
 }};
 
 function rebuildAll(){{
-  buildStoreFilter();
   buildHead('hg',MONTHS,4);
   buildBody('bg',growthData,MONTHS,4,5);
   buildHead('ho',MONTHS,4);
