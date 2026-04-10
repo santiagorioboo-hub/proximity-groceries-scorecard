@@ -63,9 +63,13 @@ tr:hover td.last{background:#1a3060!important}
 .plan-hdr{font-size:15px;font-weight:700;color:#e8edf5;margin-bottom:4px}
 .plan-sub{font-size:12px;color:#4d6180;margin-bottom:18px}
 .plan-badge{display:inline-block;background:rgba(77,158,240,0.18);color:#4d9ef0;border-radius:5px;padding:2px 9px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}
+#tt{position:fixed;background:#1a2a42;border:1px solid #2d4a6e;border-radius:8px;padding:7px 12px;font-size:12px;color:#e8edf5;pointer-events:none;display:none;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,0.5);white-space:nowrap}
+#tt .tt-lbl{font-size:10px;color:#4d9ef0;font-weight:600;margin-bottom:2px}
+#tt .tt-val{font-size:13px;font-weight:700;color:#e8edf5}
 </style>
 </head>
 <body>
+<div id="tt"><div class="tt-lbl" id="tt-lbl"></div><div class="tt-val" id="tt-val"></div></div>
 <div class="card">
   <div class="hdr">
     <div>
@@ -112,8 +116,8 @@ tr:hover td.last{background:#1a3060!important}
     </div>
     <div id="t-charts" style="display:none">
       <div class="charts-grid">
-        <div class="chart-card"><div class="chart-title">NMV Mensual</div><svg id="c-nmv" width="100%" style="overflow:visible"></svg><div class="chart-sub" id="c-nmv-sub"></div></div>
-        <div class="chart-card"><div class="chart-title">Órdenes Mensual</div><svg id="c-ord" width="100%" style="overflow:visible"></svg></div>
+        <div class="chart-card"><div class="chart-title">NMV Mensual</div><svg id="c-nmv" width="100%" style="overflow:visible"></svg></div>
+        <div class="chart-card"><div class="chart-title">Compras Mensual</div><svg id="c-ord" width="100%" style="overflow:visible"></svg></div>
         <div class="chart-card"><div class="chart-title">Fill Rate Items</div><svg id="c-fr" width="100%" style="overflow:visible"></svg></div>
         <div class="chart-card"><div class="chart-title">Visitas Mensuales</div><svg id="c-vis" width="100%" style="overflow:visible"></svg></div>
       </div>
@@ -363,115 +367,137 @@ window.switchSub=function(sub){
 };
 
 // ── CHARTS ────────────────────────────────────────────────────────────────────
-function getW(id){const r=document.getElementById(id).getBoundingClientRect();return r.width||380;}
+function getW(id){const r=document.getElementById(id).getBoundingClientRect();return Math.max(r.width,300)||380;}
+
+const tt=document.getElementById('tt');
+const ttLbl=document.getElementById('tt-lbl');
+const ttVal=document.getElementById('tt-val');
+function showTT(e,lbl,val){tt.style.display='block';ttLbl.textContent=lbl;ttVal.textContent=val;moveTT(e);}
+function moveTT(e){tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-36)+'px';}
+function hideTT(){tt.style.display='none';}
+
+function fmtChart(v,fmt){
+  if(v==null)return'-';
+  if(fmt==='pct')return(v*100).toFixed(1)+'%';
+  if(fmt==='money')return v>=1e9?'$'+(v/1e9).toFixed(2)+'B':v>=1e6?'$'+(v/1e6).toFixed(2)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v;
+  return v>=1e6?(v/1e6).toFixed(2)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v.toLocaleString();
+}
 
 function drawLineArea(svgId,vals,labels,color,fmt){
-  const W=getW(svgId),H=180,PL=48,PR=12,PT=16,PB=32;
+  const W=getW(svgId),H=200,PL=52,PR=14,PT=28,PB=32;
   const cW=W-PL-PR,cH=H-PT-PB;
   const pts=vals.map((v,i)=>{return{v,i,lbl:labels[i]}}).filter(p=>p.v!=null);
   if(pts.length<2)return;
-  const ys=pts.map(p=>p.v),mnY=Math.min(...ys),mxY=Math.max(...ys),rng=mxY-mnY||mxY||1;
+  const ys=pts.map(p=>p.v),mnY=Math.min(...ys)*0.92,mxY=Math.max(...ys)*1.04,rng=mxY-mnY||mxY||1;
   const N=vals.length;
   const sx=i=>PL+i/(N-1)*cW;
   const sy=v=>PT+cH-(v-mnY)/rng*cH;
-  let svg=`<defs><linearGradient id="ag${svgId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.25"/><stop offset="100%" stop-color="${color}" stop-opacity="0.02"/></linearGradient></defs>`;
-  // grid lines
-  for(let g=0;g<4;g++){
+  let svg=`<defs><linearGradient id="ag${svgId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.3"/><stop offset="100%" stop-color="${color}" stop-opacity="0.02"/></linearGradient></defs>`;
+  for(let g=0;g<=3;g++){
     const yg=PT+cH*g/3;
     const val=mxY-(rng*g/3);
-    const lbl=fmt==='pct'?(val*100).toFixed(1)+'%':fmt==='money'?(val>=1e6?'$'+(val/1e6).toFixed(1)+'M':'$'+(val/1e3).toFixed(0)+'K'):(val>=1e3?(val/1e3).toFixed(0)+'K':Math.round(val));
+    const lbl=fmtChart(val,fmt);
     svg+=`<line x1="${PL}" y1="${yg.toFixed(1)}" x2="${W-PR}" y2="${yg.toFixed(1)}" stroke="#1c2a3e" stroke-width="1"/>`;
     svg+=`<text x="${PL-5}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#3a5070">${lbl}</text>`;
   }
-  // area fill
   const path=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
   const lastP=pts[pts.length-1],firstP=pts[0];
   svg+=`<path d="${path} L${sx(lastP.i).toFixed(1)},${(PT+cH).toFixed(1)} L${sx(firstP.i).toFixed(1)},${(PT+cH).toFixed(1)} Z" fill="url(#ag${svgId})"/>`;
   svg+=`<path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-  // dots + labels
   pts.forEach((p,pi)=>{
     const isLast=pi===pts.length-1;
-    svg+=`<circle cx="${sx(p.i).toFixed(1)}" cy="${sy(p.v).toFixed(1)}" r="${isLast?4:2.5}" fill="${isLast?color:'#111827'}" stroke="${color}" stroke-width="1.5"/>`;
-    if(isLast){
-      const lbl=fmt==='pct'?(p.v*100).toFixed(1)+'%':fmt==='money'?(p.v>=1e6?'$'+(p.v/1e6).toFixed(1)+'M':'$'+(p.v/1e3).toFixed(0)+'K'):(p.v>=1e3?(p.v/1e3).toFixed(0)+'K':Math.round(p.v));
-      svg+=`<text x="${sx(p.i).toFixed(1)}" y="${(sy(p.v)-8).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="${color}">${lbl}</text>`;
-    }
+    const cx=sx(p.i).toFixed(1),cy=sy(p.v).toFixed(1);
+    const valLbl=fmtChart(p.v,fmt);
+    // stagger label above/below to avoid overlap
+    const above=pi%2===0;
+    const ly=(sy(p.v)+(above?-9:14)).toFixed(1);
+    svg+=`<text x="${cx}" y="${ly}" text-anchor="middle" font-size="9" font-weight="${isLast?700:500}" fill="${isLast?color:'#5a7a9a'}">${valLbl}</text>`;
+    svg+=`<circle class="hp" cx="${cx}" cy="${cy}" r="${isLast?4.5:3}" fill="${isLast?color:'#111827'}" stroke="${color}" stroke-width="1.8"
+      onmousemove="showTT(event,'${p.lbl}','${valLbl}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
   });
-  // x axis labels
   labels.forEach((lbl,i)=>{
     svg+=`<text x="${sx(i).toFixed(1)}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#3a5070">${lbl}</text>`;
   });
-  document.getElementById(svgId).setAttribute('height',H);
-  document.getElementById(svgId).innerHTML=svg;
+  const el=document.getElementById(svgId);
+  el.setAttribute('height',H);el.innerHTML=svg;
 }
 
 function drawBars(svgId,vals,labels,color,fmt){
-  const W=getW(svgId),H=180,PL=48,PR=12,PT=16,PB=32;
+  const W=getW(svgId),H=200,PL=52,PR=14,PT=28,PB=32;
   const cW=W-PL-PR,cH=H-PT-PB;
-  const N=vals.length,gap=4,bW=(cW-gap*(N-1))/N;
-  const clean=vals.filter(v=>v!=null),mxY=Math.max(...clean)||1;
+  const N=vals.length,gap=5,bW=(cW-gap*(N-1))/N;
+  const clean=vals.filter(v=>v!=null),mxY=Math.max(...clean)*1.12||1;
   let svg='';
-  for(let g=0;g<4;g++){
+  for(let g=0;g<=3;g++){
     const yg=PT+cH*g/3;
     const val=mxY*(1-g/3);
-    const lbl=fmt==='num'?(val>=1e6?'$'+(val/1e6).toFixed(1)+'M':(val>=1e3?(val/1e3).toFixed(0)+'K':Math.round(val))):(val>=1e3?(val/1e3).toFixed(0)+'K':Math.round(val));
     svg+=`<line x1="${PL}" y1="${yg.toFixed(1)}" x2="${W-PR}" y2="${yg.toFixed(1)}" stroke="#1c2a3e" stroke-width="1"/>`;
-    svg+=`<text x="${PL-5}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#3a5070">${lbl}</text>`;
+    svg+=`<text x="${PL-5}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#3a5070">${fmtChart(val,fmt)}</text>`;
   }
   vals.forEach((v,i)=>{
     if(v==null)return;
     const x=PL+i*(bW+gap);
     const bH=v/mxY*cH;
     const isLast=i===N-1;
-    const col=isLast?color:color+'99';
-    svg+=`<rect x="${x.toFixed(1)}" y="${(PT+cH-bH).toFixed(1)}" width="${bW.toFixed(1)}" height="${bH.toFixed(1)}" rx="3" fill="${col}"/>`;
-    const lbl=fmt==='num'?(v>=1e6?(v/1e6).toFixed(1)+'M':(v>=1e3?(v/1e3).toFixed(0)+'K':v)):v;
-    if(isLast) svg+=`<text x="${(x+bW/2).toFixed(1)}" y="${(PT+cH-bH-5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="${color}">${lbl}</text>`;
-    svg+=`<text x="${(x+bW/2).toFixed(1)}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#3a5070">${labels[i]}</text>`;
+    const col=isLast?color:color+'88';
+    const cx=(x+bW/2).toFixed(1);
+    const valLbl=fmtChart(v,fmt);
+    svg+=`<rect class="hp" x="${x.toFixed(1)}" y="${(PT+cH-bH).toFixed(1)}" width="${bW.toFixed(1)}" height="${bH.toFixed(1)}" rx="3" fill="${col}"
+      onmousemove="showTT(event,'${labels[i]}','${valLbl}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
+    svg+=`<text x="${cx}" y="${(PT+cH-bH-5).toFixed(1)}" text-anchor="middle" font-size="${isLast?10:9}" font-weight="${isLast?700:400}" fill="${isLast?color:'#5a7a9a'}">${valLbl}</text>`;
+    svg+=`<text x="${cx}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#3a5070">${labels[i]}</text>`;
   });
-  document.getElementById(svgId).setAttribute('height',H);
-  document.getElementById(svgId).innerHTML=svg;
+  const el=document.getElementById(svgId);
+  el.setAttribute('height',H);el.innerHTML=svg;
 }
 
 function drawMultiLine(svgId,seriesList,labels){
-  const W=getW(svgId),H=190,PL=48,PR=60,PT=16,PB=32;
+  const W=getW(svgId),H=200,PL=52,PR=64,PT=28,PB=32;
   const cW=W-PL-PR,cH=H-PT-PB;
   const N=labels.length;
   const allV=seriesList.flatMap(s=>s.vals.filter(v=>v!=null));
-  const mnY=Math.min(...allV),mxY=Math.max(...allV),rng=mxY-mnY||0.01;
+  const mnY=Math.min(...allV)*0.95,mxY=Math.max(...allV)*1.05,rng=mxY-mnY||0.01;
   const sx=i=>PL+i/(N-1)*cW;
   const sy=v=>PT+cH-(v-mnY)/rng*cH;
   let svg='';
-  for(let g=0;g<4;g++){
+  for(let g=0;g<=3;g++){
     const yg=PT+cH*g/3;
-    const val=mnY+(mxY-mnY)*(1-g/3);
+    const val=mxY-(rng*g/3);
     svg+=`<line x1="${PL}" y1="${yg.toFixed(1)}" x2="${W-PR}" y2="${yg.toFixed(1)}" stroke="#1c2a3e" stroke-width="1"/>`;
     svg+=`<text x="${PL-5}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#3a5070">${(val*100).toFixed(0)}%</text>`;
   }
-  seriesList.forEach((s,si)=>{
+  seriesList.forEach((s)=>{
     const pts=s.vals.map((v,i)=>{return{v,i}}).filter(p=>p.v!=null);
     if(pts.length<2)return;
     const path=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
-    svg+=`<path d="${path}" fill="none" stroke="${s.color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>`;
-    pts.forEach(p=>{svg+=`<circle cx="${sx(p.i).toFixed(1)}" cy="${sy(p.v).toFixed(1)}" r="2" fill="${s.color}"/>`;});
+    svg+=`<path d="${path}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    pts.forEach((p,pi)=>{
+      const cx=sx(p.i).toFixed(1),cy=sy(p.v).toFixed(1);
+      const valLbl=(p.v*100).toFixed(1)+'%';
+      const above=pi%2===0;
+      const ly=(sy(p.v)+(above?-8:13)).toFixed(1);
+      svg+=`<text x="${cx}" y="${ly}" text-anchor="middle" font-size="9" fill="${s.color}" opacity="0.85">${valLbl}</text>`;
+      svg+=`<circle class="hp" cx="${cx}" cy="${cy}" r="3" fill="${s.color}"
+        onmousemove="showTT(event,'${labels[p.i]} · ${s.label}','${valLbl}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
+    });
     const last=pts[pts.length-1];
-    svg+=`<text x="${(W-PR+6).toFixed(1)}" y="${(sy(last.v)+4).toFixed(1)}" font-size="9" fill="${s.color}" font-weight="600">${s.label}</text>`;
+    svg+=`<text x="${(W-PR+6).toFixed(1)}" y="${(sy(last.v)+4).toFixed(1)}" font-size="10" fill="${s.color}" font-weight="700">${s.label}</text>`;
   });
   labels.forEach((lbl,i)=>{
     svg+=`<text x="${sx(i).toFixed(1)}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#3a5070">${lbl}</text>`;
   });
-  document.getElementById(svgId).setAttribute('height',H);
-  document.getElementById(svgId).innerHTML=svg;
+  const el=document.getElementById(svgId);
+  el.setAttribute('height',H);el.innerHTML=svg;
 }
 
 function buildCharts(){
   const nmvValsGrowth=growthData.find(m=>m.metric==='NMV').rows[0].v;
-  const ordVals=growthData.find(m=>m.metric==='Órdenes').rows[0].v;
+  const comprasVals=growthData.find(m=>m.metric==='Compras').rows[0].v;
   const visVals=demandaData.find(m=>m.metric==='Visitas').rows[0].v;
   const frItems=opsData.find(m=>m.metric==='Fill Rate Items').rows[0].v;
   const frCompras=opsData.find(m=>m.metric==='Fill Rate Compras').rows[0].v;
   drawLineArea('c-nmv',nmvValsGrowth,MONTHS,'#4d9ef0','money');
-  drawBars('c-ord',ordVals,MONTHS,'#34c47a','num');
+  drawBars('c-ord',comprasVals,MONTHS,'#34c47a','num');
   drawMultiLine('c-fr',[
     {vals:frItems,color:'#4d9ef0',label:'Items'},
     {vals:frCompras,color:'#f59e0b',label:'Compras'}
