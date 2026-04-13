@@ -308,8 +308,8 @@ tr:hover td.last{{background:#1a3060!important}}
       </div>
     </div>
     <div id="t-plan" style="display:none">
-      <div class="plan-hdr">Plan V2 <span class="plan-badge">En construcción</span></div>
-      <div class="plan-sub">Proximity Groceries · Targets vs Real</div>
+      <div class="plan-hdr">Plan V2 <span class="plan-badge">Forecast 2+10 2026</span></div>
+      <div class="plan-sub">Proximity Groceries MLA · Plan V2 vs Real &nbsp;·&nbsp; Plan disponible desde Ene'26</div>
       <div class="tbl"><table><thead id="h-plan"></thead><tbody id="b-plan"></tbody></table></div>
     </div>
   </div>
@@ -691,32 +691,31 @@ function buildCharts(){{
 }}
 
 // ── PLAN V2 ───────────────────────────────────────────────────────────────────
-// Source: OP Proximity Groceries 2026.xlsx (D&E mensual + Operations OP tabs)
+// Source: "Plan V2. Forecast 2+10 2026 | Proximity Groceries MLA.xlsx"
+// Tab "Plan V1 & V2" → NMV, Compras, APV | Tab "In Store | Consolidado"
+// Plan V2 starts from Ene'26 (hecho en enero con Oct-Dic como real)
 // Months: Oct'25, Nov'25, Dic'25, Ene'26, Feb'26, Mar'26
 const planData=[
   {{metric:'NMV',fmt:'money',isNegGood:false,
-    plan:[27884567,216105392,220752820,350000000,400000000,456998496],
+    plan:[null,null,null,175799372,196000000,332708333],
     real:[10451118,56806992,170234400,175439531,242175980,306868637]}},
   {{metric:'Compras',fmt:'num',isNegGood:false,
-    plan:[928,7194,7348,8351,9544,10904],
+    plan:[null,null,null,3103,3229,5709],
     real:[202,987,2927,3098,4244,5262]}},
-  {{metric:'Órdenes',fmt:'num',isNegGood:false,
-    plan:[4641,35968,36741,41756,47721,54521],
-    real:[1449,6836,17261,19825,26254,33162]}},
-  {{metric:'Visitas',fmt:'num',isNegGood:false,
-    plan:[18564,143871,146965,167025,190885,218086],
-    real:[5858,23194,72015,87194,107601,153449]}},
+  {{metric:'APV LC',fmt:'dollar',isNegGood:false,
+    plan:[null,null,null,56655,60700,58278],
+    real:[51738,57555,58160,56630,57063,58318]}},
   {{metric:'Fill Rate Items',fmt:'pct',isNegGood:false,
-    plan:[0.95,0.95,0.95,0.95,0.95,0.95],
+    plan:[null,null,null,0.95,0.95,0.95],
     real:[0.8958,0.9191,0.9051,0.9172,0.9123,0.8898]}},
   {{metric:'Fill Rate Compras',fmt:'pct',isNegGood:false,
-    plan:[0.72,0.72,0.72,0.72,0.72,0.72],
+    plan:[null,null,null,0.72,0.72,0.72],
     real:[0.6215,0.7217,0.6570,0.6436,0.6469,0.5930]}},
   {{metric:'On Time',fmt:'pct',isNegGood:false,
-    plan:[0.96,0.96,0.96,0.96,0.96,0.96],
+    plan:[null,null,null,0.96,0.96,0.96],
     real:[0.9645,0.9287,0.7897,0.8923,0.8082,0.8558]}},
   {{metric:'Cancelaciones',fmt:'pct',isNegGood:true,
-    plan:[0.03,0.03,0.03,0.03,0.03,0.03],
+    plan:[null,null,null,0.03,0.03,0.03],
     real:[0.0789,0.0519,0.0878,0.0510,0.0523,0.0668]}},
   {{metric:'NPS',fmt:'pp',isNegGood:false,
     plan:[null,null,0.53,0.53,0.53,0.53],
