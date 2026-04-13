@@ -705,21 +705,18 @@ const planData=[
   {{metric:'APV LC',fmt:'dollar',isNegGood:false,
     plan:[null,null,null,56655,60700,58278],
     real:[51738,57555,58160,56630,57063,58318]}},
-  {{metric:'Fill Rate Items',fmt:'pct',isNegGood:false,
-    plan:[null,null,null,0.95,0.95,0.95],
+  {{metric:'Fill Rate Items',sub:'sin reemplazos',fmt:'pct',isNegGood:false,
+    plan:[null,null,null,0.92,0.92,0.92],
     real:[0.8958,0.9191,0.9051,0.9172,0.9123,0.8898]}},
-  {{metric:'Fill Rate Compras',fmt:'pct',isNegGood:false,
-    plan:[null,null,null,0.72,0.72,0.72],
+  {{metric:'Fill Rate Compras',sub:'sin reemplazos',fmt:'pct',isNegGood:false,
+    plan:[null,null,null,0.65,0.65,0.65],
     real:[0.6215,0.7217,0.6570,0.6436,0.6469,0.5930]}},
   {{metric:'On Time',fmt:'pct',isNegGood:false,
     plan:[null,null,null,0.96,0.96,0.96],
     real:[0.9645,0.9287,0.7897,0.8923,0.8082,0.8558]}},
   {{metric:'Cancelaciones',fmt:'pct',isNegGood:true,
-    plan:[null,null,null,0.03,0.03,0.03],
+    plan:[null,null,null,0.05,0.05,0.05],
     real:[0.0789,0.0519,0.0878,0.0510,0.0523,0.0668]}},
-  {{metric:'NPS',fmt:'pp',isNegGood:false,
-    plan:[null,null,0.53,0.53,0.53,0.53],
-    real:[null,null,0.26,0.39,0.20,0.15]}},
 ];
 
 function buildPlan(){{
@@ -737,7 +734,8 @@ function buildPlan(){{
   planData.forEach(row=>{{
     // Plan row
     const trP=document.createElement('tr');
-    let hP=`<td class="metric left">${{row.metric}}</td>`;
+    const subLbl=row.sub?`<div style="font-size:9px;color:#3a5070;font-weight:400;margin-top:1px">${{row.sub}}</div>`:'';
+    let hP=`<td class="metric left">${{row.metric}}${{subLbl}}</td>`;
     hP+=`<td class="apert left" style="color:#3a5070;font-size:11px">◌ Plan V2</td>`;
     row.plan.forEach((v,i)=>{{
       const isLast=i===lastIdx;
@@ -749,7 +747,7 @@ function buildPlan(){{
     // Real row
     const trR=document.createElement('tr');
     let hR=`<td></td>`;
-    hR+=`<td class="apert-total left">● Real</td>`;
+    hR+=`<td class="apert-total left" style="font-size:11px">● Real</td>`;
     row.real.forEach((v,i)=>{{
       const isLast=i===lastIdx;
       const cls=isLast?'last':(i>=4?'hl':'');
