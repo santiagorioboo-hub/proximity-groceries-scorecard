@@ -76,7 +76,7 @@ tr:hover td.last{background:#1a3060!important}
       <div class="title">Proximity Groceries Scorecard</div>
       <div class="subtitle">Meses cerrados &nbsp;·&nbsp; Oct'25 → Mar'26 &nbsp;·&nbsp; Caballito · Scalabrini · Vicente Lopez · Villa Urquiza</div>
     </div>
-    <div class="upd">Actualizado: 10/04/2026</div>
+    <div class="upd">Actualizado: 13/04/2026</div>
   </div>
   <div class="tabs">
     <div class="tab active" onclick="switchTab('growth')">Growth</div>
@@ -505,40 +505,84 @@ function buildCharts(){
   drawBars('c-vis',visVals,MONTHS,'#a78bfa','num');
 }
 
-// ── PLAN ──────────────────────────────────────────────────────────────────────
+// ── PLAN V2 ───────────────────────────────────────────────────────────────────
+// Source: OP Proximity Groceries 2026.xlsx (D&E mensual + Operations OP tabs)
+// Months: Oct'25, Nov'25, Dic'25, Ene'26, Feb'26, Mar'26
 const planData=[
-  {metric:'NMV',fmt:'money',target:null,real:306868637},
-  {metric:'Órdenes',fmt:'num',target:null,real:33162},
-  {metric:'Compras',fmt:'num',target:null,real:5262},
-  {metric:'Fill Rate Items',fmt:'pct',target:null,real:0.8898},
-  {metric:'Fill Rate Compras',fmt:'pct',target:null,real:0.5930},
-  {metric:'On Time',fmt:'pct',target:null,real:0.8558},
-  {metric:'Cancelaciones',fmt:'pct',target:null,real:0.0668},
-  {metric:'Visitas',fmt:'num',target:null,real:153449},
-  {metric:'NPS',fmt:'pp',target:null,real:0.15},
+  {metric:'NMV',fmt:'money',isNegGood:false,
+    plan:[27884567,216105392,220752820,350000000,400000000,456998496],
+    real:[10451118,56806992,170234400,175439531,242175980,306868637]},
+  {metric:'Compras',fmt:'num',isNegGood:false,
+    plan:[928,7194,7348,8351,9544,10904],
+    real:[202,987,2927,3098,4244,5262]},
+  {metric:'Órdenes',fmt:'num',isNegGood:false,
+    plan:[4641,35968,36741,41756,47721,54521],
+    real:[1449,6836,17261,19825,26254,33162]},
+  {metric:'Visitas',fmt:'num',isNegGood:false,
+    plan:[18564,143871,146965,167025,190885,218086],
+    real:[5858,23194,72015,87194,107601,153449]},
+  {metric:'Fill Rate Items',fmt:'pct',isNegGood:false,
+    plan:[0.95,0.95,0.95,0.95,0.95,0.95],
+    real:[0.8958,0.9191,0.9051,0.9172,0.9123,0.8898]},
+  {metric:'Fill Rate Compras',fmt:'pct',isNegGood:false,
+    plan:[0.72,0.72,0.72,0.72,0.72,0.72],
+    real:[0.6215,0.7217,0.6570,0.6436,0.6469,0.5930]},
+  {metric:'On Time',fmt:'pct',isNegGood:false,
+    plan:[0.96,0.96,0.96,0.96,0.96,0.96],
+    real:[0.9645,0.9287,0.7897,0.8923,0.8082,0.8558]},
+  {metric:'Cancelaciones',fmt:'pct',isNegGood:true,
+    plan:[0.03,0.03,0.03,0.03,0.03,0.03],
+    real:[0.0789,0.0519,0.0878,0.0510,0.0523,0.0668]},
+  {metric:'NPS',fmt:'pp',isNegGood:false,
+    plan:[null,null,0.53,0.53,0.53,0.53],
+    real:[null,null,0.26,0.39,0.20,0.15]},
 ];
 
 function buildPlan(){
+  const lastIdx=MONTHS.length-1;
   document.getElementById('h-plan').innerHTML=`<tr>
-    <th class="left" style="min-width:200px"><span class="dt">Métrica</span></th>
-    <th><span class="rel">objetivo</span><span class="dt">Plan Mar'26</span></th>
-    <th class="hl"><span class="rel">real</span><span class="dt">Real Mar'26</span></th>
-    <th class="last"><span class="rel">diferencia</span><span class="dt">vs Plan</span></th>
-    <th><span class="dt">Notas</span></th></tr>`;
+    <th class="left" style="min-width:180px"><span class="dt">Métrica</span></th>
+    <th class="left" style="min-width:60px"><span class="dt">Apertura</span></th>
+    ${MONTHS.map((m,i)=>{
+      const isLast=i===lastIdx;
+      const cls=isLast?'last':(i>=4?'hl':'');
+      return`<th class="${cls}"><span class="rel">${relLabel(MONTHS,i)}</span><span class="dt">${m}</span></th>`;
+    }).join('')}
+    <th class="last"><span class="rel">vs plan</span><span class="dt">Mar'26</span></th></tr>`;
   const tb=document.getElementById('b-plan');tb.innerHTML='';
   planData.forEach(row=>{
-    const tr=document.createElement('tr');
-    const rv=fv(row.real,row.fmt);
-    const tv=row.target!=null?fv(row.target,row.fmt):'<span style="color:#2c3f5c">—</span>';
+    // Plan row
+    const trP=document.createElement('tr');
+    let hP=`<td class="metric left">${row.metric}</td>`;
+    hP+=`<td class="apert left" style="color:#3a5070;font-size:11px">◌ Plan V2</td>`;
+    row.plan.forEach((v,i)=>{
+      const isLast=i===lastIdx;
+      const cls=isLast?'last':(i>=4?'hl':'');
+      hP+=`<td class="${cls}" style="opacity:0.55;font-style:italic">${fv(v,row.fmt)}</td>`;
+    });
+    hP+=`<td class="last neu">—</td>`;
+    trP.innerHTML=hP;tb.appendChild(trP);
+    // Real row
+    const trR=document.createElement('tr');
+    let hR=`<td></td>`;
+    hR+=`<td class="apert-total left">● Real</td>`;
+    row.real.forEach((v,i)=>{
+      const isLast=i===lastIdx;
+      const cls=isLast?'last':(i>=4?'hl':'');
+      hR+=`<td class="${cls}">${fv(v,row.fmt)}</td>`;
+    });
+    // vs Plan March
+    const pm=row.plan[lastIdx],rm=row.real[lastIdx];
     let vs='<td class="last neu">—</td>';
-    if(row.target!=null){
-      const d=row.fmt==='pct'||row.fmt==='pp'?(row.real-row.target)*100:(row.real-row.target)/row.target*100;
-      const s=d>=0?'+':'';
-      const txt=row.fmt==='pct'||row.fmt==='pp'?s+d.toFixed(2)+'pp':s+d.toFixed(1)+'%';
-      vs=`<td class="last ${d>=0?'pos':'neg'}">${txt}</td>`;
+    if(pm!=null&&rm!=null){
+      const isPct=row.fmt==='pct'||row.fmt==='pp';
+      const d=isPct?(rm-pm)*100:(rm-pm)/pm*100;
+      const txt=(d>=0?'+':'')+d.toFixed(isPct?2:1)+(isPct?'pp':'%');
+      const good=row.isNegGood?d<=0:d>=0;
+      vs=`<td class="last ${good?'pos':'neg'}">${txt}</td>`;
     }
-    tr.innerHTML=`<td class="metric left">${row.metric}</td><td>${tv}</td><td class="hl">${rv}</td>${vs}<td style="color:#2c3f5c;font-size:11px">—</td>`;
-    tb.appendChild(tr);
+    hR+=vs;
+    trR.innerHTML=hR;tb.appendChild(trR);
   });
 }
 
