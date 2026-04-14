@@ -76,12 +76,12 @@ tr:hover td.last{background:#1a3060!important}
       <div class="title">Proximity Groceries Scorecard</div>
       <div class="subtitle">Meses cerrados &nbsp;·&nbsp; Oct'25 → Mar'26 &nbsp;·&nbsp; Caballito · Scalabrini · Vicente Lopez · Villa Urquiza</div>
     </div>
-    <div class="upd">Actualizado: 13/04/2026</div>
+    <div class="upd">Actualizado: 14/04/2026</div>
   </div>
   <div class="tabs">
     <div class="tab active" onclick="switchTab('growth')">Growth</div>
     <div class="tab" onclick="switchTab('ops')">Ops</div>
-    <div class="tab" onclick="switchTab('demanda')">Demanda</div>
+    <div class="tab" onclick="switchTab('buyers')">Buyers</div>
     <div class="tab" onclick="switchTab('nps')">NPS</div>
     <div class="tab" onclick="switchTab('pl')">P&amp;L</div>
     <div class="tab" onclick="switchTab('charts')">Gráficos</div>
@@ -102,7 +102,18 @@ tr:hover td.last{background:#1a3060!important}
       <table><thead id="hg"></thead><tbody id="bg"></tbody></table>
     </div>
     <div id="t-ops" style="display:none"><table><thead id="ho"></thead><tbody id="bo"></tbody></table></div>
-    <div id="t-demanda" style="display:none"><table><thead id="hd"></thead><tbody id="bd"></tbody></table></div>
+    <div id="t-buyers" style="display:none">
+      <table><thead id="hbu"></thead><tbody id="bbu"></tbody></table>
+      <div style="margin-top:20px">
+        <div class="charts-grid" style="grid-template-columns:1fr 1fr">
+          <div class="chart-card"><div class="chart-title">Buyers por Género</div><svg id="c-gen" width="100%" style="overflow:visible"></svg></div>
+          <div class="chart-card"><div class="chart-title">NSE por Tienda</div><svg id="c-nse" width="100%" style="overflow:visible"></svg></div>
+        </div>
+        <div style="margin-top:16px">
+          <div class="chart-card"><div class="chart-title">Buyers por Rango Etario</div><svg id="c-edad" width="100%" style="overflow:visible"></svg></div>
+        </div>
+      </div>
+    </div>
     <div id="t-nps" style="display:none"><table><thead id="hn"></thead><tbody id="bn"></tbody></table></div>
     <div id="t-pl" style="display:none">
       <div class="subtabs">
@@ -135,7 +146,11 @@ const MONTHS=["Oct'25", "Nov'25", "Dic'25", "Ene'26", "Feb'26", "Mar'26"];
 const MONTHS_NPS=["Dic'25", "Ene'26", "Feb'26", "Mar'26"];
 const growthData=[{"metric": "NMV", "fmt": "money", "rows": [{"s": "Total", "v": [10451118, 56806992, 170234400, 175439531, 242175980, 306868637]}, {"s": "Caballito", "v": [null, null, 34055079, 44895424, 57731083, 68029249]}, {"s": "Scalabrini", "v": [10451118, 34150904, 56456356, 50747817, 69074828, 90765907]}, {"s": "Vicente Lopez", "v": [null, 22656087, 51330633, 46035027, 69560421, 91646470]}, {"s": "Villa Urquiza", "v": [null, null, 28392332, 33761265, 45809648, 56480628]}]}, {"metric": "NSI", "fmt": "num", "rows": [{"s": "Total", "v": [3075, 16231, 43115, 46662, 63266, 78175]}, {"s": "Caballito", "v": [null, null, 9054, 12562, 16804, 19118]}, {"s": "Scalabrini", "v": [3075, 9912, 14894, 13275, 17661, 23740]}, {"s": "Vicente Lopez", "v": [null, 6319, 12180, 11289, 16385, 20329]}, {"s": "Villa Urquiza", "v": [null, null, 6988, 9537, 12416, 15033]}]}, {"metric": "Compras", "fmt": "num", "rows": [{"s": "Total", "v": [202, 987, 2927, 3098, 4244, 5262]}, {"s": "Caballito", "v": [null, null, 656, 837, 1122, 1309]}, {"s": "Scalabrini", "v": [202, 593, 946, 885, 1186, 1556]}, {"s": "Vicente Lopez", "v": [null, 394, 843, 794, 1151, 1438]}, {"s": "Villa Urquiza", "v": [null, null, 482, 582, 785, 961]}]}, {"metric": "Órdenes", "fmt": "num", "rows": [{"s": "Total", "v": [1449, 6836, 17261, 19825, 26254, 33162]}, {"s": "Caballito", "v": [null, null, 3652, 5241, 7075, 7866]}, {"s": "Scalabrini", "v": [1449, 4144, 5688, 5588, 7063, 9899]}, {"s": "Vicente Lopez", "v": [null, 2692, 4968, 4858, 6839, 8649]}, {"s": "Villa Urquiza", "v": [null, null, 2955, 4138, 5277, 6776]}]}, {"metric": "APV LC", "fmt": "dollar", "rows": [{"s": "Total", "v": [51738, 57555, 58160, 56630, 57063, 58318]}, {"s": "Caballito", "v": [null, null, 51913, 53638, 51454, 52059]}, {"s": "Scalabrini", "v": [51738, 57590, 59679, 57342, 58242, 58391]}, {"s": "Vicente Lopez", "v": [null, 57503, 60890, 57979, 60435, 63732]}, {"s": "Villa Urquiza", "v": [null, null, 58905, 58009, 58356, 58773]}]}, {"metric": "NASP LC", "fmt": "dollar", "rows": [{"s": "Total", "v": [3399, 3500, 3948, 3760, 3828, 3925]}, {"s": "Caballito", "v": [null, null, 3761, 3574, 3436, 3564]}, {"s": "Scalabrini", "v": [3399, 3445, 3791, 3823, 3911, 3827]}, {"s": "Vicente Lopez", "v": [null, 3585, 4214, 4078, 4245, 4508]}, {"s": "Villa Urquiza", "v": [null, null, 4063, 3540, 3690, 3757]}]}, {"metric": "CVR", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [null, 0.0273, 0.0279, 0.0275, 0.0273, 0.0201]}]}, {"metric": "NSI/Cart", "fmt": "dec", "rows": [{"s": "Total", "v": [15.22, 16.44, 14.73, 15.06, 14.91, 14.86]}, {"s": "Caballito", "v": [null, null, 14.0, 15.0, 15.0, 15.0]}, {"s": "Scalabrini", "v": [15.0, 17.0, 16.0, 15.0, 15.0, 15.0]}, {"s": "Vicente Lopez", "v": [null, 16.0, 14.0, 14.0, 14.0, 15.0]}, {"s": "Villa Urquiza", "v": [null, null, 14.0, 16.0, 16.0, 16.0]}]}, {"metric": "Stores", "fmt": "num", "rows": [{"s": "Total", "v": [1, 2, 4, 4, 4, 4]}]}, {"metric": "Orders/Purchase", "fmt": "dec", "rows": [{"s": "Total", "v": [7.17, 6.93, 5.9, 6.4, 6.19, 6.3]}]}];
 const opsData=[{"metric": "Fill Rate Items", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.8958, 0.9191, 0.9051, 0.9172, 0.9123, 0.8898]}]}, {"metric": "Fill Rate Items c/reemplazos", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.9135, 0.9246, 0.9138, 0.9289, 0.9225, 0.9013]}]}, {"metric": "Fill Rate Compras", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.6215, 0.7217, 0.657, 0.6436, 0.6469, 0.593]}]}, {"metric": "Fill Rate Compras c/reemplazos", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.6776, 0.7549, 0.6876, 0.6882, 0.6795, 0.6254]}]}, {"metric": "On Time", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.9645, 0.9287, 0.7897, 0.8923, 0.8082, 0.8558]}]}, {"metric": "Cancelaciones", "fmt": "pct", "isPP": true, "isNegGood": true, "rows": [{"s": "Total", "v": [0.0789, 0.0519, 0.0878, 0.051, 0.0523, 0.0668]}]}];
-const demandaData=[{"metric": "Visitas", "fmt": "num", "rows": [{"s": "Total", "v": [5858, 23194, 72015, 87194, 107601, 153449]}]}, {"metric": "Buyers Mes Actual", "fmt": "num", "rows": [{"s": "Total", "v": [185, 873, 2501, 2563, 3539, 4226]}, {"s": "Churns", "v": [0, 151, 743, 2197, 2088, 2881]}, {"s": "Repeated", "v": [0, 34, 130, 304, 475, 658]}, {"s": "Buyer Mes Anterior", "v": [0, 185, 873, 2501, 2563, 3539]}]}];
+const demandaData=[{"metric": "Buyers", "fmt": "num", "rows": [{"s": "Total", "v": [188, 878, 2537, 2597, 3599, 4293]}]}, {"metric": "Frecuencia", "sub": "Compras / Buyers", "fmt": "dec", "rows": [{"s": "Total", "v": [1.07, 1.12, 1.15, 1.19, 1.18, 1.23]}]}];
+const visitasVals=[5858, 23194, 72015, 87194, 107601, 153449];
+const buyersGenero=[{"name": "Femenino", "vals": [107, 492, 1447, 1445, 2045, 2465]}, {"name": "Masculino", "vals": [67, 326, 962, 1013, 1385, 1595]}, {"name": "Otro", "vals": [14, 60, 128, 139, 169, 233]}];
+const buyersEdad=[{"name": "30-44", "vals": [63, 304, 876, 895, 1326, 1487]}, {"name": "45-59", "vals": [61, 269, 767, 762, 1029, 1277]}, {"name": "60+", "vals": [31, 147, 498, 529, 660, 810]}, {"name": "18-29", "vals": [17, 89, 235, 242, 386, 434]}, {"name": "Sin clasif.", "vals": [16, 69, 161, 169, 198, 285]}];
+const buyersNseTienda=[{"tienda": "Caballito", "PLATINUM": 1168, "GOLD": 962, "SILVER": 529, "BRONZE": 361}, {"tienda": "Scalabrini", "PLATINUM": 1717, "GOLD": 1073, "SILVER": 670, "BRONZE": 587}, {"tienda": "Vic. Lopez", "PLATINUM": 1745, "GOLD": 1002, "SILVER": 525, "BRONZE": 363}, {"tienda": "Villa Urquiza", "PLATINUM": 870, "GOLD": 662, "SILVER": 352, "BRONZE": 235}];
 const npsData=[{"metric": "NPS", "fmt": "pp", "isPP": true, "rows": [{"s": "Total", "v": [0.26, 0.39, 0.2, 0.15]}, {"s": "Scalabrini", "v": [0.14, 0.48, 0.25, 0.09]}, {"s": "Vicente Lopez", "v": [0.21, 0.19, -0.05, 0.27]}, {"s": "Caballito", "v": [0.16, 0.45, 0.2, 0.06]}, {"s": "Villa Urquiza", "v": [0.27, 0.44, 0.37, 0.17]}]}];
 const nmvVals=[10528449, 57103789, 171803278, 177394590, 244905554, 312119068];
 const plLines=[{"metric": "NMV", "isNmv": true, "children": []}, {"metric": "Net Variable Fee", "v": [0.083, 0.0831, 0.0856, 0.0825, 0.0838, 0.0845], "children": [{"metric": "Net Fix Fees", "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"metric": "Promotions", "v": [0.0, -0.0002, 0.0, -0.0003, -0.0001, -0.0001]}]}, {"metric": "Product Monetization", "v": [0.083, 0.0829, 0.0856, 0.0822, 0.0838, 0.0844], "children": [{"metric": "Financing gross", "v": [0.012, 0.0057, 0.0124, 0.0096, 0.0081, 0.0077]}, {"metric": "Financing Cost", "v": [-0.0159, -0.0143, -0.015, -0.0128, -0.011, -0.0124]}, {"metric": "Buyer Real Revenue", "v": [0.034, 0.0288, 0.0282, 0.0285, 0.0293, 0.0279]}, {"metric": "Seller Real Revenue", "v": [0.0012, 0.0001, 0.0004, 0.0001, 0.0001, 0.0001]}, {"metric": "Advertising", "v": [0.0008, 0.0031, 0.0034, 0.0017, 0.0015, 0.0034]}, {"metric": "Sales Taxes", "v": [-0.0054, -0.006, -0.0062, -0.0067, -0.0061, -0.0048]}]}, {"metric": "Net Monetization", "v": [0.1097, 0.1003, 0.1089, 0.1027, 0.1058, 0.1064], "children": [{"metric": "Shipping Distribution Cost", "v": [-0.0626, -0.0534, -0.0529, -0.0542, -0.0571, -0.0569]}, {"metric": "Shipping Ops Variable", "v": [-0.0001, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"metric": "Collection Fees", "v": [-0.0097, -0.0108, -0.0119, -0.0098, -0.0091, -0.009]}, {"metric": "Chargebacks", "v": [0.0, 0.0, -0.0015, -0.0001, -0.0061, -0.0003]}, {"metric": "Bad Debt", "v": [0.0001, -0.0007, 0.0005, -0.0003, -0.0012, -0.0002]}, {"metric": "BPP", "v": [-0.0231, -0.0056, -0.0066, -0.0033, -0.0034, -0.0058]}, {"metric": "Marketing Performance", "v": [-0.0032, -0.0033, -0.0031, -0.0032, -0.0031, -0.0036]}, {"metric": "Coupons Mkt", "v": [0.0, -0.0016, -0.0013, -0.0016, -0.003, -0.0026]}, {"metric": "CX + Hosting + Fraud Prev Variable", "v": [-0.0138, -0.01, -0.01, -0.0107, -0.011, -0.0161]}]}, {"metric": "Variable Contribution", "v": [-0.003, 0.0146, 0.0217, 0.0191, 0.0113, 0.0116], "children": [{"metric": "CX + Hosting + Fraud Prev Fix", "v": [-0.0039, -0.0033, -0.004, -0.0035, -0.0037, -0.0038]}]}, {"metric": "Direct Contribution", "v": [-0.0103, 0.0081, 0.0129, 0.0137, 0.0054, 0.0056], "children": []}];
@@ -351,13 +366,14 @@ function buildVertBody(){
   });
 }
 
-window.tog=function(bid,mi){EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildBody(bid,bid==='bg'?growthData:bid==='bo'?opsData:bid==='bd'?demandaData:npsData,bid==='bn'?MONTHS_NPS:MONTHS,bid==='bn'?3:5,bid==='bn'?3:5);};
+window.tog=function(bid,mi){EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildBody(bid,bid==='bg'?growthData:bid==='bo'?opsData:bid==='bbu'?demandaData:npsData,bid==='bn'?MONTHS_NPS:MONTHS,bid==='bn'?3:5,bid==='bn'?3:5);};
 window.togPL=function(bid,li){EXP[bid+'_'+li]=!EXP[bid+'_'+li];if(bid==='bpt')buildPLBody('bpt',plLines,nmvVals,MONTHS,false);else buildPLBody('bpti',plTiendas,tiendasNmv,tiendasNames,true);};
 
 window.switchTab=function(tab){
-  ['growth','ops','demanda','nps','pl','charts','plan'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','demanda','nps','pl','charts','plan'][i]===tab));
+  ['growth','ops','buyers','nps','pl','charts','plan'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','buyers','nps','pl','charts','plan'][i]===tab));
   if(tab==='charts')buildCharts();
+  if(tab==='buyers')buildBuyersCharts();
   if(tab==='plan')buildPlan();
 };
 
@@ -493,7 +509,7 @@ function drawMultiLine(svgId,seriesList,labels){
 function buildCharts(){
   const nmvValsGrowth=growthData.find(m=>m.metric==='NMV').rows[0].v;
   const comprasVals=growthData.find(m=>m.metric==='Compras').rows[0].v;
-  const visVals=demandaData.find(m=>m.metric==='Visitas').rows[0].v;
+  const visVals=visitasVals;
   const frItems=opsData.find(m=>m.metric==='Fill Rate Items').rows[0].v;
   const frCompras=opsData.find(m=>m.metric==='Fill Rate Compras').rows[0].v;
   drawLineArea('c-nmv',nmvValsGrowth,MONTHS,'#4d9ef0','money');
@@ -503,6 +519,57 @@ function buildCharts(){
     {vals:frCompras,color:'#f59e0b',label:'Compras'}
   ],MONTHS);
   drawBars('c-vis',visVals,MONTHS,'#a78bfa','num');
+}
+
+// ── STACKED BAR ───────────────────────────────────────────────────────────────
+function drawStackedBar(svgId,series,labels,colors){
+  const W=getW(svgId),H=220,PL=52,PR=90,PT=28,PB=32;
+  const cW=W-PL-PR,cH=H-PT-PB;
+  const N=labels.length,gap=6,bW=(cW-gap*(N-1))/N;
+  const totals=labels.map((_,i)=>series.reduce((s,ser)=>s+(ser.vals[i]||0),0));
+  const mxY=Math.max(...totals)*1.12||1;
+  let svg='';
+  for(let g=0;g<=3;g++){
+    const yg=PT+cH*g/3;const val=mxY*(1-g/3);
+    svg+=`<line x1="${PL}" y1="${yg.toFixed(1)}" x2="${W-PR}" y2="${yg.toFixed(1)}" stroke="#1c2a3e" stroke-width="1"/>`;
+    svg+=`<text x="${PL-5}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#3a5070">${fmtChart(val,'num')}</text>`;
+  }
+  labels.forEach((lbl,i)=>{
+    const x=PL+i*(bW+gap);
+    let yOff=PT+cH;
+    const total=totals[i];
+    series.forEach((ser,si)=>{
+      const v=ser.vals[i]||0;if(!v)return;
+      const bH=v/mxY*cH;yOff-=bH;
+      const col=colors[si];
+      svg+=`<rect class="hp" x="${x.toFixed(1)}" y="${yOff.toFixed(1)}" width="${bW.toFixed(1)}" height="${bH.toFixed(1)}" rx="2" fill="${col}"
+        onmousemove="showTT(event,'${lbl} · ${ser.name}','${fmtChart(v,'num')}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
+    });
+    const topY=PT+cH-(total/mxY*cH);
+    svg+=`<text x="${(x+bW/2).toFixed(1)}" y="${(topY-5).toFixed(1)}" text-anchor="middle" font-size="9" fill="#8099b8">${fmtChart(total,'num')}</text>`;
+    svg+=`<text x="${(x+bW/2).toFixed(1)}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#3a5070">${lbl}</text>`;
+  });
+  series.forEach((ser,si)=>{
+    const ly=PT+si*16;
+    svg+=`<rect x="${W-PR+8}" y="${(ly-8).toFixed(1)}" width="9" height="9" rx="2" fill="${colors[si]}"/>`;
+    svg+=`<text x="${W-PR+21}" y="${(ly+1).toFixed(1)}" font-size="9" fill="#8099b8">${ser.name}</text>`;
+  });
+  const el=document.getElementById(svgId);el.setAttribute('height',H);el.innerHTML=svg;
+}
+
+function buildBuyersCharts(){
+  // Género (stacked by month)
+  const genColors=['#ec4899','#3b82f6','#6b7280'];
+  drawStackedBar('c-gen',buyersGenero,MONTHS,genColors);
+  // NSE por Tienda (stacked by tienda)
+  const tiendas=buyersNseTienda.map(d=>d.tienda);
+  const nseKeys=['PLATINUM','GOLD','SILVER','BRONZE'];
+  const nseColors=['#f59e0b','#4d9ef0','#34c47a','#a78bfa'];
+  const nseSeries=nseKeys.map((k,ki)=>{return{name:k,vals:buyersNseTienda.map(d=>d[k]||0)}});
+  drawStackedBar('c-nse',nseSeries,tiendas,nseColors);
+  // Rango Etario (stacked by month)
+  const edadColors=['#4d9ef0','#34c47a','#f59e0b','#e05252','#6b7280'];
+  drawStackedBar('c-edad',buyersEdad,MONTHS,edadColors);
 }
 
 // ── PLAN V2 ───────────────────────────────────────────────────────────────────
@@ -588,8 +655,8 @@ function rebuildAll(){
   buildBody('bg',growthData,MONTHS,4,5);
   buildHead('ho',MONTHS,4);
   buildBody('bo',opsData,MONTHS,4,5);
-  buildHead('hd',MONTHS,4);
-  buildBody('bd',demandaData,MONTHS,4,5);
+  buildHead('hbu',MONTHS,4);
+  buildBody('bbu',demandaData,MONTHS,4,5);
   buildHead('hn',MONTHS_NPS,2);
   buildBody('bn',npsData,MONTHS_NPS,2,3);
   buildPLHead('hpt',MONTHS,false);
