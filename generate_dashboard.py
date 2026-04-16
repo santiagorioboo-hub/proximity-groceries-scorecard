@@ -79,14 +79,38 @@ ops_data = [
   {'metric':'Cancelaciones','fmt':'pct','isPP':True,'isNegGood':True,'rows':[{'s':'Total','v':[0.0789,0.0519,0.0878,0.0510,0.0523,0.0668]}]},
 ]
 
+# Buyers tab: Visitas + Buyers mensuales + Frecuencia
 demanda_data = [
   {'metric':'Visitas','fmt':'num','rows':[{'s':'Total','v':[5858,23194,72015,87194,107601,153449]}]},
-  {'metric':'Buyers Mes Actual','fmt':'num','rows':[
-    {'s':'Total','v':[185,873,2501,2563,3539,4226]},
-    {'s':'Churns','v':[0,151,743,2197,2088,2881]},
-    {'s':'Repeated','v':[0,34,130,304,475,658]},
-    {'s':'Buyer Mes Anterior','v':[0,185,873,2501,2563,3539]},
-  ]},
+  {'metric':'Buyers','fmt':'num','rows':[{'s':'Total','v':[188,878,2537,2597,3599,4293]}]},
+  {'metric':'Frecuencia','sub':'Compras / Buyers','fmt':'dec','rows':[{'s':'Total','v':[1.07,1.12,1.15,1.19,1.18,1.23]}]},
+]
+
+# YTD unique buyers Jan-Mar 2026 (sum of monthly distinct buyers, q3_buyers_ytd.csv)
+# Jan: 2597 | Feb: 3599 | Mar: 4293 → sum Q1 = 10,489
+# Note: includes cross-month repeat buyers. Replace with true DISTINCT if needed.
+buyers_ytd = 10489
+
+# Buyers chart data (from BigQuery)
+buyers_genero = [
+  {'name':'Femenino','vals':[107,492,1447,1445,2045,2465]},
+  {'name':'Masculino','vals':[67,326,962,1013,1385,1595]},
+  {'name':'Otro','vals':[14,60,128,139,169,233]},
+]
+buyers_edad = [
+  {'name':'30-44','vals':[63,304,876,895,1326,1487]},
+  {'name':'45-59','vals':[61,269,767,762,1029,1277]},
+  {'name':'60+','vals':[31,147,498,529,660,810]},
+  {'name':'18-29','vals':[17,89,235,242,386,434]},
+  {'name':'Sin clasif.','vals':[16,69,161,169,198,285]},
+]
+visitas_vals = [5858,23194,72015,87194,107601,153449]
+
+buyers_nse_tienda = [
+  {'tienda':'Caballito','PLATINUM':1168,'GOLD':962,'SILVER':529,'BRONZE':361},
+  {'tienda':'Scalabrini','PLATINUM':1717,'GOLD':1073,'SILVER':670,'BRONZE':587},
+  {'tienda':'Vic. Lopez','PLATINUM':1745,'GOLD':1002,'SILVER':525,'BRONZE':363},
+  {'tienda':'Villa Urquiza','PLATINUM':870,'GOLD':662,'SILVER':352,'BRONZE':235},
 ]
 
 nps_data = [
@@ -132,7 +156,6 @@ pl_lines = [
   {'metric':'Direct Contribution','v':[-0.0103,0.0081,0.0129,0.0137,0.0054,0.0056],'children':[]},
 ]
 
-# P&L by Tienda (total, not monthly - shown as cross-section)
 tiendas_names = ['Caballito','Palermo\n(Scalabrini)','Vicente Lopez','Villa Urquiza']
 tiendas_nmv   = [69362977, 93016605, 92558674, 57180812]
 pl_tiendas = [
@@ -165,7 +188,6 @@ pl_tiendas = [
   {'metric':'Direct Contribution','v':[0.00977,0.00895,0.00795,-0.00487],'children':[]},
 ]
 
-# P&L Verticales (top categories)
 verticals = [
   {'v':'CPG','nmv':300826500,'pm_pct':0.0838,'vc_pct':0.0109,'dc_pct':0.0049},
   {'v':'Beauty','nmv':8830423,'pm_pct':0.1001,'vc_pct':0.0664,'dc_pct':0.0607},
@@ -191,66 +213,70 @@ html = f"""<!DOCTYPE html>
 <title>Proximity Groceries Scorecard</title>
 <style>
 *{{box-sizing:border-box;margin:0;padding:0}}
-body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0b1220;padding:24px;color:#d0d8e8}}
-.card{{background:#111827;border-radius:14px;padding:24px 28px;box-shadow:0 4px 24px rgba(0,0,0,0.5);max-width:1300px;margin:0 auto;border:1px solid #1c2a3e}}
+body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;padding:24px;color:#1e293b}}
+.card{{background:#ffffff;border-radius:14px;padding:24px 28px;box-shadow:0 2px 12px rgba(0,0,0,0.06);max-width:1300px;margin:0 auto;border:1px solid #e2e8f0}}
 .hdr{{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.1rem}}
-.title{{font-size:18px;font-weight:700;color:#e8edf5;margin-bottom:3px}}
-.subtitle{{font-size:12px;color:#4d6180}}
-.upd{{font-size:11px;color:#3a5070;text-align:right;padding-top:2px}}
-.tabs{{display:flex;gap:2px;border-bottom:1.5px solid #1c2a3e;margin-bottom:1.2rem;flex-wrap:wrap}}
-.tab{{padding:8px 22px;font-size:13px;cursor:pointer;border-bottom:2.5px solid transparent;color:#4d6180;font-weight:500;transition:all .15s;margin-bottom:-1.5px}}
-.tab.active{{color:#4d9ef0;border-bottom-color:#4d9ef0;font-weight:700}}
-.tab:hover{{color:#a0b4cc}}
+.title{{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:3px}}
+.subtitle{{font-size:12px;color:#64748b}}
+.upd{{font-size:11px;color:#94a3b8;text-align:right;padding-top:2px}}
+.tabs{{display:flex;gap:2px;border-bottom:1.5px solid #e2e8f0;margin-bottom:1.2rem;flex-wrap:wrap}}
+.tab{{padding:8px 22px;font-size:13px;cursor:pointer;border-bottom:2.5px solid transparent;color:#64748b;font-weight:500;transition:all .15s;margin-bottom:-1.5px}}
+.tab.active{{color:#2563eb;border-bottom-color:#2563eb;font-weight:700}}
+.tab:hover{{color:#334155}}
 .subtabs{{display:flex;gap:6px;margin-bottom:1rem}}
-.subtab{{padding:4px 14px;font-size:12px;cursor:pointer;border-radius:20px;color:#4d6180;border:1px solid #1c2a3e;font-weight:500;background:#0b1220}}
-.subtab.active{{background:rgba(77,158,240,0.15);color:#4d9ef0;border-color:#4d9ef0;font-weight:600}}
+.subtab{{padding:4px 14px;font-size:12px;cursor:pointer;border-radius:20px;color:#64748b;border:1px solid #e2e8f0;font-weight:500;background:#f8fafc}}
+.subtab.active{{background:rgba(37,99,235,0.08);color:#2563eb;border-color:#2563eb;font-weight:600}}
 .filter-bar{{display:flex;align-items:center;gap:8px;margin-bottom:14px}}
-.filter-lbl{{font-size:11px;color:#4d6180;font-weight:500}}
-.fsel{{background:#0b1220;color:#c0cedd;border:1px solid #1c2a3e;border-radius:7px;padding:5px 28px 5px 10px;font-size:12px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234d6180'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;font-family:inherit;transition:border-color .15s}}
-.fsel:hover,.fsel:focus{{border-color:#4d9ef0;color:#e8edf5}}
-.fsel option{{background:#111827;color:#c0cedd}}
+.filter-lbl{{font-size:11px;color:#64748b;font-weight:500}}
+.fsel{{background:#ffffff;color:#334155;border:1px solid #e2e8f0;border-radius:7px;padding:5px 28px 5px 10px;font-size:12px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;font-family:inherit;transition:border-color .15s}}
+.fsel:hover,.fsel:focus{{border-color:#2563eb;color:#0f172a}}
+.fsel option{{background:#ffffff;color:#334155}}
 .tbl{{overflow-x:auto}}
 table{{width:100%;border-collapse:collapse;font-size:12px;min-width:920px}}
-th{{background:#0a1018;color:#8099b8;font-weight:600;padding:0 10px;text-align:right;white-space:nowrap;font-size:11px;letter-spacing:.02em;line-height:1.3}}
-th .rel{{font-size:9px;color:#3a5070;font-weight:400;display:block;margin-bottom:2px;letter-spacing:.04em}}
+th{{background:#f8fafc;color:#64748b;font-weight:600;padding:0 10px;text-align:right;white-space:nowrap;font-size:11px;letter-spacing:.02em;line-height:1.3}}
+th .rel{{font-size:9px;color:#94a3b8;font-weight:400;display:block;margin-bottom:2px;letter-spacing:.04em}}
 th .dt{{display:block;padding:6px 0}}
 th.left{{text-align:left}}
-th.hl{{background:#0d1e36}}
-th.last{{background:#0f2244;color:#6db3f5}}
-td{{padding:6px 10px;text-align:right;border-bottom:1px solid #161f2e;color:#c0cedd;white-space:nowrap}}
+th.hl{{background:#eff6ff}}
+th.last{{background:#dbeafe;color:#1d4ed8}}
+td{{padding:6px 10px;text-align:right;border-bottom:1px solid #f1f5f9;color:#334155;white-space:nowrap}}
 td.left{{text-align:left}}
-td.metric{{font-weight:700;color:#e8edf5}}
-td.apert{{font-size:11px;color:#4d6180}}
-td.apert-total{{font-size:11px;color:#4d9ef0;font-weight:600}}
-td.store{{color:#4d6180;padding-left:26px;font-size:11px}}
-td.hl{{background:rgba(77,158,240,0.06);font-weight:500}}
-td.last{{background:rgba(77,158,240,0.10);font-weight:600;color:#d8e8f8}}
-td.store.hl{{background:rgba(77,158,240,0.03)}}
-td.store.last{{background:rgba(77,158,240,0.06)}}
-td.main{{font-weight:700;background:#0d1725;color:#e8edf5}}
-td.main.hl{{background:rgba(77,158,240,0.08)}}
-td.main.last{{background:rgba(77,158,240,0.14);color:#6db3f5}}
-td.child{{color:#4d6180;background:#0f1924}}
-td.child.hl{{background:rgba(77,158,240,0.03)}}
-td.child.last{{background:rgba(77,158,240,0.06)}}
-td.pos{{color:#34c47a;font-weight:700}}
-td.neg{{color:#e05252;font-weight:700}}
-td.neu{{color:#2c3f5c}}
-tr:hover td{{background:#141e2e!important}}
-tr:hover td.last{{background:#1a3060!important}}
-.tog{{font-size:9px;cursor:pointer;color:#2c3f5c;margin-right:4px;user-select:none}}
-.tog:hover{{color:#4d9ef0}}
+td.metric{{font-weight:700;color:#0f172a}}
+td.apert{{font-size:11px;color:#94a3b8}}
+td.apert-total{{font-size:11px;color:#2563eb;font-weight:600}}
+td.store{{color:#94a3b8;padding-left:26px;font-size:11px}}
+td.hl{{background:rgba(59,130,246,0.04);font-weight:500}}
+td.last{{background:rgba(59,130,246,0.10);font-weight:600;color:#1e40af}}
+td.store.hl{{background:rgba(59,130,246,0.02)}}
+td.store.last{{background:rgba(59,130,246,0.05)}}
+td.main{{font-weight:700;background:#f8fafc;color:#0f172a}}
+td.main.hl{{background:rgba(59,130,246,0.05)}}
+td.main.last{{background:rgba(59,130,246,0.12);color:#1e40af}}
+td.child{{color:#94a3b8;background:#fafafa}}
+td.child.hl{{background:rgba(59,130,246,0.02)}}
+td.child.last{{background:rgba(59,130,246,0.04)}}
+td.pos{{color:#16a34a;font-weight:700}}
+td.neg{{color:#dc2626;font-weight:700}}
+td.neu{{color:#94a3b8}}
+tr:hover td{{background:#f0f9ff!important}}
+tr:hover td.last{{background:#dbeafe!important}}
+.tog{{font-size:9px;cursor:pointer;color:#cbd5e1;margin-right:4px;user-select:none}}
+.tog:hover{{color:#2563eb}}
 .charts-grid{{display:grid;grid-template-columns:1fr 1fr;gap:16px}}
 @media(max-width:800px){{.charts-grid{{grid-template-columns:1fr}}}}
-.chart-card{{background:#0d1725;border:1px solid #1c2a3e;border-radius:10px;padding:18px 20px}}
-.chart-title{{font-size:12px;font-weight:700;color:#8099b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}}
-.chart-sub{{font-size:11px;color:#3a5070;margin-top:6px}}
-.plan-hdr{{font-size:15px;font-weight:700;color:#e8edf5;margin-bottom:4px}}
-.plan-sub{{font-size:12px;color:#4d6180;margin-bottom:18px}}
-.plan-badge{{display:inline-block;background:rgba(77,158,240,0.18);color:#4d9ef0;border-radius:5px;padding:2px 9px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}}
-#tt{{position:fixed;background:#1a2a42;border:1px solid #2d4a6e;border-radius:8px;padding:7px 12px;font-size:12px;color:#e8edf5;pointer-events:none;display:none;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,0.5);white-space:nowrap}}
-#tt .tt-lbl{{font-size:10px;color:#4d9ef0;font-weight:600;margin-bottom:2px}}
-#tt .tt-val{{font-size:13px;font-weight:700;color:#e8edf5}}
+.chart-card{{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px}}
+.chart-title{{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}}
+.plan-hdr{{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px}}
+.plan-sub{{font-size:12px;color:#64748b;margin-bottom:18px}}
+.plan-badge{{display:inline-block;background:rgba(37,99,235,0.10);color:#2563eb;border-radius:5px;padding:2px 9px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}}
+.kpi-strip{{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}}
+.kpi-box{{background:#f0f9ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 20px;min-width:190px}}
+.kpi-box-lbl{{font-size:10px;font-weight:600;color:#2563eb;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}}
+.kpi-box-val{{font-size:24px;font-weight:700;color:#0f172a;line-height:1}}
+.kpi-box-sub{{font-size:10px;color:#94a3b8;margin-top:3px}}
+#tt{{position:fixed;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:7px 12px;font-size:12px;color:#f8fafc;pointer-events:none;display:none;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,0.25);white-space:nowrap}}
+#tt .tt-lbl{{font-size:10px;color:#60a5fa;font-weight:600;margin-bottom:2px}}
+#tt .tt-val{{font-size:13px;font-weight:700;color:#f8fafc}}
 </style>
 </head>
 <body>
@@ -266,7 +292,7 @@ tr:hover td.last{{background:#1a3060!important}}
   <div class="tabs">
     <div class="tab active" onclick="switchTab('growth')">Growth</div>
     <div class="tab" onclick="switchTab('ops')">Ops</div>
-    <div class="tab" onclick="switchTab('demanda')">Demanda</div>
+    <div class="tab" onclick="switchTab('buyers')">Buyers</div>
     <div class="tab" onclick="switchTab('nps')">NPS</div>
     <div class="tab" onclick="switchTab('pl')">P&amp;L</div>
     <div class="tab" onclick="switchTab('charts')">Gráficos</div>
@@ -287,7 +313,25 @@ tr:hover td.last{{background:#1a3060!important}}
       <table><thead id="hg"></thead><tbody id="bg"></tbody></table>
     </div>
     <div id="t-ops" style="display:none"><table><thead id="ho"></thead><tbody id="bo"></tbody></table></div>
-    <div id="t-demanda" style="display:none"><table><thead id="hd"></thead><tbody id="bd"></tbody></table></div>
+    <div id="t-buyers" style="display:none">
+      <div class="kpi-strip">
+        <div class="kpi-box">
+          <div class="kpi-box-lbl">Buyers Únicos YTD 2026</div>
+          <div class="kpi-box-val" id="kpi-ytd-val">—</div>
+          <div class="kpi-box-sub">Ene–Mar acumulado</div>
+        </div>
+      </div>
+      <table><thead id="hbu"></thead><tbody id="bbu"></tbody></table>
+      <div style="margin-top:20px">
+        <div class="charts-grid" style="grid-template-columns:1fr 1fr">
+          <div class="chart-card"><div class="chart-title">Buyers por Género</div><svg id="c-gen" width="100%" style="overflow:visible"></svg></div>
+          <div class="chart-card"><div class="chart-title">NSE por Tienda</div><svg id="c-nse" width="100%" style="overflow:visible"></svg></div>
+        </div>
+        <div style="margin-top:16px">
+          <div class="chart-card"><div class="chart-title">Buyers por Rango Etario</div><svg id="c-edad" width="100%" style="overflow:visible"></svg></div>
+        </div>
+      </div>
+    </div>
     <div id="t-nps" style="display:none"><table><thead id="hn"></thead><tbody id="bn"></tbody></table></div>
     <div id="t-pl" style="display:none">
       <div class="subtabs">
@@ -321,6 +365,11 @@ const MONTHS_NPS={j(MONTHS_NPS)};
 const growthData={j(growth_data)};
 const opsData={j(ops_data)};
 const demandaData={j(demanda_data)};
+const visitasVals={j(visitas_vals)};
+const buyersGenero={j(buyers_genero)};
+const buyersEdad={j(buyers_edad)};
+const buyersNseTienda={j(buyers_nse_tienda)};
+const buyersYtd={j(buyers_ytd)};
 const npsData={j(nps_data)};
 const nmvVals={j(nmv_vals)};
 const plLines={j(pl_lines)};
@@ -328,7 +377,6 @@ const tiendasNames={j(tiendas_names)};
 const tiendasNmv={j(tiendas_nmv)};
 const plTiendas={j(pl_tiendas)};
 const verticals={j(verticals)};
-
 
 let activeStore='Todas';
 
@@ -384,7 +432,7 @@ function spark(vals){{
   const sy=y=>mxY===mnY?H/2:H-pd-(y-mnY)/(mxY-mnY)*(H-2*pd);
   const d=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
   const l=pts[pts.length-1],p2=pts[pts.length-2];
-  const col=l.v>=p2.v?'#34c47a':'#e05252';
+  const col=l.v>=p2.v?'#16a34a':'#dc2626';
   return`<td style="text-align:center;padding:4px 8px"><svg width="${{W}}" height="${{H}}" viewBox="0 0 ${{W}} ${{H}}"><path d="${{d}}" fill="none" stroke="${{col}}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${{sx(l.i).toFixed(1)}}" cy="${{sy(l.v).toFixed(1)}}" r="2.5" fill="${{col}}"/></svg></td>`;
 }}
 
@@ -433,6 +481,8 @@ function buildBody(bid,data,months,hlIdx,lpIdx){{
       let h='';
       if(isT){{
         h+=`<td class="metric left"><span class="tog" onclick="tog('${{bid}}',${{mi}})">${{hasC?(isExp?'▼':'▶'):''}}</span>${{m.metric}}</td>`;
+        const subHtml=m.sub?`<div style="font-size:9px;color:#94a3b8;font-weight:400;margin-top:1px">${{m.sub}}</div>`:'';
+        h=`<td class="metric left"><span class="tog" onclick="tog('${{bid}}',${{mi}})">${{hasC?(isExp?'▼':'▶'):''}}</span>${{m.metric}}${{subHtml}}</td>`;
         h+=`<td class="apert-total left">● Total</td>`;
       }} else {{
         h+=`<td></td><td class="store left">${{row.s}}</td>`;
@@ -536,13 +586,14 @@ function buildVertBody(){{
   }});
 }}
 
-window.tog=function(bid,mi){{EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildBody(bid,bid==='bg'?growthData:bid==='bo'?opsData:bid==='bd'?demandaData:npsData,bid==='bn'?MONTHS_NPS:MONTHS,bid==='bn'?3:5,bid==='bn'?3:5);}};
+window.tog=function(bid,mi){{EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildBody(bid,bid==='bg'?growthData:bid==='bo'?opsData:bid==='bbu'?demandaData:npsData,bid==='bn'?MONTHS_NPS:MONTHS,bid==='bn'?3:5,bid==='bn'?3:5);}};
 window.togPL=function(bid,li){{EXP[bid+'_'+li]=!EXP[bid+'_'+li];if(bid==='bpt')buildPLBody('bpt',plLines,nmvVals,MONTHS,false);else buildPLBody('bpti',plTiendas,tiendasNmv,tiendasNames,true);}};
 
 window.switchTab=function(tab){{
-  ['growth','ops','demanda','nps','pl','charts','plan'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','demanda','nps','pl','charts','plan'][i]===tab));
+  ['growth','ops','buyers','nps','pl','charts','plan'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','buyers','nps','pl','charts','plan'][i]===tab));
   if(tab==='charts')buildCharts();
+  if(tab==='buyers')buildBuyersCharts();
   if(tab==='plan')buildPlan();
 }};
 
@@ -550,6 +601,11 @@ window.switchSub=function(sub){{
   ['s-total','s-tiendas','s-vert'].forEach(s=>document.getElementById(s).style.display=s===sub?'':'none');
   document.querySelectorAll('.subtab').forEach((el,i)=>el.classList.toggle('active',['s-total','s-tiendas','s-vert'][i]===sub));
 }};
+
+// ── KPI YTD ───────────────────────────────────────────────────────────────────
+if(buyersYtd!=null){{
+  document.getElementById('kpi-ytd-val').textContent=buyersYtd.toLocaleString('es-AR');
+}}
 
 // ── CHARTS ────────────────────────────────────────────────────────────────────
 function getW(id){{const r=document.getElementById(id).getBoundingClientRect();return Math.max(r.width,300)||380;}}
@@ -577,13 +633,13 @@ function drawLineArea(svgId,vals,labels,color,fmt){{
   const N=vals.length;
   const sx=i=>PL+i/(N-1)*cW;
   const sy=v=>PT+cH-(v-mnY)/rng*cH;
-  let svg=`<defs><linearGradient id="ag${{svgId}}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${{color}}" stop-opacity="0.3"/><stop offset="100%" stop-color="${{color}}" stop-opacity="0.02"/></linearGradient></defs>`;
+  let svg=`<defs><linearGradient id="ag${{svgId}}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${{color}}" stop-opacity="0.2"/><stop offset="100%" stop-color="${{color}}" stop-opacity="0.02"/></linearGradient></defs>`;
   for(let g=0;g<=3;g++){{
     const yg=PT+cH*g/3;
     const val=mxY-(rng*g/3);
     const lbl=fmtChart(val,fmt);
-    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#1c2a3e" stroke-width="1"/>`;
-    svg+=`<text x="${{PL-5}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#3a5070">${{lbl}}</text>`;
+    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#e2e8f0" stroke-width="1"/>`;
+    svg+=`<text x="${{PL-5}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#94a3b8">${{lbl}}</text>`;
   }}
   const path=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
   const lastP=pts[pts.length-1],firstP=pts[0];
@@ -593,15 +649,14 @@ function drawLineArea(svgId,vals,labels,color,fmt){{
     const isLast=pi===pts.length-1;
     const cx=sx(p.i).toFixed(1),cy=sy(p.v).toFixed(1);
     const valLbl=fmtChart(p.v,fmt);
-    // stagger label above/below to avoid overlap
     const above=pi%2===0;
     const ly=(sy(p.v)+(above?-9:14)).toFixed(1);
-    svg+=`<text x="${{cx}}" y="${{ly}}" text-anchor="middle" font-size="9" font-weight="${{isLast?700:500}}" fill="${{isLast?color:'#5a7a9a'}}">${{valLbl}}</text>`;
-    svg+=`<circle class="hp" cx="${{cx}}" cy="${{cy}}" r="${{isLast?4.5:3}}" fill="${{isLast?color:'#111827'}}" stroke="${{color}}" stroke-width="1.8"
+    svg+=`<text x="${{cx}}" y="${{ly}}" text-anchor="middle" font-size="9" font-weight="${{isLast?700:500}}" fill="${{isLast?color:'#94a3b8'}}">${{valLbl}}</text>`;
+    svg+=`<circle class="hp" cx="${{cx}}" cy="${{cy}}" r="${{isLast?4.5:3}}" fill="${{isLast?color:'#ffffff'}}" stroke="${{color}}" stroke-width="1.8"
       onmousemove="showTT(event,'${{p.lbl}}','${{valLbl}}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
   }});
   labels.forEach((lbl,i)=>{{
-    svg+=`<text x="${{sx(i).toFixed(1)}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#3a5070">${{lbl}}</text>`;
+    svg+=`<text x="${{sx(i).toFixed(1)}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#94a3b8">${{lbl}}</text>`;
   }});
   const el=document.getElementById(svgId);
   el.setAttribute('height',H);el.innerHTML=svg;
@@ -616,8 +671,8 @@ function drawBars(svgId,vals,labels,color,fmt){{
   for(let g=0;g<=3;g++){{
     const yg=PT+cH*g/3;
     const val=mxY*(1-g/3);
-    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#1c2a3e" stroke-width="1"/>`;
-    svg+=`<text x="${{PL-5}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#3a5070">${{fmtChart(val,fmt)}}</text>`;
+    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#e2e8f0" stroke-width="1"/>`;
+    svg+=`<text x="${{PL-5}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#94a3b8">${{fmtChart(val,fmt)}}</text>`;
   }}
   vals.forEach((v,i)=>{{
     if(v==null)return;
@@ -629,8 +684,8 @@ function drawBars(svgId,vals,labels,color,fmt){{
     const valLbl=fmtChart(v,fmt);
     svg+=`<rect class="hp" x="${{x.toFixed(1)}}" y="${{(PT+cH-bH).toFixed(1)}}" width="${{bW.toFixed(1)}}" height="${{bH.toFixed(1)}}" rx="3" fill="${{col}}"
       onmousemove="showTT(event,'${{labels[i]}}','${{valLbl}}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
-    svg+=`<text x="${{cx}}" y="${{(PT+cH-bH-5).toFixed(1)}}" text-anchor="middle" font-size="${{isLast?10:9}}" font-weight="${{isLast?700:400}}" fill="${{isLast?color:'#5a7a9a'}}">${{valLbl}}</text>`;
-    svg+=`<text x="${{cx}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#3a5070">${{labels[i]}}</text>`;
+    svg+=`<text x="${{cx}}" y="${{(PT+cH-bH-5).toFixed(1)}}" text-anchor="middle" font-size="${{isLast?10:9}}" font-weight="${{isLast?700:400}}" fill="${{isLast?color:'#94a3b8'}}">${{valLbl}}</text>`;
+    svg+=`<text x="${{cx}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#94a3b8">${{labels[i]}}</text>`;
   }});
   const el=document.getElementById(svgId);
   el.setAttribute('height',H);el.innerHTML=svg;
@@ -648,8 +703,8 @@ function drawMultiLine(svgId,seriesList,labels){{
   for(let g=0;g<=3;g++){{
     const yg=PT+cH*g/3;
     const val=mxY-(rng*g/3);
-    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#1c2a3e" stroke-width="1"/>`;
-    svg+=`<text x="${{PL-5}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#3a5070">${{(val*100).toFixed(0)}}%</text>`;
+    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#e2e8f0" stroke-width="1"/>`;
+    svg+=`<text x="${{PL-5}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#94a3b8">${{(val*100).toFixed(0)}}%</text>`;
   }}
   seriesList.forEach((s)=>{{
     const pts=s.vals.map((v,i)=>{{return{{v,i}}}}).filter(p=>p.v!=null);
@@ -669,7 +724,7 @@ function drawMultiLine(svgId,seriesList,labels){{
     svg+=`<text x="${{(W-PR+6).toFixed(1)}}" y="${{(sy(last.v)+4).toFixed(1)}}" font-size="10" fill="${{s.color}}" font-weight="700">${{s.label}}</text>`;
   }});
   labels.forEach((lbl,i)=>{{
-    svg+=`<text x="${{sx(i).toFixed(1)}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#3a5070">${{lbl}}</text>`;
+    svg+=`<text x="${{sx(i).toFixed(1)}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#94a3b8">${{lbl}}</text>`;
   }});
   const el=document.getElementById(svgId);
   el.setAttribute('height',H);el.innerHTML=svg;
@@ -678,23 +733,67 @@ function drawMultiLine(svgId,seriesList,labels){{
 function buildCharts(){{
   const nmvValsGrowth=growthData.find(m=>m.metric==='NMV').rows[0].v;
   const comprasVals=growthData.find(m=>m.metric==='Compras').rows[0].v;
-  const visVals=demandaData.find(m=>m.metric==='Visitas').rows[0].v;
+  const visVals=visitasVals;
   const frItems=opsData.find(m=>m.metric==='Fill Rate Items').rows[0].v;
   const frCompras=opsData.find(m=>m.metric==='Fill Rate Compras').rows[0].v;
-  drawLineArea('c-nmv',nmvValsGrowth,MONTHS,'#4d9ef0','money');
-  drawBars('c-ord',comprasVals,MONTHS,'#34c47a','num');
+  drawLineArea('c-nmv',nmvValsGrowth,MONTHS,'#2563eb','money');
+  drawBars('c-ord',comprasVals,MONTHS,'#16a34a','num');
   drawMultiLine('c-fr',[
-    {{vals:frItems,color:'#4d9ef0',label:'Items'}},
-    {{vals:frCompras,color:'#f59e0b',label:'Compras'}}
+    {{vals:frItems,color:'#2563eb',label:'Items'}},
+    {{vals:frCompras,color:'#d97706',label:'Compras'}}
   ],MONTHS);
-  drawBars('c-vis',visVals,MONTHS,'#a78bfa','num');
+  drawBars('c-vis',visVals,MONTHS,'#7c3aed','num');
+}}
+
+// ── STACKED BAR ───────────────────────────────────────────────────────────────
+function drawStackedBar(svgId,series,labels,colors){{
+  const W=getW(svgId),H=220,PL=52,PR=90,PT=28,PB=32;
+  const cW=W-PL-PR,cH=H-PT-PB;
+  const N=labels.length,gap=6,bW=(cW-gap*(N-1))/N;
+  const totals=labels.map((_,i)=>series.reduce((s,ser)=>s+(ser.vals[i]||0),0));
+  const mxY=Math.max(...totals)*1.12||1;
+  let svg='';
+  for(let g=0;g<=3;g++){{
+    const yg=PT+cH*g/3;const val=mxY*(1-g/3);
+    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#e2e8f0" stroke-width="1"/>`;
+    svg+=`<text x="${{PL-5}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#94a3b8">${{fmtChart(val,'num')}}</text>`;
+  }}
+  labels.forEach((lbl,i)=>{{
+    const x=PL+i*(bW+gap);
+    let yOff=PT+cH;
+    const total=totals[i];
+    series.forEach((ser,si)=>{{
+      const v=ser.vals[i]||0;if(!v)return;
+      const bH=v/mxY*cH;yOff-=bH;
+      const col=colors[si];
+      svg+=`<rect class="hp" x="${{x.toFixed(1)}}" y="${{yOff.toFixed(1)}}" width="${{bW.toFixed(1)}}" height="${{bH.toFixed(1)}}" rx="2" fill="${{col}}"
+        onmousemove="showTT(event,'${{lbl}} · ${{ser.name}}','${{fmtChart(v,'num')}}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
+    }});
+    const topY=PT+cH-(total/mxY*cH);
+    svg+=`<text x="${{(x+bW/2).toFixed(1)}}" y="${{(topY-5).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#64748b">${{fmtChart(total,'num')}}</text>`;
+    svg+=`<text x="${{(x+bW/2).toFixed(1)}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#94a3b8">${{lbl}}</text>`;
+  }});
+  series.forEach((ser,si)=>{{
+    const ly=PT+si*16;
+    svg+=`<rect x="${{W-PR+8}}" y="${{(ly-8).toFixed(1)}}" width="9" height="9" rx="2" fill="${{colors[si]}}"/>`;
+    svg+=`<text x="${{W-PR+21}}" y="${{(ly+1).toFixed(1)}}" font-size="9" fill="#64748b">${{ser.name}}</text>`;
+  }});
+  const el=document.getElementById(svgId);el.setAttribute('height',H);el.innerHTML=svg;
+}}
+
+function buildBuyersCharts(){{
+  const genColors=['#ec4899','#3b82f6','#6b7280'];
+  drawStackedBar('c-gen',buyersGenero,MONTHS,genColors);
+  const tiendas=buyersNseTienda.map(d=>d.tienda);
+  const nseKeys=['PLATINUM','GOLD','SILVER','BRONZE'];
+  const nseColors=['#f59e0b','#3b82f6','#16a34a','#7c3aed'];
+  const nseSeries=nseKeys.map((k,ki)=>{{return{{name:k,vals:buyersNseTienda.map(d=>d[k]||0)}}}});
+  drawStackedBar('c-nse',nseSeries,tiendas,nseColors);
+  const edadColors=['#2563eb','#16a34a','#d97706','#dc2626','#6b7280'];
+  drawStackedBar('c-edad',buyersEdad,MONTHS,edadColors);
 }}
 
 // ── PLAN V2 ───────────────────────────────────────────────────────────────────
-// Source: "Plan V2. Forecast 2+10 2026 | Proximity Groceries MLA.xlsx"
-// Tab "Plan V1 & V2" → NMV, Compras, APV | Tab "In Store | Consolidado"
-// Plan V2 starts from Ene'26 (hecho en enero con Oct-Dic como real)
-// Months: Oct'25, Nov'25, Dic'25, Ene'26, Feb'26, Mar'26
 const planData=[
   {{metric:'NMV',fmt:'money',isNegGood:false,
     plan:[null,null,null,175799372,196000000,332708333],
@@ -732,11 +831,10 @@ function buildPlan(){{
     <th class="last"><span class="rel">vs plan</span><span class="dt">Mar'26</span></th></tr>`;
   const tb=document.getElementById('b-plan');tb.innerHTML='';
   planData.forEach(row=>{{
-    // Plan row
     const trP=document.createElement('tr');
-    const subLbl=row.sub?`<div style="font-size:9px;color:#3a5070;font-weight:400;margin-top:1px">${{row.sub}}</div>`:'';
+    const subLbl=row.sub?`<div style="font-size:9px;color:#94a3b8;font-weight:400;margin-top:1px">${{row.sub}}</div>`:'';
     let hP=`<td class="metric left">${{row.metric}}${{subLbl}}</td>`;
-    hP+=`<td class="apert left" style="color:#3a5070;font-size:11px">◌ Plan V2</td>`;
+    hP+=`<td class="apert left" style="color:#94a3b8;font-size:11px">◌ Plan V2</td>`;
     row.plan.forEach((v,i)=>{{
       const isLast=i===lastIdx;
       const cls=isLast?'last':(i>=4?'hl':'');
@@ -744,7 +842,6 @@ function buildPlan(){{
     }});
     hP+=`<td class="last neu">—</td>`;
     trP.innerHTML=hP;tb.appendChild(trP);
-    // Real row
     const trR=document.createElement('tr');
     let hR=`<td></td>`;
     hR+=`<td class="apert-total left" style="font-size:11px">● Real</td>`;
@@ -753,7 +850,6 @@ function buildPlan(){{
       const cls=isLast?'last':(i>=4?'hl':'');
       hR+=`<td class="${{cls}}">${{fv(v,row.fmt)}}</td>`;
     }});
-    // vs Plan March
     const pm=row.plan[lastIdx],rm=row.real[lastIdx];
     let vs='<td class="last neu">—</td>';
     if(pm!=null&&rm!=null){{
@@ -773,8 +869,8 @@ function rebuildAll(){{
   buildBody('bg',growthData,MONTHS,4,5);
   buildHead('ho',MONTHS,4);
   buildBody('bo',opsData,MONTHS,4,5);
-  buildHead('hd',MONTHS,4);
-  buildBody('bd',demandaData,MONTHS,4,5);
+  buildHead('hbu',MONTHS,4);
+  buildBody('bbu',demandaData,MONTHS,4,5);
   buildHead('hn',MONTHS_NPS,2);
   buildBody('bn',npsData,MONTHS_NPS,2,3);
   buildPLHead('hpt',MONTHS,false);
@@ -789,7 +885,7 @@ rebuildAll();
 </body>
 </html>"""
 
-out = r"C:\Users\srioboo\dashboard_data\proximity_groceries_scorecard.html"
+out = r"C:\Users\srioboo\dashboard_data\index.html"
 with open(out,'w',encoding='utf-8') as f:
     f.write(html)
 print(f"Dashboard generado: {out}")
