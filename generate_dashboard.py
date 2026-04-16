@@ -798,8 +798,9 @@ function drawStacked100(svgId,series,labels,colors){{
       yOff-=bH;
       const col=colors[si];
       const pctTxt=Math.round(pct*100)+'%';
+      const vFmt=fmtChart(v,'num');
       svg+=`<rect class="hp" x="${{x.toFixed(1)}}" y="${{yOff.toFixed(1)}}" width="${{bW.toFixed(1)}}" height="${{bH.toFixed(1)}}" fill="${{col}}"
-        onmousemove="showTT(event,'${{lbl}} · ${{ser.name}}','${{pctTxt}} (${{fmtChart(v,\\'num\\')}})')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
+        onmousemove="showTT(event,'${{ser.name}} ${{lbl}}','${{pctTxt}} (${{vFmt}})')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
       if(bH>=15){{
         svg+=`<text x="${{(x+bW/2).toFixed(1)}}" y="${{(yOff+bH/2+4).toFixed(1)}}" text-anchor="middle" font-size="${{bH>=22?10:9}}" font-weight="600" fill="rgba(255,255,255,0.92)">${{pctTxt}}</text>`;
       }}
