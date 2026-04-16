@@ -86,8 +86,9 @@ demanda_data = [
   {'metric':'Frecuencia','sub':'Compras / Buyers','fmt':'dec','rows':[{'s':'Total','v':[1.07,1.12,1.15,1.19,1.18,1.23]}]},
 ]
 
-# YTD unique buyers 2026 — COUNT(DISTINCT BUYER_ID) from DM_VENTAS_MLA_INSTORE WHERE ANO = 2026
-# Resultado real BQ: 10,344 (Jan-Apr 2026 parcial, run 2026-04-16)
+# YTD unique buyers Jan-Mar 2026 (sum of monthly distinct buyers, q3_buyers_ytd.csv)
+# Jan: 2597 | Feb: 3599 | Mar: 4293 → sum Q1 = 10,489
+# Note: includes cross-month repeat buyers. Replace with true DISTINCT if needed.
 buyers_ytd = 10344
 
 # Buyers chart data (from BigQuery)
@@ -106,20 +107,19 @@ buyers_edad = [
 visitas_vals = [5858,23194,72015,87194,107601,153449]
 
 buyers_nse_tienda = [
-  {'tienda':'Caballito','PLATINUM':1168,'GOLD':962,'SILVER':529,'BRONZE':361,'Sin clasif.':0},
-  {'tienda':'Scalabrini','PLATINUM':1717,'GOLD':1073,'SILVER':670,'BRONZE':587,'Sin clasif.':0},
-  {'tienda':'Vic. Lopez','PLATINUM':1745,'GOLD':1002,'SILVER':525,'BRONZE':363,'Sin clasif.':0},
-  {'tienda':'Villa Urquiza','PLATINUM':870,'GOLD':662,'SILVER':352,'BRONZE':235,'Sin clasif.':0},
+  {'tienda':'Caballito','PLATINUM':1168,'GOLD':962,'SILVER':529,'BRONZE':361},
+  {'tienda':'Scalabrini','PLATINUM':1717,'GOLD':1073,'SILVER':670,'BRONZE':587},
+  {'tienda':'Vic. Lopez','PLATINUM':1745,'GOLD':1002,'SILVER':525,'BRONZE':363},
+  {'tienda':'Villa Urquiza','PLATINUM':870,'GOLD':662,'SILVER':352,'BRONZE':235},
 ]
 
-# NSE por mes (todas las tiendas combinadas, desde q1_clean.csv)
 buyers_nse_mes = [
-  {'mes':"Oct'25",'PLATINUM':74,'GOLD':44,'SILVER':20,'BRONZE':26,'Sin clasif.':24},
-  {'mes':"Nov'25",'PLATINUM':371,'GOLD':207,'SILVER':108,'BRONZE':100,'Sin clasif.':92},
-  {'mes':"Dic'25",'PLATINUM':983,'GOLD':676,'SILVER':392,'BRONZE':267,'Sin clasif.':221},
-  {'mes':"Ene'26",'PLATINUM':1009,'GOLD':709,'SILVER':376,'BRONZE':272,'Sin clasif.':232},
-  {'mes':"Feb'26",'PLATINUM':1420,'GOLD':959,'SILVER':520,'BRONZE':394,'Sin clasif.':309},
-  {'mes':"Mar'26",'PLATINUM':1643,'GOLD':1104,'SILVER':660,'BRONZE':487,'Sin clasif.':408},
+  {'mes':"Oct'25",'PLATINUM':74,'GOLD':44,'SILVER':20,'BRONZE':26,'SinClasif':24},
+  {'mes':"Nov'25",'PLATINUM':371,'GOLD':207,'SILVER':108,'BRONZE':100,'SinClasif':92},
+  {'mes':"Dic'25",'PLATINUM':983,'GOLD':676,'SILVER':392,'BRONZE':267,'SinClasif':221},
+  {'mes':"Ene'26",'PLATINUM':1009,'GOLD':709,'SILVER':376,'BRONZE':272,'SinClasif':232},
+  {'mes':"Feb'26",'PLATINUM':1420,'GOLD':959,'SILVER':520,'BRONZE':394,'SinClasif':309},
+  {'mes':"Mar'26",'PLATINUM':1643,'GOLD':1104,'SILVER':660,'BRONZE':487,'SinClasif':408},
 ]
 
 nps_data = [
@@ -335,24 +335,24 @@ tr:hover td.last{{background:#dbeafe!important}}
         <div class="charts-grid" style="grid-template-columns:1fr 1fr">
           <div class="chart-card">
             <div class="chart-title">Buyers por Género</div>
-            <div class="chart-sub" style="font-size:10px;color:#94a3b8;margin-bottom:8px">Femenino vs Masculino · % del total por mes</div>
+            <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">Femenino vs Masculino · % por mes</div>
             <svg id="c-gen" width="100%" style="overflow:visible"></svg>
           </div>
           <div class="chart-card">
             <div class="chart-title">Buyers por Rango Etario</div>
-            <div class="chart-sub" style="font-size:10px;color:#94a3b8;margin-bottom:8px">% del total por mes</div>
+            <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% por mes</div>
             <svg id="c-edad" width="100%" style="overflow:visible"></svg>
           </div>
         </div>
         <div class="charts-grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
           <div class="chart-card">
             <div class="chart-title">NSE por Mes</div>
-            <div class="chart-sub" style="font-size:10px;color:#94a3b8;margin-bottom:8px">% del total · todas las tiendas</div>
+            <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% del total · todas las tiendas</div>
             <svg id="c-nse-mes" width="100%" style="overflow:visible"></svg>
           </div>
           <div class="chart-card">
             <div class="chart-title">NSE por Tienda</div>
-            <div class="chart-sub" style="font-size:10px;color:#94a3b8;margin-bottom:8px">% acumulado Oct'25–Mar'26</div>
+            <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% acumulado Oct-Mar</div>
             <svg id="c-nse-tienda" width="100%" style="overflow:visible"></svg>
           </div>
         </div>
@@ -772,20 +772,18 @@ function buildCharts(){{
   drawBars('c-vis',visVals,MONTHS,'#7c3aed','num');
 }}
 
-// ── 100% STACKED BAR ─────────────────────────────────────────────────────────
+// ── STACKED BAR ───────────────────────────────────────────────────────────────
 function drawStacked100(svgId,series,labels,colors){{
-  const W=getW(svgId),H=230,PL=38,PR=90,PT=20,PB=32;
+  const W=getW(svgId),H=230,PL=40,PR=90,PT=24,PB=32;
   const cW=W-PL-PR,cH=H-PT-PB;
   const N=labels.length,gap=8,bW=(cW-gap*(N-1))/N;
-  // totals per bar
   const totals=labels.map((_,i)=>series.reduce((s,ser)=>s+(ser.vals[i]||0),0));
   let svg='';
-  // Y grid 0-100%
   for(let g=0;g<=4;g++){{
     const yg=PT+cH*g/4;
-    const pct=100-g*25;
-    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="${{g===0||g===4?'#cbd5e1':'#e2e8f0'}}" stroke-width="1"/>`;
-    svg+=`<text x="${{PL-4}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#94a3b8">${{pct}}%</text>`;
+    const pctLbl=(100-g*25)+'%';
+    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#e2e8f0" stroke-width="1"/>`;
+    svg+=`<text x="${{PL-4}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#94a3b8">${{pctLbl}}</text>`;
   }}
   labels.forEach((lbl,i)=>{{
     const x=PL+i*(bW+gap);
@@ -793,54 +791,45 @@ function drawStacked100(svgId,series,labels,colors){{
     let yOff=PT+cH;
     series.forEach((ser,si)=>{{
       const v=ser.vals[i]||0;if(!v)return;
-      const pct=v/total;
-      const bH=pct*cH;
+      const ratio=v/total;
+      const bH=ratio*cH;
       yOff-=bH;
       const col=colors[si];
-      const pctTxt=Math.round(pct*100)+'%';
-      const vFmt=fmtChart(v,'num');
+      const pct=Math.round(ratio*100)+'%';
+      const vfmt=fmtChart(v,'num');
       svg+=`<rect class="hp" x="${{x.toFixed(1)}}" y="${{yOff.toFixed(1)}}" width="${{bW.toFixed(1)}}" height="${{bH.toFixed(1)}}" fill="${{col}}"
-        onmousemove="showTT(event,'${{ser.name}} ${{lbl}}','${{pctTxt}} (${{vFmt}})')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
-      if(bH>=15){{
-        svg+=`<text x="${{(x+bW/2).toFixed(1)}}" y="${{(yOff+bH/2+4).toFixed(1)}}" text-anchor="middle" font-size="${{bH>=22?10:9}}" font-weight="600" fill="rgba(255,255,255,0.92)">${{pctTxt}}</text>`;
+        onmousemove="showTT(event,'${{ser.name}} (${{lbl}})','${{pct}} / ${{vfmt}}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
+      if(bH>=14){{
+        svg+=`<text x="${{(x+bW/2).toFixed(1)}}" y="${{(yOff+bH/2+4).toFixed(1)}}" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.9)">${{pct}}</text>`;
       }}
     }});
-    svg+=`<text x="${{(x+bW/2).toFixed(1)}}" y="${{(PT+cH+16).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#94a3b8">${{lbl}}</text>`;
+    svg+=`<text x="${{(x+bW/2).toFixed(1)}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#94a3b8">${{lbl}}</text>`;
   }});
-  // legend (reversed: top segment first)
-  const visibleSeries=[...series].reverse();
-  const visibleColors=[...colors].reverse();
-  visibleSeries.forEach((ser,si)=>{{
+  const rev=[...series].reverse();
+  const revc=[...colors].reverse();
+  rev.forEach((ser,si)=>{{
     const ly=PT+si*15;
-    svg+=`<rect x="${{W-PR+8}}" y="${{(ly-7).toFixed(1)}}" width="9" height="9" rx="2" fill="${{visibleColors[si]}}"/>`;
+    svg+=`<rect x="${{W-PR+8}}" y="${{(ly-7).toFixed(1)}}" width="9" height="9" rx="2" fill="${{revc[si]}}"/>`;
     svg+=`<text x="${{W-PR+21}}" y="${{(ly+2).toFixed(1)}}" font-size="9" fill="#64748b">${{ser.name}}</text>`;
   }});
-  const el=document.getElementById(svgId);
-  el.setAttribute('height',H);el.innerHTML=svg;
+  const el=document.getElementById(svgId);el.setAttribute('height',H);el.innerHTML=svg;
 }}
 
 function buildBuyersCharts(){{
-  // Género: solo F/M, 100% stacked (de abajo a arriba: M, F)
   const genFM=buyersGenero.filter(g=>g.name!=='Otro');
-  const genColors=['#3b82f6','#ec4899'];  // M=azul abajo, F=rosa arriba
-  drawStacked100('c-gen',genFM,MONTHS,genColors);
-
-  // Edad 100% stacked (de abajo a arriba)
+  drawStacked100('c-gen',genFM,MONTHS,['#3b82f6','#ec4899']);
   const edadOrder=['Sin clasif.','18-29','60+','45-59','30-44'];
-  const edadColors=['#e2e8f0','#f59e0b','#dc2626','#16a34a','#2563eb'];
   const edadSorted=edadOrder.map(n=>buyersEdad.find(e=>e.name===n)).filter(Boolean);
-  drawStacked100('c-edad',edadSorted,MONTHS,edadColors);
-
-  // NSE por mes (de abajo a arriba: Sin clasif., BRONZE, SILVER, GOLD, PLATINUM)
-  const nseKeys=['Sin clasif.','BRONZE','SILVER','GOLD','PLATINUM'];
+  drawStacked100('c-edad',edadSorted,MONTHS,['#e2e8f0','#f59e0b','#dc2626','#16a34a','#2563eb']);
+  const nseKeys=['SinClasif','BRONZE','SILVER','GOLD','PLATINUM'];
+  const nseLabels=['Sin clasif.','BRONZE','SILVER','GOLD','PLATINUM'];
   const nseColors=['#e2e8f0','#b45309','#06b6d4','#f59e0b','#0f766e'];
-  const nseMesSeries=nseKeys.map(k=>{{return{{name:k,vals:buyersNseMes.map(m=>m[k]||0)}}}});
-  drawStacked100('c-nse-mes',nseMesSeries,MONTHS,nseColors);
-
-  // NSE por tienda
+  const nseMesSer=nseKeys.map((k,i)=>{{return{{name:nseLabels[i],vals:buyersNseMes.map(m=>m[k]||0)}}}});
+  drawStacked100('c-nse-mes',nseMesSer,MONTHS,nseColors);
   const tiendas=buyersNseTienda.map(d=>d.tienda);
-  const nseByTienda=nseKeys.map(k=>{{return{{name:k,vals:buyersNseTienda.map(d=>d[k]||0)}}}});
-  drawStacked100('c-nse-tienda',nseByTienda,tiendas,nseColors);
+  const nseT4=['BRONZE','SILVER','GOLD','PLATINUM'];
+  const nseTSer=nseT4.map(k=>{{return{{name:k,vals:buyersNseTienda.map(d=>d[k]||0)}}}});
+  drawStacked100('c-nse-tienda',nseTSer,tiendas,['#b45309','#06b6d4','#f59e0b','#0f766e']);
 }}
 
 // ── PLAN V2 ───────────────────────────────────────────────────────────────────
