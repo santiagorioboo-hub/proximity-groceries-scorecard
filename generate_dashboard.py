@@ -86,10 +86,9 @@ demanda_data = [
   {'metric':'Frecuencia','sub':'Compras / Buyers','fmt':'dec','rows':[{'s':'Total','v':[1.07,1.12,1.15,1.19,1.18,1.23]}]},
 ]
 
-# YTD unique buyers Jan-Mar 2026 (sum of monthly distinct buyers, q3_buyers_ytd.csv)
-# Jan: 2597 | Feb: 3599 | Mar: 4293 → sum Q1 = 10,489
-# Note: includes cross-month repeat buyers. Replace with true DISTINCT if needed.
-buyers_ytd = 10489
+# YTD unique buyers 2026 — COUNT(DISTINCT BUYER_ID) from DM_VENTAS_MLA_INSTORE WHERE ANO = 2026
+# Resultado real BQ: 10,344 (Jan-Apr 2026 parcial, run 2026-04-16)
+buyers_ytd = 10344
 
 # Buyers chart data (from BigQuery)
 buyers_genero = [
