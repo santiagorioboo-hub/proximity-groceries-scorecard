@@ -436,7 +436,7 @@ tr:hover td.last{{background:#dbeafe!important}}
       <div class="tab" onclick="switchTab('plan')">Plan</div>
       <div class="tab" onclick="switchTab('fechasmoviles')">Fechas Móviles</div>
     </div>
-  <div class="tbl">
+  <div class="tbl" id="monthly-tbl">
     <div id="t-growth">
       <div class="filter-bar">
         <span class="filter-lbl">Apertura:</span>
@@ -514,6 +514,7 @@ tr:hover td.last{{background:#dbeafe!important}}
     <div id="t-fechasmoviles" style="display:none">
       <div class="fm-section" id="fm28-cont"></div>
     </div>
+  </div>
   </div>
 
   <div id="weekly-section" style="display:none">
@@ -784,7 +785,10 @@ window.switchSub=function(sub){{
 
 window.setMode=function(mode){{
   const isW=mode==='weekly';
-  document.getElementById('monthly-section').style.display=isW?'none':'';
+  ['monthly-section','monthly-tbl'].forEach(id=>{{
+    const el=document.getElementById(id);
+    if(el)el.style.display=isW?'none':'';
+  }});
   document.getElementById('weekly-section').style.display=isW?'':'none';
   document.getElementById('btn-monthly').classList.toggle('active',!isW);
   document.getElementById('btn-weekly').classList.toggle('active',isW);
