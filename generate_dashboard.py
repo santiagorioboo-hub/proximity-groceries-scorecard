@@ -1,10 +1,123 @@
 #!/usr/bin/env python3
 # Proximity Groceries Scorecard - Dashboard Generator
-import json, warnings
-from datetime import datetime
+import json, warnings, csv as _csv
+from datetime import datetime, date as _date, timedelta as _td
 warnings.filterwarnings('ignore')
 
 today = datetime.now().strftime('%d/%m/%Y')
+
+# ======================================================
+# WEEKLY & ROLLING DATA (from BQ CSVs)
+# ======================================================
+def _rc(fname):
+    with open(r'C:\Users\srioboo\dashboard_data\\' + fname, encoding='utf-8') as f:
+        return list(_csv.DictReader(f))
+
+def _fi(v, d=0):
+    try: return int(float(v)) if v else d
+    except: return d
+
+def _ff(v, d=0.0):
+    try: return float(v) if v else d
+    except: return d
+
+_wg = _rc('weekly_growth.csv')
+_wv = _rc('weekly_visits.csv')
+_dg = _rc('daily_growth.csv')
+_dv = _rc('daily_visits.csv')
+_wvis = {r['Fecha']: _fi(r['Visitas']) for r in _wv}
+_dvis = {r['Fecha']: _fi(r['Visitas']) for r in _dv}
+
+# Last 14 complete weeks (Sun-Sat)
+_today = _date.today()
+_dow = _today.isoweekday() % 7   # Sun=0, Mon=1, ..., Sat=6
+_cur_sun = _today - _td(days=_dow)
+_last_sun = _cur_sun - _td(weeks=1)   # last complete week start
+_first_sun = _last_sun - _td(weeks=13) # 14 weeks back
+
+_MES = ['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+
+_wr = []
+for r in _wg:
+    d = _date.fromisoformat(r['Fecha'])
+    if _first_sun <= d <= _last_sun:
+        nmv=_ff(r['NMV']); compras=_fi(r['Compras']); ordenes=_fi(r['Ordenes'])
+        nsi=_ff(r['NSI']); nmv_usd=_ff(r['NMV_USD']); tsie=_ff(r['TSIE_total'])
+        vis=_wvis.get(r['Fecha'],0)
+        _wr.append(dict(
+            label=f"{d.day} {_MES[d.month]}",
+            nmv=round(nmv), nmv_usd=round(nmv_usd), compras=compras,
+            ordenes=ordenes, nsi=round(nsi), tsie=round(tsie), vis=vis,
+            apv=round(nmv/compras) if compras else 0,
+            nasp=round(nmv/nsi) if nsi else 0,
+            fr=round(nsi/tsie, 4) if tsie else 0,
+            nsi_cart=round(nsi/compras, 2) if compras else 0,
+            ord_compra=round(ordenes/compras, 2) if compras else 0,
+            cvr=round(compras/vis, 4) if vis else None,
+        ))
+
+WEEK_LABELS = [r['label'] for r in _wr]
+weekly_growth = [
+    {'metric':'NMV','fmt':'money','rows':[{'s':'Total','v':[r['nmv'] for r in _wr]}]},
+    {'metric':'NMV USD','fmt':'num','rows':[{'s':'Total','v':[r['nmv_usd'] for r in _wr]}]},
+    {'metric':'Compras','fmt':'num','rows':[{'s':'Total','v':[r['compras'] for r in _wr]}]},
+    {'metric':'Órdenes','fmt':'num','rows':[{'s':'Total','v':[r['ordenes'] for r in _wr]}]},
+    {'metric':'NSI','fmt':'num','rows':[{'s':'Total','v':[r['nsi'] for r in _wr]}]},
+    {'metric':'APV LC','fmt':'dollar','rows':[{'s':'Total','v':[r['apv'] for r in _wr]}]},
+    {'metric':'NASP LC','fmt':'dollar','rows':[{'s':'Total','v':[r['nasp'] for r in _wr]}]},
+    {'metric':'Fill Rate Items','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['fr'] for r in _wr]}]},
+    {'metric':'NSI/Cart','fmt':'dec','rows':[{'s':'Total','v':[r['nsi_cart'] for r in _wr]}]},
+    {'metric':'Orders/Purchase','fmt':'dec','rows':[{'s':'Total','v':[r['ord_compra'] for r in _wr]}]},
+    {'metric':'Visitas','fmt':'num','rows':[{'s':'Total','v':[r['vis'] for r in _wr]}]},
+    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['cvr'] for r in _wr]}]},
+]
+
+# Rolling windows from daily data
+_daily = {}
+for r in _dg:
+    d = _date.fromisoformat(r['Fecha'])
+    _daily[d] = dict(
+        nmv=_ff(r['NMV']), compras=_fi(r['Compras']), ordenes=_fi(r['Ordenes']),
+        nsi=_ff(r['NSI']), nmv_usd=_ff(r['NMV_USD']), tsie=_ff(r['TSIE_total']),
+        vis=_dvis.get(r['Fecha'], 0)
+    )
+
+_last_day = _today - _td(days=1)
+while _last_day not in _daily and _last_day > _date(2026,1,1):
+    _last_day -= _td(days=1)
+
+def _agg(s, e):
+    nmv=compras=ordenes=nsi=nmv_usd=tsie=vis=0
+    d=s
+    while d<=e:
+        if d in _daily:
+            row=_daily[d]; nmv+=row['nmv']; compras+=row['compras']
+            ordenes+=row['ordenes']; nsi+=row['nsi']; nmv_usd+=row['nmv_usd']
+            tsie+=row['tsie']; vis+=row['vis']
+        d+=_td(days=1)
+    return dict(
+        nmv=round(nmv), nmv_usd=round(nmv_usd), compras=compras,
+        ordenes=ordenes, nsi=round(nsi), tsie=round(tsie), vis=vis,
+        apv=round(nmv/compras) if compras else 0,
+        nasp=round(nmv/nsi) if nsi else 0,
+        fr=round(nsi/tsie, 4) if tsie else 0,
+        nsi_cart=round(nsi/compras, 2) if compras else 0,
+        cvr=round(compras/vis, 4) if vis else None,
+        lbl=f"{s.day}/{s.month} - {e.day}/{e.month}"
+    )
+
+_min_day = _date(2026,1,1)
+rolling_7, end = [], _last_day
+for _ in range(14):
+    s = end - _td(days=6)
+    if s < _min_day: break
+    rolling_7.append(_agg(s, end)); end = s - _td(days=1)
+
+rolling_28, end = [], _last_day
+for _ in range(6):
+    s = end - _td(days=27)
+    if s < _min_day: break
+    rolling_28.append(_agg(s, end)); end = s - _td(days=1)
 
 MONTHS = ["Oct'25","Nov'25","Dic'25","Ene'26","Feb'26","Mar'26"]
 MONTHS_NPS = ["Dic'25","Ene'26","Feb'26","Mar'26"]
@@ -287,6 +400,13 @@ tr:hover td.last{{background:#dbeafe!important}}
 #tt{{position:fixed;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:7px 12px;font-size:12px;color:#f8fafc;pointer-events:none;display:none;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,0.25);white-space:nowrap}}
 #tt .tt-lbl{{font-size:10px;color:#60a5fa;font-weight:600;margin-bottom:2px}}
 #tt .tt-val{{font-size:13px;font-weight:700;color:#f8fafc}}
+.mode-toggle{{display:flex;gap:4px;margin-bottom:16px}}
+.mode-btn{{padding:6px 20px;font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;border:1.5px solid #e2e8f0;background:#f8fafc;color:#64748b;transition:all .15s}}
+.mode-btn.active{{background:#2563eb;color:#ffffff;border-color:#2563eb}}
+.fm-section{{margin-bottom:24px}}
+.fm-title{{font-size:13px;font-weight:700;color:#0f172a;margin:18px 0 8px;padding-bottom:6px;border-bottom:1.5px solid #e2e8f0}}
+.fm-title:first-child{{margin-top:0}}
+.fm-period{{font-size:11px;color:#64748b;font-weight:500}}
 </style>
 </head>
 <body>
@@ -299,16 +419,23 @@ tr:hover td.last{{background:#dbeafe!important}}
     </div>
     <div class="upd">Actualizado: {today}</div>
   </div>
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('growth')">Growth</div>
-    <div class="tab" onclick="switchTab('ops')">Ops</div>
-    <div class="tab" onclick="switchTab('buyers')">Buyers</div>
-    <div class="tab" onclick="switchTab('demog')">Datos Demográficos</div>
-    <div class="tab" onclick="switchTab('nps')">NPS</div>
-    <div class="tab" onclick="switchTab('pl')">P&amp;L</div>
-    <div class="tab" onclick="switchTab('charts')">Gráficos</div>
-    <div class="tab" onclick="switchTab('plan')">Plan</div>
+  <div class="mode-toggle">
+    <button id="btn-monthly" class="mode-btn active" onclick="setMode('monthly')">Mensual</button>
+    <button id="btn-weekly" class="mode-btn" onclick="setMode('weekly')">Semanal</button>
   </div>
+
+  <div id="monthly-section">
+    <div class="tabs" id="monthly-tabs">
+      <div class="tab active" onclick="switchTab('growth')">Growth</div>
+      <div class="tab" onclick="switchTab('ops')">Ops</div>
+      <div class="tab" onclick="switchTab('buyers')">Buyers</div>
+      <div class="tab" onclick="switchTab('demog')">Datos Demográficos</div>
+      <div class="tab" onclick="switchTab('nps')">NPS</div>
+      <div class="tab" onclick="switchTab('pl')">P&amp;L</div>
+      <div class="tab" onclick="switchTab('charts')">Gráficos</div>
+      <div class="tab" onclick="switchTab('plan')">Plan</div>
+      <div class="tab" onclick="switchTab('fechasmoviles')">Fechas Móviles</div>
+    </div>
   <div class="tbl">
     <div id="t-growth">
       <div class="filter-bar">
@@ -384,6 +511,24 @@ tr:hover td.last{{background:#dbeafe!important}}
       <div class="plan-sub">Proximity Groceries MLA · Plan V2 vs Real &nbsp;·&nbsp; Plan disponible desde Ene'26</div>
       <div class="tbl"><table><thead id="h-plan"></thead><tbody id="b-plan"></tbody></table></div>
     </div>
+    <div id="t-fechasmoviles" style="display:none">
+      <div class="fm-section" id="fm28-cont"></div>
+    </div>
+  </div>
+
+  <div id="weekly-section" style="display:none">
+    <div class="tabs" id="weekly-tabs">
+      <div class="tab active" onclick="switchWeeklyTab('wgrowth')">Growth Semanal</div>
+      <div class="tab" onclick="switchWeeklyTab('wfechas')">Fechas Móviles</div>
+    </div>
+    <div class="tbl">
+      <div id="t-wgrowth">
+        <table><thead id="hwg"></thead><tbody id="bwg"></tbody></table>
+      </div>
+      <div id="t-wfechas" style="display:none">
+        <div class="fm-section" id="fm7-cont"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -406,6 +551,10 @@ const tiendasNames={j(tiendas_names)};
 const tiendasNmv={j(tiendas_nmv)};
 const plTiendas={j(pl_tiendas)};
 const verticals={j(verticals)};
+const weekLabels={j(WEEK_LABELS)};
+const weeklyGrowth={j(weekly_growth)};
+const rolling7={j(rolling_7)};
+const rolling28={j(rolling_28)};
 
 let activeStore='Todas';
 
@@ -620,17 +769,126 @@ window.tog=function(bid,mi){{EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildBody(bid,bid=
 window.togPL=function(bid,li){{EXP[bid+'_'+li]=!EXP[bid+'_'+li];if(bid==='bpt')buildPLBody('bpt',plLines,nmvVals,MONTHS,false);else buildPLBody('bpti',plTiendas,tiendasNmv,tiendasNames,true);}};
 
 window.switchTab=function(tab){{
-  ['growth','ops','buyers','demog','nps','pl','charts','plan'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','buyers','demog','nps','pl','charts','plan'][i]===tab));
+  ['growth','ops','buyers','demog','nps','pl','charts','plan','fechasmoviles'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
+  document.querySelectorAll('#monthly-tabs .tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','buyers','demog','nps','pl','charts','plan','fechasmoviles'][i]===tab));
   if(tab==='charts')buildCharts();
   if(tab==='demog')buildBuyersCharts();
   if(tab==='plan')buildPlan();
+  if(tab==='fechasmoviles')buildFechasMoviles();
 }};
 
 window.switchSub=function(sub){{
   ['s-total','s-tiendas','s-vert'].forEach(s=>document.getElementById(s).style.display=s===sub?'':'none');
   document.querySelectorAll('.subtab').forEach((el,i)=>el.classList.toggle('active',['s-total','s-tiendas','s-vert'][i]===sub));
 }};
+
+window.setMode=function(mode){{
+  const isW=mode==='weekly';
+  document.getElementById('monthly-section').style.display=isW?'none':'';
+  document.getElementById('weekly-section').style.display=isW?'':'none';
+  document.getElementById('btn-monthly').classList.toggle('active',!isW);
+  document.getElementById('btn-weekly').classList.toggle('active',isW);
+  if(isW){{buildWeeklyGrowth();}}
+}};
+
+window.switchWeeklyTab=function(tab){{
+  ['wgrowth','wfechas'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
+  document.querySelectorAll('#weekly-tabs .tab').forEach((el,i)=>el.classList.toggle('active',['wgrowth','wfechas'][i]===tab));
+  if(tab==='wfechas')buildFechasMov7();
+}};
+
+function buildWeeklyGrowth(){{
+  const N=weekLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
+  buildHead('hwg',weekLabels,hlIdx);
+  buildBodySimple('bwg',weeklyGrowth,weekLabels,hlIdx,lpIdx);
+}}
+
+function buildBodySimple(bid,data,labels,hlIdx,lpIdx){{
+  const tb=document.getElementById(bid);tb.innerHTML='';
+  const lastIdx=labels.length-1;
+  data.forEach((m,mi)=>{{
+    const row=m.rows[0];
+    const tr=document.createElement('tr');
+    let h='';
+    const subHtml=m.sub?'<div style="font-size:9px;color:#94a3b8;font-weight:400;margin-top:1px">'+m.sub+'</div>':'';
+    h+='<td class="metric left">'+m.metric+subHtml+'</td>';
+    h+='<td class="apert-total left">Total</td>';
+    row.v.forEach((v,i)=>{{
+      const cls=i===lastIdx?'last':(i>=hlIdx?'hl':'');
+      h+='<td class="'+cls+'">'+fv(v,m.fmt)+'</td>';
+    }});
+    const vl=vsLP(row.v,m.isPP,m.isNegGood,lpIdx);
+    const res=fmtVs(vl);
+    h+='<td class="'+res.cls+'">'+res.txt+'</td>';
+    h+=spark(row.v);
+    tr.innerHTML=h;tb.appendChild(tr);
+  }});
+}}
+
+function fmRollingTable(data,cont){{
+  if(!cont)return;
+  const cols=[
+    {{k:'nmv',lbl:'NMV',fmt:'money'}},
+    {{k:'compras',lbl:'Compras',fmt:'num'}},
+    {{k:'ordenes',lbl:'Órdenes',fmt:'num'}},
+    {{k:'apv',lbl:'APV',fmt:'dollar'}},
+    {{k:'nsi',lbl:'NSI',fmt:'num'}},
+    {{k:'fr',lbl:'Fill Rate',fmt:'pct'}},
+  ];
+  let html='<div class="tbl"><table style="min-width:900px">';
+  html+='<thead><tr><th class="left" style="min-width:140px"><span class="dt">Período</span></th>';
+  cols.forEach(c=>{{html+='<th><span class="dt">'+c.lbl+'</span></th><th class="hl"><span class="dt">%&nbsp;vs ant</span></th>';}});
+  html+='</tr></thead><tbody>';
+  data.forEach((row,i)=>{{
+    const prev=data[i+1]||null;
+    const isLast=i===0;
+    html+='<tr>';
+    html+='<td class="left fm-period'+(isLast?' metric':'')+'">'+row.lbl+'</td>';
+    cols.forEach(c=>{{
+      const v=row[c.k];
+      const p=prev?prev[c.k]:null;
+      const pct=(v!=null&&p!=null&&p!==0)?((v-p)/Math.abs(p)*100):null;
+      const cellCls=isLast?'last':'';
+      html+='<td class="'+cellCls+'">'+fv(v,c.fmt)+'</td>';
+      if(pct!=null){{
+        const sign=pct>=0?'+':'';
+        const pCls=pct>=0?'pos':'neg';
+        html+='<td class="hl '+pCls+'">'+sign+pct.toFixed(1)+'%</td>';
+      }}else{{
+        html+='<td class="hl neu">—</td>';
+      }}
+    }});
+    html+='</tr>';
+  }});
+  html+='</tbody></table></div>';
+  const div=document.createElement('div');
+  div.innerHTML=html;
+  cont.appendChild(div);
+}}
+
+function buildFechasMoviles(){{
+  const c=document.getElementById('fm28-cont');
+  if(!c||c.dataset.built)return;
+  c.dataset.built='1';
+  const wrap=document.createElement('div');
+  const title=document.createElement('div');
+  title.className='fm-title';
+  title.textContent='Rolling 28 dias vs periodo anterior';
+  wrap.appendChild(title);
+  c.appendChild(wrap);
+  fmRollingTable(rolling28,c);
+}}
+
+function buildFechasMov7(){{
+  const c=document.getElementById('fm7-cont');
+  if(!c||c.dataset.built)return;
+  c.dataset.built='1';
+  const title=document.createElement('div');
+  title.className='fm-title';
+  title.textContent='Rolling 7 dias vs periodo anterior (14 periodos, mas reciente primero)';
+  c.appendChild(title);
+  fmRollingTable(rolling7,c);
+}}
 
 // ── KPI YTD ───────────────────────────────────────────────────────────────────
 if(buyersYtd!=null){{
