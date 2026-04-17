@@ -123,7 +123,7 @@ buyers_nse_mes = [
 ]
 
 nps_data = [
-  {'metric':'NPS','fmt':'pp','isPP':True,'rows':[
+  {'metric':'NPS','fmt':'nps','isPP':True,'rows':[
     {'s':'Total','v':[0.26,0.39,0.20,0.15]},
     {'s':'Scalabrini','v':[0.14,0.48,0.25,0.09]},
     {'s':'Vicente Lopez','v':[0.21,0.19,-0.05,0.27]},
@@ -132,7 +132,8 @@ nps_data = [
   ]},
 ]
 
-nmv_vals = [10528449,57103789,171803278,177394590,244905554,312119068]
+# NMV aligned with Growth tab (same source)
+nmv_vals = [10451118,56806992,170234400,175439531,242175980,306868637]
 
 pl_lines = [
   {'metric':'NMV','isNmv':True,'children':[]},
@@ -302,6 +303,7 @@ tr:hover td.last{{background:#dbeafe!important}}
     <div class="tab active" onclick="switchTab('growth')">Growth</div>
     <div class="tab" onclick="switchTab('ops')">Ops</div>
     <div class="tab" onclick="switchTab('buyers')">Buyers</div>
+    <div class="tab" onclick="switchTab('demog')">Datos Demográficos</div>
     <div class="tab" onclick="switchTab('nps')">NPS</div>
     <div class="tab" onclick="switchTab('pl')">P&amp;L</div>
     <div class="tab" onclick="switchTab('charts')">Gráficos</div>
@@ -331,30 +333,30 @@ tr:hover td.last{{background:#dbeafe!important}}
         </div>
       </div>
       <table><thead id="hbu"></thead><tbody id="bbu"></tbody></table>
-      <div style="margin-top:20px">
-        <div class="charts-grid" style="grid-template-columns:1fr 1fr">
-          <div class="chart-card">
-            <div class="chart-title">Buyers por Género</div>
-            <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">Femenino vs Masculino · % por mes</div>
-            <svg id="c-gen" width="100%" style="overflow:visible"></svg>
-          </div>
-          <div class="chart-card">
-            <div class="chart-title">Buyers por Rango Etario</div>
-            <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% por mes</div>
-            <svg id="c-edad" width="100%" style="overflow:visible"></svg>
-          </div>
+    </div>
+    <div id="t-demog" style="display:none">
+      <div class="charts-grid" style="grid-template-columns:1fr 1fr">
+        <div class="chart-card">
+          <div class="chart-title">Buyers por Género</div>
+          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">Femenino vs Masculino · % por mes</div>
+          <svg id="c-gen" width="100%" style="overflow:visible"></svg>
         </div>
-        <div class="charts-grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
-          <div class="chart-card">
-            <div class="chart-title">NSE por Mes</div>
-            <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% del total · todas las tiendas</div>
-            <svg id="c-nse-mes" width="100%" style="overflow:visible"></svg>
-          </div>
-          <div class="chart-card">
-            <div class="chart-title">NSE por Tienda</div>
-            <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% acumulado Oct-Mar</div>
-            <svg id="c-nse-tienda" width="100%" style="overflow:visible"></svg>
-          </div>
+        <div class="chart-card">
+          <div class="chart-title">Buyers por Rango Etario</div>
+          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% por mes</div>
+          <svg id="c-edad" width="100%" style="overflow:visible"></svg>
+        </div>
+      </div>
+      <div class="charts-grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
+        <div class="chart-card">
+          <div class="chart-title">NSE por Mes</div>
+          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% del total · todas las tiendas</div>
+          <svg id="c-nse-mes" width="100%" style="overflow:visible"></svg>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">NSE por Tienda</div>
+          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% acumulado Oct-Mar</div>
+          <svg id="c-nse-tienda" width="100%" style="overflow:visible"></svg>
         </div>
       </div>
     </div>
@@ -421,6 +423,7 @@ function fv(v,fmt){{
   if(fmt==='dollar')return'$'+Math.round(v).toLocaleString();
   if(fmt==='pct')return(v*100).toFixed(1)+'%';
   if(fmt==='pp')return(v>=0?'+':'')+Math.round(v*100)+'pp';
+  if(fmt==='nps')return Math.round(v*100)+'%';
   if(fmt==='dec')return v.toFixed(1);
   if(v>=1e6)return(v/1e6).toFixed(1)+'M';
   if(v>=1e3)return(v/1e3).toFixed(1)+'K';
@@ -617,10 +620,10 @@ window.tog=function(bid,mi){{EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildBody(bid,bid=
 window.togPL=function(bid,li){{EXP[bid+'_'+li]=!EXP[bid+'_'+li];if(bid==='bpt')buildPLBody('bpt',plLines,nmvVals,MONTHS,false);else buildPLBody('bpti',plTiendas,tiendasNmv,tiendasNames,true);}};
 
 window.switchTab=function(tab){{
-  ['growth','ops','buyers','nps','pl','charts','plan'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','buyers','nps','pl','charts','plan'][i]===tab));
+  ['growth','ops','buyers','demog','nps','pl','charts','plan'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','buyers','demog','nps','pl','charts','plan'][i]===tab));
   if(tab==='charts')buildCharts();
-  if(tab==='buyers')buildBuyersCharts();
+  if(tab==='demog')buildBuyersCharts();
   if(tab==='plan')buildPlan();
 }};
 
