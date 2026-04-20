@@ -37,6 +37,17 @@ _first_sun = _last_sun - _td(weeks=13) # 14 weeks back
 
 _MES = ['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
 
+import calendar as _cal
+
+# Monthly plan NMV (2+10 forecast) for weekly plan computation
+_plan_nmv_monthly = {1:175799372, 2:196000000, 3:332708333, 4:244000000,
+                     5:325000000, 6:360000000, 7:470000000, 8:510000000}
+
+def _week_plan_nmv(d):
+    val = _plan_nmv_monthly.get(d.month)
+    if val is None: return None
+    return round(val * 7 / _cal.monthrange(d.year, d.month)[1])
+
 _wr = []
 for r in _wg:
     d = _date.fromisoformat(r['Fecha'])
@@ -45,6 +56,7 @@ for r in _wg:
         nsi=_ff(r['NSI']); nmv_usd=_ff(r['NMV_USD']); tsie=_ff(r['TSIE_total'])
         vis=_wvis.get(r['Fecha'],0)
         _wr.append(dict(
+            fecha=r['Fecha'],
             label=f"{d.day} {_MES[d.month]}",
             nmv=round(nmv), nmv_usd=round(nmv_usd), compras=compras,
             ordenes=ordenes, nsi=round(nsi), tsie=round(tsie), vis=vis,
@@ -54,6 +66,7 @@ for r in _wg:
             nsi_cart=round(nsi/compras, 2) if compras else 0,
             ord_compra=round(ordenes/compras, 2) if compras else 0,
             cvr=round(compras/vis, 4) if vis else None,
+            plan_nmv=_week_plan_nmv(d),
         ))
 
 WEEK_LABELS = [r['label'] for r in _wr]
@@ -72,52 +85,139 @@ weekly_growth = [
     {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['cvr'] for r in _wr]}]},
 ]
 
-# Rolling windows from daily data
-_daily = {}
-for r in _dg:
-    d = _date.fromisoformat(r['Fecha'])
-    _daily[d] = dict(
-        nmv=_ff(r['NMV']), compras=_fi(r['Compras']), ordenes=_fi(r['Ordenes']),
-        nsi=_ff(r['NSI']), nmv_usd=_ff(r['NMV_USD']), tsie=_ff(r['TSIE_total']),
-        vis=_dvis.get(r['Fecha'], 0)
-    )
+# === ROLLING WINDOWS (use full daily history from Oct 2025) ===
+def _build_daily_dict(rows, vis_dict):
+    d = {}
+    for r in rows:
+        dt = _date.fromisoformat(r['Fecha'])
+        d[dt] = dict(nmv=_ff(r['NMV']), compras=_fi(r['Compras']), ordenes=_fi(r['Ordenes']),
+                     nsi=_ff(r['NSI']), nmv_usd=_ff(r['NMV_USD']), tsie=_ff(r['TSIE_total']),
+                     vis=vis_dict.get(r['Fecha'], 0))
+    return d
+
+# Full daily from Oct 2025 (for rolling 28d history)
+_dg_full = _rc('daily_growth_full.csv')
+_dv_full = _rc('daily_visits_full.csv')
+_dvis_full = {r['Fecha']: _fi(r['Visitas']) for r in _dv_full}
+_daily_full = _build_daily_dict(_dg_full, _dvis_full)
 
 _last_day = _today - _td(days=1)
-while _last_day not in _daily and _last_day > _date(2026,1,1):
+while _last_day not in _daily_full and _last_day > _date(2025,10,20):
     _last_day -= _td(days=1)
 
-def _agg(s, e):
+def _agg(s, e, daily_dict):
     nmv=compras=ordenes=nsi=nmv_usd=tsie=vis=0
     d=s
     while d<=e:
-        if d in _daily:
-            row=_daily[d]; nmv+=row['nmv']; compras+=row['compras']
+        if d in daily_dict:
+            row=daily_dict[d]; nmv+=row['nmv']; compras+=row['compras']
             ordenes+=row['ordenes']; nsi+=row['nsi']; nmv_usd+=row['nmv_usd']
             tsie+=row['tsie']; vis+=row['vis']
         d+=_td(days=1)
-    return dict(
-        nmv=round(nmv), nmv_usd=round(nmv_usd), compras=compras,
+    return dict(nmv=round(nmv), nmv_usd=round(nmv_usd), compras=compras,
         ordenes=ordenes, nsi=round(nsi), tsie=round(tsie), vis=vis,
         apv=round(nmv/compras) if compras else 0,
         nasp=round(nmv/nsi) if nsi else 0,
         fr=round(nsi/tsie, 4) if tsie else 0,
         nsi_cart=round(nsi/compras, 2) if compras else 0,
         cvr=round(compras/vis, 4) if vis else None,
-        lbl=f"{s.day}/{s.month} - {e.day}/{e.month}"
-    )
+        lbl=f"{s.day}/{s.month}-{e.day}/{e.month}")
 
-_min_day = _date(2026,1,1)
+_min_full = _date(2025,10,20)
 rolling_7, end = [], _last_day
 for _ in range(14):
     s = end - _td(days=6)
-    if s < _min_day: break
-    rolling_7.append(_agg(s, end)); end = s - _td(days=1)
+    if s < _min_full: break
+    rolling_7.append(_agg(s, end, _daily_full)); end = s - _td(days=1)
 
 rolling_28, end = [], _last_day
-for _ in range(6):
+for _ in range(14):
     s = end - _td(days=27)
-    if s < _min_day: break
-    rolling_28.append(_agg(s, end)); end = s - _td(days=1)
+    if s < _min_full: break
+    rolling_28.append(_agg(s, end, _daily_full)); end = s - _td(days=1)
+
+# Transposed rolling (oldest-first, for column-per-period display)
+def _build_transposed(rolling):
+    data = list(reversed(rolling))  # oldest first = leftmost column
+    labels = [r['lbl'] for r in data]
+    fields = [('nmv','NMV','money'),('compras','Compras','num'),('ordenes','Órdenes','num'),
+              ('apv','APV LC','dollar'),('nsi','NSI','num'),('fr','Fill Rate Items','pct'),
+              ('vis','Visitas','num')]
+    return [{'metric':n,'fmt':f,'rows':[{'s':'Total','v':[r[k] for r in data]}]}
+            for k,n,f in fields], labels
+
+rolling_7_t, rolling_7_labels = _build_transposed(rolling_7)
+rolling_28_t, rolling_28_labels = _build_transposed(rolling_28)
+
+# === WEEKLY BY STORE ===
+_wbs_raw = _rc('weekly_by_store.csv')
+_STORES = ['Scalabrini','Vicente Lopez','Caballito','Villa Urquiza']
+_wbs = {}
+for r in _wbs_raw:
+    f = r['Semana']; t = r['Tienda']
+    if f not in _wbs: _wbs[f] = {}
+    _wbs[f][t] = dict(nmv=round(_ff(r['NMV'])), compras=_fi(r['Compras']),
+                      ordenes=_fi(r['Ordenes']), nsi=round(_ff(r['NSI'])))
+
+_w_dates = [r['fecha'] for r in _wr]
+
+def _sv(metric): return [_wbs.get(d,{}).get(s,{}).get(metric) for d in _w_dates for s in [s]][0] if False else None
+def _store_series(metric):
+    return {s: [_wbs.get(d,{}).get(s,{}).get(metric) for d in _w_dates] for s in _STORES}
+
+_ss_nmv     = _store_series('nmv')
+_ss_compras = _store_series('compras')
+_ss_ordenes = _store_series('ordenes')
+_ss_nsi     = _store_series('nsi')
+
+weekly_growth_stores = [
+    {'metric':'NMV','fmt':'money','rows':[{'s':'Total','v':[r['nmv'] for r in _wr]}]+[{'s':s,'v':_ss_nmv[s]} for s in _STORES]},
+    {'metric':'Compras','fmt':'num','rows':[{'s':'Total','v':[r['compras'] for r in _wr]}]+[{'s':s,'v':_ss_compras[s]} for s in _STORES]},
+    {'metric':'Órdenes','fmt':'num','rows':[{'s':'Total','v':[r['ordenes'] for r in _wr]}]+[{'s':s,'v':_ss_ordenes[s]} for s in _STORES]},
+    {'metric':'NSI','fmt':'num','rows':[{'s':'Total','v':[r['nsi'] for r in _wr]}]+[{'s':s,'v':_ss_nsi[s]} for s in _STORES]},
+    {'metric':'APV LC','fmt':'dollar','rows':[{'s':'Total','v':[r['apv'] for r in _wr]}]},
+    {'metric':'NASP LC','fmt':'dollar','rows':[{'s':'Total','v':[r['nasp'] for r in _wr]}]},
+    {'metric':'Fill Rate Items','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['fr'] for r in _wr]}]},
+    {'metric':'NSI/Cart','fmt':'dec','rows':[{'s':'Total','v':[r['nsi_cart'] for r in _wr]}]},
+    {'metric':'Orders/Purchase','fmt':'dec','rows':[{'s':'Total','v':[r['ord_compra'] for r in _wr]}]},
+    {'metric':'Visitas','fmt':'num','rows':[{'s':'Total','v':[r['vis'] for r in _wr]}]},
+    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['cvr'] for r in _wr]}]},
+]
+
+# === WEEKLY BUYERS ===
+_wb_raw = _rc('weekly_buyers.csv')
+_wb = {}
+for r in _wb_raw:
+    f=r['Semana']; t=r['TIENDA']
+    if f not in _wb: _wb[f]={}
+    _wb[f][t] = _fi(r['Buyers'])
+
+_wb_total = [sum(_wb.get(d,{}).values()) or 0 for d in _w_dates]
+_wb_stores = {s:[_wb.get(d,{}).get(s) for d in _w_dates] for s in _STORES}
+weekly_buyers_w = [
+    {'metric':'Buyers','fmt':'num','rows':[{'s':'Total','v':_wb_total}]+[{'s':s,'v':_wb_stores[s]} for s in _STORES]},
+    {'metric':'Frecuencia','sub':'Compras/Buyer','fmt':'dec','rows':[{'s':'Total','v':[
+        round(_wr[i]['compras']/_wb_total[i],2) if _wb_total[i] else None for i in range(len(_wr))]}]},
+]
+
+# === WEEKLY OPS ===
+_wc_raw = _rc('weekly_cancels.csv')
+_wc = {r['Semana']: _ff(r['Cancel_Rate']) for r in _wc_raw}
+weekly_ops_w = [
+    {'metric':'Fill Rate Items','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['fr'] for r in _wr]}]},
+    {'metric':'Cancelaciones','fmt':'pct','isPP':True,'isNegGood':True,'rows':[
+        {'s':'Total','v':[_wc.get(r['fecha']) for r in _wr]}]},
+    {'metric':'NSI/Cart','fmt':'dec','rows':[{'s':'Total','v':[r['nsi_cart'] for r in _wr]}]},
+]
+
+# === WEEKLY PLAN (NMV only, from monthly plan distributed by days) ===
+weekly_plan_data_w = [
+    {'metric':'NMV','fmt':'money','isNegGood':False,
+     'plan':[r['plan_nmv'] for r in _wr],
+     'real':[r['nmv'] for r in _wr]},
+    {'metric':'Compras','fmt':'num','isNegGood':False,
+     'plan':[None]*len(_wr), 'real':[r['compras'] for r in _wr]},
+]
 
 MONTHS = ["Oct'25","Nov'25","Dic'25","Ene'26","Feb'26","Mar'26"]
 MONTHS_NPS = ["Dic'25","Ene'26","Feb'26","Mar'26"]
@@ -519,12 +619,41 @@ tr:hover td.last{{background:#dbeafe!important}}
 
   <div id="weekly-section" style="display:none">
     <div class="tabs" id="weekly-tabs">
-      <div class="tab active" onclick="switchWeeklyTab('wgrowth')">Growth Semanal</div>
+      <div class="tab active" onclick="switchWeeklyTab('wgrowth')">Growth</div>
+      <div class="tab" onclick="switchWeeklyTab('wops')">Ops</div>
+      <div class="tab" onclick="switchWeeklyTab('wbuyers')">Buyers</div>
+      <div class="tab" onclick="switchWeeklyTab('wcharts')">Gráficos</div>
+      <div class="tab" onclick="switchWeeklyTab('wplan')">Plan</div>
       <div class="tab" onclick="switchWeeklyTab('wfechas')">Fechas Móviles</div>
     </div>
-    <div class="tbl">
+    <div class="tbl" id="weekly-tbl">
       <div id="t-wgrowth">
+        <div class="filter-bar">
+          <span class="filter-lbl">Apertura:</span>
+          <select class="fsel" id="wstore-filter" onchange="setWStore(this.value)">
+            <option value="Todas">Todas las tiendas</option>
+            <option value="Scalabrini">Scalabrini</option>
+            <option value="Caballito">Caballito</option>
+            <option value="Vicente Lopez">Vicente Lopez</option>
+            <option value="Villa Urquiza">Villa Urquiza</option>
+          </select>
+        </div>
         <table><thead id="hwg"></thead><tbody id="bwg"></tbody></table>
+      </div>
+      <div id="t-wops" style="display:none"><table><thead id="hwo"></thead><tbody id="bwo"></tbody></table></div>
+      <div id="t-wbuyers" style="display:none"><table><thead id="hwbu"></thead><tbody id="bwbu"></tbody></table></div>
+      <div id="t-wcharts" style="display:none">
+        <div class="charts-grid">
+          <div class="chart-card"><div class="chart-title">NMV Semanal</div><svg id="cw-nmv" width="100%" style="overflow:visible"></svg></div>
+          <div class="chart-card"><div class="chart-title">Compras Semanales</div><svg id="cw-ord" width="100%" style="overflow:visible"></svg></div>
+          <div class="chart-card"><div class="chart-title">Fill Rate Items</div><svg id="cw-fr" width="100%" style="overflow:visible"></svg></div>
+          <div class="chart-card"><div class="chart-title">Visitas Semanales</div><svg id="cw-vis" width="100%" style="overflow:visible"></svg></div>
+        </div>
+      </div>
+      <div id="t-wplan" style="display:none">
+        <div class="plan-hdr">Plan Semanal <span class="plan-badge">NMV vs Real</span></div>
+        <div class="plan-sub">Plan distribuido proporcionalmente desde targets mensuales</div>
+        <table><thead id="hwpl"></thead><tbody id="bwpl"></tbody></table>
       </div>
       <div id="t-wfechas" style="display:none">
         <div class="fm-section" id="fm7-cont"></div>
@@ -553,16 +682,31 @@ const tiendasNmv={j(tiendas_nmv)};
 const plTiendas={j(pl_tiendas)};
 const verticals={j(verticals)};
 const weekLabels={j(WEEK_LABELS)};
-const weeklyGrowth={j(weekly_growth)};
-const rolling7={j(rolling_7)};
-const rolling28={j(rolling_28)};
+const weeklyGrowthStores={j(weekly_growth_stores)};
+const weeklyBuyersW={j(weekly_buyers_w)};
+const weeklyOpsW={j(weekly_ops_w)};
+const weeklyPlanDataW={j(weekly_plan_data_w)};
+const rolling7T={j(rolling_7_t)};
+const rolling7TLabels={j(rolling_7_labels)};
+const rolling28T={j(rolling_28_t)};
+const rolling28TLabels={j(rolling_28_labels)};
 
 let activeStore='Todas';
 
 function relLabel(months,i){{
   const offset=months.length-1-i;
-  if(offset===0)return'Última mes';
+  if(offset===0)return'Ult. mes';
   return'M-'+offset;
+}}
+function relLabelS(labels,i){{
+  const offset=labels.length-1-i;
+  if(offset===0)return'Ult. sem.';
+  return'S-'+offset;
+}}
+function relLabelP(labels,i){{
+  const offset=labels.length-1-i;
+  if(offset===0)return'P';
+  return'P-'+offset;
 }}
 
 window.setStore=function(s){{activeStore=s;buildBody('bg',growthData,MONTHS,4,5);}};
@@ -618,7 +762,8 @@ function spark(vals){{
 
 const EXP={{}};
 
-function buildHead(hid,months,hlIdx){{
+function buildHead(hid,months,hlIdx,relFn){{
+  relFn=relFn||relLabel;
   const lastIdx=months.length-1;
   document.getElementById(hid).innerHTML=`<tr>
     <th class="left" style="min-width:180px"><span class="dt">Métrica</span></th>
@@ -626,7 +771,7 @@ function buildHead(hid,months,hlIdx){{
     ${{months.map((m,i)=>{{
       const isLast=i===lastIdx;
       const cls=isLast?'last':(i>=hlIdx?'hl':'');
-      const rel=relLabel(months,i);
+      const rel=relFn(months,i);
       return`<th class="${{cls}}"><span class="rel">${{rel}}</span><span class="dt">${{m}}</span></th>`;
     }}).join('')}}
     <th class="last"><span class="rel">cambio</span><span class="dt">vs LP</span></th>
@@ -783,115 +928,173 @@ window.switchSub=function(sub){{
   document.querySelectorAll('.subtab').forEach((el,i)=>el.classList.toggle('active',['s-total','s-tiendas','s-vert'][i]===sub));
 }};
 
+let activeWStore='Todas';
+
 window.setMode=function(mode){{
   const isW=mode==='weekly';
   ['monthly-section','monthly-tbl'].forEach(id=>{{
-    const el=document.getElementById(id);
-    if(el)el.style.display=isW?'none':'';
+    const el=document.getElementById(id);if(el)el.style.display=isW?'none':'';
   }});
   document.getElementById('weekly-section').style.display=isW?'':'none';
   document.getElementById('btn-monthly').classList.toggle('active',!isW);
   document.getElementById('btn-weekly').classList.toggle('active',isW);
-  if(isW){{buildWeeklyGrowth();}}
+  if(isW)buildWeeklyGrowth();
 }};
 
+const _wTabs=['wgrowth','wops','wbuyers','wcharts','wplan','wfechas'];
 window.switchWeeklyTab=function(tab){{
-  ['wgrowth','wfechas'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
-  document.querySelectorAll('#weekly-tabs .tab').forEach((el,i)=>el.classList.toggle('active',['wgrowth','wfechas'][i]===tab));
+  _wTabs.forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
+  document.querySelectorAll('#weekly-tabs .tab').forEach((el,i)=>el.classList.toggle('active',_wTabs[i]===tab));
   if(tab==='wfechas')buildFechasMov7();
+  if(tab==='wcharts')buildWeeklyCharts();
+  if(tab==='wops')buildWeeklyOps();
+  if(tab==='wbuyers')buildWeeklyBuyers();
+  if(tab==='wplan')buildWeeklyPlan();
 }};
+
+window.setWStore=function(s){{
+  activeWStore=s;
+  buildWeeklyGrowth();
+}};
+
+// ── BUILD HEAD for weekly (with relLabelS) ────────────────────────────────────
+function buildHeadW(hid,labels,hlIdx){{
+  buildHead(hid,labels,hlIdx,relLabelS);
+}}
+function buildHeadP(hid,labels,hlIdx){{
+  buildHead(hid,labels,hlIdx,relLabelP);
+}}
+
+// ── BODY (simple, no store filter logic same as buildBody) ────────────────────
+function buildBodyW(bid,data,labels,hlIdx,lpIdx){{
+  const tb=document.getElementById(bid);tb.innerHTML='';
+  const isGrowth=bid==='bwg';
+  const lastIdx=labels.length-1;
+  data.forEach((m,mi)=>{{
+    if(isGrowth&&activeWStore!=='Todas'){{
+      const sRow=m.rows.find(r=>r.s===activeWStore)||m.rows[0];
+      const tr=document.createElement('tr');
+      let h='<td class="metric left">'+m.metric+'</td>';
+      h+='<td class="apert-total left">'+sRow.s+'</td>';
+      sRow.v.forEach((v,i)=>{{
+        h+='<td class="'+(i===lastIdx?'last':(i>=hlIdx?'hl':''))+'">'+fv(v,m.fmt)+'</td>';
+      }});
+      const vl=vsLP(sRow.v,m.isPP,m.isNegGood,lpIdx);
+      const res=fmtVs(vl);
+      h+='<td class="'+res.cls+'">'+res.txt+'</td>'+spark(sRow.v);
+      tr.innerHTML=h;tb.appendChild(tr);return;
+    }}
+    const isExp=EXP[bid+'_'+mi],hasC=m.rows.length>1;
+    m.rows.forEach((row,ri)=>{{
+      if(ri>0&&!isExp)return;
+      const isT=ri===0,tr=document.createElement('tr');
+      let h='';
+      if(isT){{
+        h='<td class="metric left"><span class="tog" onclick="togW(\''+bid+'\','+mi+')">'+(hasC?(isExp?'▼':'▶'):'')+
+          '</span>'+m.metric+'</td><td class="apert-total left">● Total</td>';
+      }}else{{
+        h='<td></td><td class="store left">'+row.s+'</td>';
+      }}
+      row.v.forEach((v,i)=>{{
+        const cls=isT?(i===lastIdx?'last':(i>=hlIdx?'hl':'')):(i===lastIdx?'store last':(i>=hlIdx?'store hl':'store'));
+        h+='<td class="'+cls+'">'+fv(v,m.fmt)+'</td>';
+      }});
+      const vl=vsLP(row.v,m.isPP,m.isNegGood,lpIdx);
+      const res=fmtVs(vl);
+      h+='<td class="'+(isT?res.cls:res.cls+' store')+'">'+res.txt+'</td>'+spark(row.v);
+      tr.innerHTML=h;tb.appendChild(tr);
+    }});
+  }});
+}}
+window.togW=function(bid,mi){{EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildWeeklyGrowth();}};
 
 function buildWeeklyGrowth(){{
   const N=weekLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
-  buildHead('hwg',weekLabels,hlIdx);
-  buildBodySimple('bwg',weeklyGrowth,weekLabels,hlIdx,lpIdx);
+  buildHeadW('hwg',weekLabels,hlIdx);
+  buildBodyW('bwg',weeklyGrowthStores,weekLabels,hlIdx,lpIdx);
 }}
 
-function buildBodySimple(bid,data,labels,hlIdx,lpIdx){{
-  const tb=document.getElementById(bid);tb.innerHTML='';
-  const lastIdx=labels.length-1;
-  data.forEach((m,mi)=>{{
-    const row=m.rows[0];
-    const tr=document.createElement('tr');
-    let h='';
-    const subHtml=m.sub?'<div style="font-size:9px;color:#94a3b8;font-weight:400;margin-top:1px">'+m.sub+'</div>':'';
-    h+='<td class="metric left">'+m.metric+subHtml+'</td>';
-    h+='<td class="apert-total left">Total</td>';
-    row.v.forEach((v,i)=>{{
-      const cls=i===lastIdx?'last':(i>=hlIdx?'hl':'');
-      h+='<td class="'+cls+'">'+fv(v,m.fmt)+'</td>';
+function buildWeeklyOps(){{
+  const N=weekLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
+  buildHeadW('hwo',weekLabels,hlIdx);
+  buildBodyW('bwo',weeklyOpsW,weekLabels,hlIdx,lpIdx);
+}}
+
+function buildWeeklyBuyers(){{
+  const N=weekLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
+  buildHeadW('hwbu',weekLabels,hlIdx);
+  buildBodyW('bwbu',weeklyBuyersW,weekLabels,hlIdx,lpIdx);
+}}
+
+function buildWeeklyCharts(){{
+  const nmvV=weeklyGrowthStores.find(m=>m.metric==='NMV').rows[0].v;
+  const cmpV=weeklyGrowthStores.find(m=>m.metric==='Compras').rows[0].v;
+  const frV=weeklyGrowthStores.find(m=>m.metric==='Fill Rate Items').rows[0].v;
+  const visV=weeklyGrowthStores.find(m=>m.metric==='Visitas').rows[0].v;
+  drawLineArea('cw-nmv',nmvV,weekLabels,'#2563eb','money');
+  drawBars('cw-ord',cmpV,weekLabels,'#16a34a','num');
+  drawLineArea('cw-fr',frV,weekLabels,'#d97706','pct');
+  drawBars('cw-vis',visV,weekLabels,'#7c3aed','num');
+}}
+
+function buildWeeklyPlan(){{
+  const lastIdx=weekLabels.length-1;
+  document.getElementById('hwpl').innerHTML='<tr>'+
+    '<th class="left" style="min-width:150px"><span class="dt">Métrica</span></th>'+
+    '<th class="left" style="min-width:60px"><span class="dt">Apertura</span></th>'+
+    weekLabels.map((m,i)=>{{
+      const cls=i===lastIdx?'last':(i>=weekLabels.length-4?'hl':'');
+      return'<th class="'+cls+'"><span class="rel">'+relLabelS(weekLabels,i)+'</span><span class="dt">'+m+'</span></th>';
+    }}).join('')+
+    '<th class="last"><span class="rel">vs plan</span><span class="dt">Ult.&nbsp;sem.</span></th></tr>';
+  const tb=document.getElementById('bwpl');tb.innerHTML='';
+  weeklyPlanDataW.forEach(row=>{{
+    const trP=document.createElement('tr');
+    let hP='<td class="metric left">'+row.metric+'</td>';
+    hP+='<td class="apert left" style="color:#94a3b8;font-size:11px">◌ Plan</td>';
+    row.plan.forEach((v,i)=>{{
+      const cls=i===lastIdx?'last':(i>=weekLabels.length-4?'hl':'');
+      hP+='<td class="'+cls+'" style="opacity:0.55;font-style:italic">'+fv(v,row.fmt)+'</td>';
     }});
-    const vl=vsLP(row.v,m.isPP,m.isNegGood,lpIdx);
-    const res=fmtVs(vl);
-    h+='<td class="'+res.cls+'">'+res.txt+'</td>';
-    h+=spark(row.v);
-    tr.innerHTML=h;tb.appendChild(tr);
+    hP+='<td class="last neu">—</td>';
+    trP.innerHTML=hP;tb.appendChild(trP);
+    const trR=document.createElement('tr');
+    let hR='<td></td><td class="apert-total left" style="font-size:11px">● Real</td>';
+    row.real.forEach((v,i)=>{{
+      const cls=i===lastIdx?'last':(i>=weekLabels.length-4?'hl':'');
+      hR+='<td class="'+cls+'">'+fv(v,row.fmt)+'</td>';
+    }});
+    const pm=row.plan[lastIdx],rm=row.real[lastIdx];
+    let vs='<td class="last neu">—</td>';
+    if(pm&&rm){{const d=(rm-pm)/pm*100;vs='<td class="last '+(d>=0?'pos':'neg')+'">'+(d>=0?'+':'')+d.toFixed(1)+'%</td>';}}
+    hR+=vs;trR.innerHTML=hR;tb.appendChild(trR);
   }});
 }}
 
-function fmRollingTable(data,cont){{
-  if(!cont)return;
-  const cols=[
-    {{k:'nmv',lbl:'NMV',fmt:'money'}},
-    {{k:'compras',lbl:'Compras',fmt:'num'}},
-    {{k:'ordenes',lbl:'Órdenes',fmt:'num'}},
-    {{k:'apv',lbl:'APV',fmt:'dollar'}},
-    {{k:'nsi',lbl:'NSI',fmt:'num'}},
-    {{k:'fr',lbl:'Fill Rate',fmt:'pct'}},
-  ];
-  let html='<div class="tbl"><table style="min-width:900px">';
-  html+='<thead><tr><th class="left" style="min-width:140px"><span class="dt">Período</span></th>';
-  cols.forEach(c=>{{html+='<th><span class="dt">'+c.lbl+'</span></th><th class="hl"><span class="dt">%&nbsp;vs ant</span></th>';}});
-  html+='</tr></thead><tbody>';
-  data.forEach((row,i)=>{{
-    const prev=data[i+1]||null;
-    const isLast=i===0;
-    html+='<tr>';
-    html+='<td class="left fm-period'+(isLast?' metric':'')+'">'+row.lbl+'</td>';
-    cols.forEach(c=>{{
-      const v=row[c.k];
-      const p=prev?prev[c.k]:null;
-      const pct=(v!=null&&p!=null&&p!==0)?((v-p)/Math.abs(p)*100):null;
-      const cellCls=isLast?'last':'';
-      html+='<td class="'+cellCls+'">'+fv(v,c.fmt)+'</td>';
-      if(pct!=null){{
-        const sign=pct>=0?'+':'';
-        const pCls=pct>=0?'pos':'neg';
-        html+='<td class="hl '+pCls+'">'+sign+pct.toFixed(1)+'%</td>';
-      }}else{{
-        html+='<td class="hl neu">—</td>';
-      }}
-    }});
-    html+='</tr>';
-  }});
-  html+='</tbody></table></div>';
-  const div=document.createElement('div');
-  div.innerHTML=html;
-  cont.appendChild(div);
+// ── FECHAS MÓVILES — transposed (KPIs=rows, períodos=columns) ─────────────────
+function buildFMTransposed(containerId,tData,tLabels,titleText){{
+  const c=document.getElementById(containerId);
+  if(!c||c.dataset.built)return;
+  c.dataset.built='1';
+  const N=tLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
+  const titleEl=document.createElement('div');
+  titleEl.className='fm-title';titleEl.textContent=titleText;
+  c.appendChild(titleEl);
+  // Build head manually
+  const hid='fm-h-'+containerId, bid='fm-b-'+containerId;
+  const tbl=document.createElement('div');
+  tbl.className='tbl';
+  tbl.innerHTML='<table><thead id="'+hid+'"></thead><tbody id="'+bid+'"></tbody></table>';
+  c.appendChild(tbl);
+  buildHeadP(hid,tLabels,hlIdx);
+  buildBodyW(bid,tData,tLabels,hlIdx,lpIdx);
 }}
 
 function buildFechasMoviles(){{
-  const c=document.getElementById('fm28-cont');
-  if(!c||c.dataset.built)return;
-  c.dataset.built='1';
-  const wrap=document.createElement('div');
-  const title=document.createElement('div');
-  title.className='fm-title';
-  title.textContent='Rolling 28 dias vs periodo anterior';
-  wrap.appendChild(title);
-  c.appendChild(wrap);
-  fmRollingTable(rolling28,c);
+  buildFMTransposed('fm28-cont',rolling28T,rolling28TLabels,'Rolling 28 días · KPIs como filas · períodos como columnas (P = más reciente)');
 }}
-
 function buildFechasMov7(){{
-  const c=document.getElementById('fm7-cont');
-  if(!c||c.dataset.built)return;
-  c.dataset.built='1';
-  const title=document.createElement('div');
-  title.className='fm-title';
-  title.textContent='Rolling 7 dias vs periodo anterior (14 periodos, mas reciente primero)';
-  c.appendChild(title);
-  fmRollingTable(rolling7,c);
+  buildFMTransposed('fm7-cont',rolling7T,rolling7TLabels,'Rolling 7 días · KPIs como filas · períodos como columnas (P = más reciente)');
 }}
 
 // ── KPI YTD ───────────────────────────────────────────────────────────────────
