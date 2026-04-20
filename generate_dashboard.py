@@ -101,7 +101,11 @@ _dv_full = _rc('daily_visits_full.csv')
 _dvis_full = {r['Fecha']: _fi(r['Visitas']) for r in _dv_full}
 _daily_full = _build_daily_dict(_dg_full, _dvis_full)
 
-_last_day = _today - _td(days=1)
+# Rolling windows end on the last complete Saturday (weeks are Sun-Sat)
+# isoweekday: Mon=1..Sat=6, Sun=7  → days since last Saturday = (isoweekday+1)%7
+_days_since_sat = (_today.isoweekday() + 1) % 7
+_last_sat = _today - _td(days=_days_since_sat if _days_since_sat > 0 else 7)
+_last_day = _last_sat
 while _last_day not in _daily_full and _last_day > _date(2025,10,20):
     _last_day -= _td(days=1)
 
