@@ -535,7 +535,7 @@ function buildHeadP(hid,labels,hlIdx){
   buildHead(hid,labels,hlIdx,relLabelP);
 }
 
-// ── BODY (simple, no store filter logic same as buildBody) ────────────────────
+// ── BODY weekly (same pattern as buildBody but for weekly) ────────────────────
 function buildBodyW(bid,data,labels,hlIdx,lpIdx){
   const tb=document.getElementById(bid);tb.innerHTML='';
   const isGrowth=bid==='bwg';
@@ -544,15 +544,18 @@ function buildBodyW(bid,data,labels,hlIdx,lpIdx){
     if(isGrowth&&activeWStore!=='Todas'){
       const sRow=m.rows.find(r=>r.s===activeWStore)||m.rows[0];
       const tr=document.createElement('tr');
-      let h='<td class="metric left">'+m.metric+'</td>';
-      h+='<td class="apert-total left">'+sRow.s+'</td>';
+      let h=`<td class="metric left"><span class="tog"></span>${m.metric}</td>`;
+      h+=`<td class="apert-total left">${sRow.s}</td>`;
       sRow.v.forEach((v,i)=>{
-        h+='<td class="'+(i===lastIdx?'last':(i>=hlIdx?'hl':''))+'">'+fv(v,m.fmt)+'</td>';
+        const cls=i===lastIdx?'last':(i>=hlIdx?'hl':'');
+        h+=`<td class="${cls}">${fv(v,m.fmt)}</td>`;
       });
       const vl=vsLP(sRow.v,m.isPP,m.isNegGood,lpIdx);
-      const res=fmtVs(vl);
-      h+='<td class="'+res.cls+'">'+res.txt+'</td>'+spark(sRow.v);
-      tr.innerHTML=h;tb.appendChild(tr);return;
+      const{txt,cls}=fmtVs(vl);
+      h+=`<td class="${cls}">${txt}</td>`;
+      h+=spark(sRow.v);
+      tr.innerHTML=h;tb.appendChild(tr);
+      return;
     }
     const isExp=EXP[bid+'_'+mi],hasC=m.rows.length>1;
     m.rows.forEach((row,ri)=>{
@@ -560,18 +563,20 @@ function buildBodyW(bid,data,labels,hlIdx,lpIdx){
       const isT=ri===0,tr=document.createElement('tr');
       let h='';
       if(isT){
-        h='<td class="metric left"><span class="tog" onclick="togW(''+bid+'','+mi+')">'+(hasC?(isExp?'▼':'▶'):'')+
-          '</span>'+m.metric+'</td><td class="apert-total left">● Total</td>';
-      }else{
-        h='<td></td><td class="store left">'+row.s+'</td>';
+        h+=`<td class="metric left"><span class="tog" onclick="togW('${bid}',${mi})">${hasC?(isExp?'▼':'▶'):''}</span>${m.metric}</td>`;
+        h+=`<td class="apert-total left">● Total</td>`;
+      } else {
+        h+=`<td></td><td class="store left">${row.s}</td>`;
       }
       row.v.forEach((v,i)=>{
-        const cls=isT?(i===lastIdx?'last':(i>=hlIdx?'hl':'')):(i===lastIdx?'store last':(i>=hlIdx?'store hl':'store'));
-        h+='<td class="'+cls+'">'+fv(v,m.fmt)+'</td>';
+        const isLast=i===lastIdx;
+        const cls=isT?(isLast?'last':(i>=hlIdx?'hl':'')):(isLast?'store last':(i>=hlIdx?'store hl':'store'));
+        h+=`<td class="${cls}">${fv(v,m.fmt)}</td>`;
       });
       const vl=vsLP(row.v,m.isPP,m.isNegGood,lpIdx);
-      const res=fmtVs(vl);
-      h+='<td class="'+(isT?res.cls:res.cls+' store')+'">'+res.txt+'</td>'+spark(row.v);
+      const{txt,cls}=fmtVs(vl);
+      h+=`<td class="${isT?cls:cls+' store'}">${txt}</td>`;
+      h+=spark(row.v);
       tr.innerHTML=h;tb.appendChild(tr);
     });
   });
