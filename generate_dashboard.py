@@ -144,8 +144,20 @@ _daily_full = _build_daily_dict(_dg_full, _dvis_full)
 # Rolling windows use the last complete calendar day (yesterday)
 # Note: Growth Semanal uses Sun-Sat fixed weeks (from weekly_growth.csv grouping)
 # but Fechas Moviles rolling is pure 7/28-day sliding window
+# Merge recent daily_growth.csv on top of full history (fresher data wins)
+for _r in _rc('daily_growth.csv'):
+    _dt = _date.fromisoformat(_r['Fecha'])
+    _daily_full[_dt] = dict(
+        nmv=_ff(_r['NMV']), compras=_fi(_r['Compras']), ordenes=_fi(_r['Ordenes']),
+        nsi=_ff(_r['NSI']), nmv_usd=_ff(_r['NMV_USD']), tsie=_ff(_r['TSIE_total']),
+        vis=_dvis.get(_r['Fecha'], 0)
+    )
+
+# last_day = ayer, siempre que tenga datos reales (NMV > 1M como proxy de día completo)
 _last_day = _today - _td(days=1)
-while _last_day not in _daily_full and _last_day > _date(2025,10,20):
+while _last_day > _date(2025,10,20):
+    if _last_day in _daily_full and _daily_full[_last_day]['nmv'] > 1_000_000:
+        break
     _last_day -= _td(days=1)
 
 def _agg(s, e, daily_dict):
@@ -238,9 +250,8 @@ for r in _wb_raw:
 _wb_total = [sum(_wb.get(d,{}).values()) or 0 for d in _w_dates]
 _wb_stores = {s:[_wb.get(d,{}).get(s) for d in _w_dates] for s in _STORES}
 weekly_buyers_w = [
-    {'metric':'Buyers','fmt':'num','rows':[{'s':'Total','v':_wb_total}]+[{'s':s,'v':_wb_stores[s]} for s in _STORES]},
-    {'metric':'Frecuencia','sub':'Compras/Buyer','fmt':'dec','rows':[{'s':'Total','v':[
-        round(_wr[i]['compras']/_wb_total[i],2) if _wb_total[i] else None for i in range(len(_wr))]}]},
+    {'metric':'Visitas','fmt':'num','rows':[{'s':'Total','v':[r['vis'] for r in _wr]}]},
+    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['cvr'] for r in _wr]}]},
 ]
 
 # === WEEKLY OPS ===
@@ -250,8 +261,8 @@ weekly_ops_w = [
     {'metric':'Fill Rate Items','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['fr'] for r in _wr]}]},
     {'metric':'Cancelaciones','fmt':'pct','isPP':True,'isNegGood':True,'rows':[
         {'s':'Total','v':[_wc.get(r['fecha']) for r in _wr]}]},
-    {'metric':'NSI/Cart','fmt':'dec','rows':[{'s':'Total','v':[r['nsi_cart'] for r in _wr]}]},
 ]
+# Pendiente queries BQ para: Fill Rate Items c/reemplazos, Fill Rate Compras (c/sin), On Time
 
 # === WEEKLY PLAN (valores exactos del plan semanal) ===
 weekly_plan_data_w = [
