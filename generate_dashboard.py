@@ -39,14 +39,53 @@ _MES = ['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','di
 
 import calendar as _cal
 
-# Monthly plan NMV (2+10 forecast) for weekly plan computation
-_plan_nmv_monthly = {1:175799372, 2:196000000, 3:332708333, 4:244000000,
-                     5:325000000, 6:360000000, 7:470000000, 8:510000000}
+# Weekly plan NMV — valores exactos del plan semanal (imagen compartida 2026-04-20)
+# Columnas 2-18 = semana del año, arranca el domingo
+_weekly_plan_nmv = {
+    '2026-01-04': 43175669,
+    '2026-01-11': 39175647,
+    '2026-01-18': 38245818,
+    '2026-01-25': 38070378,
+    '2026-02-01': 50979600,
+    '2026-02-08': 49450800,
+    '2026-02-15': 46236400,
+    '2026-02-22': 49333200,
+    '2026-03-01': 75877678,
+    '2026-03-08': 75877678,
+    '2026-03-15': 75877678,
+    '2026-03-22': 71775839,
+    '2026-03-29': 72324522,
+    '2026-04-05': 80738627,
+    '2026-04-12': 83160786,
+    '2026-04-19': 85655610,
+    '2026-04-26': 61204883,
+}
+# Weekly plan NSI — misma fuente
+_weekly_plan_nsi = {
+    '2026-01-04': 11339,
+    '2026-01-11': 10438,
+    '2026-01-18': 10354,
+    '2026-01-25': 10331,
+    '2026-02-01': 13452,
+    '2026-02-08': 12868,
+    '2026-02-15': 12207,
+    '2026-02-22': 13137,
+    '2026-03-01': 19530,
+    '2026-03-08': 19530,
+    '2026-03-15': 19530,
+    '2026-03-22': 18474,
+    '2026-03-29': 18457,
+    '2026-04-05': 20454,
+    '2026-04-12': 21068,
+    '2026-04-19': 21700,
+    '2026-04-26': 15506,
+}
 
-def _week_plan_nmv(d):
-    val = _plan_nmv_monthly.get(d.month)
-    if val is None: return None
-    return round(val * 7 / _cal.monthrange(d.year, d.month)[1])
+def _week_plan_nmv(fecha_str):
+    return _weekly_plan_nmv.get(fecha_str)
+
+def _week_plan_nsi(fecha_str):
+    return _weekly_plan_nsi.get(fecha_str)
 
 _wr = []
 for r in _wg:
@@ -66,7 +105,8 @@ for r in _wg:
             nsi_cart=round(nsi/compras, 2) if compras else 0,
             ord_compra=round(ordenes/compras, 2) if compras else 0,
             cvr=round(compras/vis, 4) if vis else None,
-            plan_nmv=_week_plan_nmv(d),
+            plan_nmv=_week_plan_nmv(r['Fecha']),
+            plan_nsi=_week_plan_nsi(r['Fecha']),
         ))
 
 WEEK_LABELS = [r['label'] for r in _wr]
@@ -213,11 +253,14 @@ weekly_ops_w = [
     {'metric':'NSI/Cart','fmt':'dec','rows':[{'s':'Total','v':[r['nsi_cart'] for r in _wr]}]},
 ]
 
-# === WEEKLY PLAN (NMV only, from monthly plan distributed by days) ===
+# === WEEKLY PLAN (valores exactos del plan semanal) ===
 weekly_plan_data_w = [
     {'metric':'NMV','fmt':'money','isNegGood':False,
      'plan':[r['plan_nmv'] for r in _wr],
      'real':[r['nmv'] for r in _wr]},
+    {'metric':'NSI','fmt':'num','isNegGood':False,
+     'plan':[r['plan_nsi'] for r in _wr],
+     'real':[r['nsi'] for r in _wr]},
     {'metric':'Compras','fmt':'num','isNegGood':False,
      'plan':[None]*len(_wr), 'real':[r['compras'] for r in _wr]},
 ]
