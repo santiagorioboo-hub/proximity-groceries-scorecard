@@ -21,12 +21,24 @@ def _ff(v, d=0.0):
     try: return float(v) if v else d
     except: return d
 
+def _fopt(v):
+    """Float or None — shows as dash in table when missing."""
+    try: return float(v) if v else None
+    except: return None
+
 _wg = _rc('weekly_growth.csv')
 _wv = _rc('weekly_visits.csv')
 _dg = _rc('daily_growth.csv')
 _dv = _rc('daily_visits.csv')
 _wvis = {r['Fecha']: _fi(r['Visitas']) for r in _wv}
 _dvis = {r['Fecha']: _fi(r['Visitas']) for r in _dv}
+
+# CVR (loaded early — used in _wr and weekly_growth_stores)
+_cvr_w_raw  = _rc('weekly_cvr.csv')
+_cvr_d_raw  = _rc('daily_cvr.csv')
+_cvr_w      = {r['Semana']: _fopt(r['CVR']) for r in _cvr_w_raw}
+_cvr_d      = {r['Fecha']:  _fopt(r['CVR']) for r in _cvr_d_raw}
+_cvr_d_raw_dict = {r['Fecha']: r for r in _cvr_d_raw}
 
 # Last 14 complete weeks (Sun-Sat)
 _today = _date.today()
@@ -122,7 +134,7 @@ weekly_growth = [
     {'metric':'NSI/Cart','fmt':'dec','rows':[{'s':'Total','v':[r['nsi_cart'] for r in _wr]}]},
     {'metric':'Orders/Purchase','fmt':'dec','rows':[{'s':'Total','v':[r['ord_compra'] for r in _wr]}]},
     {'metric':'Visitas','fmt':'num','rows':[{'s':'Total','v':[r['vis'] for r in _wr]}]},
-    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['cvr'] for r in _wr]}]},
+    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_cvr_w.get(r['fecha']) for r in _wr]}]},
 ]
 
 # === ROLLING WINDOWS (use full daily history from Oct 2025) ===
@@ -162,12 +174,19 @@ while _last_day > _date(2025,10,20):
 
 def _agg(s, e, daily_dict):
     nmv=compras=ordenes=nsi=nmv_usd=tsie=vis=0
+    cvr_buyers=cvr_visitors=0
     d=s
     while d<=e:
         if d in daily_dict:
             row=daily_dict[d]; nmv+=row['nmv']; compras+=row['compras']
             ordenes+=row['ordenes']; nsi+=row['nsi']; nmv_usd+=row['nmv_usd']
             tsie+=row['tsie']; vis+=row['vis']
+            # CVR from daily_cvr.csv (merged into daily_dict)
+            ds = str(d)
+            if ds in _cvr_d:
+                _rd = _cvr_d_raw_dict.get(ds, {})
+                cvr_buyers   += int(float(_rd.get('Buyers', 0) or 0))
+                cvr_visitors += int(float(_rd.get('Visitors', 0) or 0))
         d+=_td(days=1)
     return dict(nmv=round(nmv), nmv_usd=round(nmv_usd), compras=compras,
         ordenes=ordenes, nsi=round(nsi), tsie=round(tsie), vis=vis,
@@ -175,7 +194,7 @@ def _agg(s, e, daily_dict):
         nasp=round(nmv/nsi) if nsi else 0,
         fr=round(nsi/tsie, 4) if tsie else 0,
         nsi_cart=round(nsi/compras, 2) if compras else 0,
-        cvr=round(compras/vis, 4) if vis else None,
+        cvr=round(cvr_buyers/cvr_visitors, 4) if cvr_visitors else None,
         lbl=f"{s.day}/{s.month}-{e.day}/{e.month}")
 
 _min_full = _date(2025,10,20)
@@ -197,7 +216,7 @@ def _build_transposed(rolling):
     labels = [r['lbl'] for r in data]
     fields = [('nmv','NMV','money'),('compras','Compras','num'),('ordenes','Órdenes','num'),
               ('apv','APV LC','dollar'),('nsi','NSI','num'),('fr','Fill Rate Items','pct'),
-              ('vis','Visitas','num')]
+              ('vis','Visitas','num'),('cvr','CVR','pct')]
     return [{'metric':n,'fmt':f,'rows':[{'s':'Total','v':[r[k] for r in data]}]}
             for k,n,f in fields], labels
 
@@ -236,7 +255,7 @@ weekly_growth_stores = [
     {'metric':'NSI/Cart','fmt':'dec','rows':[{'s':'Total','v':[r['nsi_cart'] for r in _wr]}]},
     {'metric':'Orders/Purchase','fmt':'dec','rows':[{'s':'Total','v':[r['ord_compra'] for r in _wr]}]},
     {'metric':'Visitas','fmt':'num','rows':[{'s':'Total','v':[r['vis'] for r in _wr]}]},
-    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['cvr'] for r in _wr]}]},
+    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_cvr_w.get(r['fecha']) for r in _wr]}]},
 ]
 
 # === WEEKLY BUYERS ===
@@ -251,18 +270,29 @@ _wb_total = [sum(_wb.get(d,{}).values()) or 0 for d in _w_dates]
 _wb_stores = {s:[_wb.get(d,{}).get(s) for d in _w_dates] for s in _STORES}
 weekly_buyers_w = [
     {'metric':'Visitas','fmt':'num','rows':[{'s':'Total','v':[r['vis'] for r in _wr]}]},
-    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['cvr'] for r in _wr]}]},
+    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_cvr_w.get(r['fecha']) for r in _wr]}]},
 ]
 
-# === WEEKLY OPS ===
-_wc_raw = _rc('weekly_cancels.csv')
-_wc = {r['Semana']: _ff(r['Cancel_Rate']) for r in _wc_raw}
+# === WEEKLY OPS — from DM_OPS_FH_TB_DASH_SCORECARD_2025_GLOBAL ===
+_ops_raw = _rc('weekly_ops.csv')
+# Columns: Semana, FR_Items, FR_Items_Reemplazo, FR_Compras, FR_Compras_Reemplazo, On_Time, Cancel_Rate
+_ops = {r['Semana']: r for r in _ops_raw}
+
+def _opv(fecha, key):
+    return _fopt(_ops.get(fecha, {}).get(key))
+
 weekly_ops_w = [
-    {'metric':'Fill Rate Items','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['fr'] for r in _wr]}]},
-    {'metric':'Cancelaciones','fmt':'pct','isPP':True,'isNegGood':True,'rows':[
-        {'s':'Total','v':[_wc.get(r['fecha']) for r in _wr]}]},
+    {'metric':'Fill Rate Items','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'FR_Items') for r in _wr]}]},
+    {'metric':'Fill Rate Items c/reemplazos','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'FR_Items_Reemplazo') for r in _wr]}]},
+    {'metric':'Fill Rate Compras','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'FR_Compras') for r in _wr]}]},
+    {'metric':'Fill Rate Compras c/reemplazos','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'FR_Compras_Reemplazo') for r in _wr]}]},
+    {'metric':'On Time','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'On_Time') for r in _wr]}]},
+    {'metric':'Cancelaciones','fmt':'pct','isPP':True,'isNegGood':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'Cancel_Rate') for r in _wr]}]},
 ]
-# Pendiente queries BQ para: Fill Rate Items c/reemplazos, Fill Rate Compras (c/sin), On Time
+
+# Merge daily CVR into _daily_full for rolling windows
+for _dt, _row in _daily_full.items():
+    _row['cvr'] = _cvr_d.get(str(_dt))
 
 # === WEEKLY PLAN (valores exactos del plan semanal) ===
 weekly_plan_data_w = [
