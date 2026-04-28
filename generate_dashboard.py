@@ -1,1491 +1,1340 @@
 #!/usr/bin/env python3
-# Proximity Groceries Scorecard - Dashboard Generator
-import json, warnings, csv as _csv
-from datetime import datetime, date as _date, timedelta as _td
-warnings.filterwarnings('ignore')
+"""
+generate_dashboard.py — Proximity Groceries Scorecard HTML generator
+======================================================================
+Reads data/*.csv produced by fetch_data.py and writes index.html.
 
-today = datetime.now().strftime('%d/%m/%Y')
+Dashboard features
+------------------
+  • Dark theme inspired by Proximity Foods Scorecard
+  • Period selector: Daily | Weekly | Monthly
+  • Section tabs: Growth | Ops | CX | P&L
+  • Hero cards: key KPIs with Δ vs Last Period
+  • Tables with expandable per-store rows
+  • SVG sparklines (last 28 days / 12 weeks / 12 months)
+  • Color-coded deltas: green = good, red = bad
+    (direction-aware: for cancel rate / BPP lower = better)
+"""
 
-# ======================================================
-# WEEKLY & ROLLING DATA (from BQ CSVs)
-# ======================================================
-def _rc(fname):
-    with open(r'C:\Users\srioboo\dashboard_data\\' + fname, encoding='utf-8') as f:
-        return list(_csv.DictReader(f))
+import os
+import json
+import math
+from datetime import datetime, date, timedelta
+import pandas as pd
+import numpy as np
 
-def _fi(v, d=0):
-    try: return int(float(v)) if v else d
-    except: return d
+DATA_DIR    = "data"
+OUTPUT_FILE = "index.html"
 
-def _ff(v, d=0.0):
-    try: return float(v) if v else d
-    except: return d
-
-def _fopt(v):
-    """Float or None — shows as dash in table when missing."""
-    try: return float(v) if v else None
-    except: return None
-
-_wg = _rc('weekly_growth.csv')
-_wv = _rc('weekly_visits.csv')
-_dg = _rc('daily_growth.csv')
-_dv = _rc('daily_visits.csv')
-_wvis = {r['Fecha']: _fi(r['Visitas']) for r in _wv}
-_dvis = {r['Fecha']: _fi(r['Visitas']) for r in _dv}
-
-# CVR (loaded early — used in _wr and weekly_growth_stores)
-_cvr_w_raw  = _rc('weekly_cvr.csv')
-_cvr_d_raw  = _rc('daily_cvr.csv')
-_cvr_w      = {r['Semana']: _fopt(r['CVR']) for r in _cvr_w_raw}
-_cvr_d      = {r['Fecha']:  _fopt(r['CVR']) for r in _cvr_d_raw}
-_cvr_d_raw_dict = {r['Fecha']: r for r in _cvr_d_raw}
-
-# Last 14 complete weeks (Sun-Sat)
-_today = _date.today()
-_dow = _today.isoweekday() % 7   # Sun=0, Mon=1, ..., Sat=6
-_cur_sun = _today - _td(days=_dow)
-_last_sun = _cur_sun - _td(weeks=1)   # last complete week start
-_first_sun = _last_sun - _td(weeks=13) # 14 weeks back
-
-_MES = ['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
-
-import calendar as _cal
-
-# Weekly plan NMV — valores exactos del plan semanal (imagen compartida 2026-04-20)
-# Columnas 2-18 = semana del año, arranca el domingo
-_weekly_plan_nmv = {
-    '2026-01-04': 43175669,
-    '2026-01-11': 39175647,
-    '2026-01-18': 38245818,
-    '2026-01-25': 38070378,
-    '2026-02-01': 50979600,
-    '2026-02-08': 49450800,
-    '2026-02-15': 46236400,
-    '2026-02-22': 49333200,
-    '2026-03-01': 75877678,
-    '2026-03-08': 75877678,
-    '2026-03-15': 75877678,
-    '2026-03-22': 71775839,
-    '2026-03-29': 72324522,
-    '2026-04-05': 80738627,
-    '2026-04-12': 83160786,
-    '2026-04-19': 85655610,
-    '2026-04-26': 61204883,
+STORES = {
+    "ARP25161987351": "Scalabrini",
+    "ARP25161987354": "Caballito",
+    "ARP25161987353": "Villa Urquiza",
+    "ARP25161987355": "Vicente Lopez",
 }
-# Weekly plan NSI — misma fuente
-_weekly_plan_nsi = {
-    '2026-01-04': 11339,
-    '2026-01-11': 10438,
-    '2026-01-18': 10354,
-    '2026-01-25': 10331,
-    '2026-02-01': 13452,
-    '2026-02-08': 12868,
-    '2026-02-15': 12207,
-    '2026-02-22': 13137,
-    '2026-03-01': 19530,
-    '2026-03-08': 19530,
-    '2026-03-15': 19530,
-    '2026-03-22': 18474,
-    '2026-03-29': 18457,
-    '2026-04-05': 20454,
-    '2026-04-12': 21068,
-    '2026-04-19': 21700,
-    '2026-04-26': 15506,
+STORE_ORDER = ["Scalabrini", "Caballito", "Villa Urquiza", "Vicente Lopez"]
+STORE_COLORS = {
+    "Scalabrini":    "#3b82f6",
+    "Caballito":     "#f59e0b",
+    "Villa Urquiza": "#10b981",
+    "Vicente Lopez": "#a855f7",
 }
 
-def _week_plan_nmv(fecha_str):
-    return _weekly_plan_nmv.get(fecha_str)
+# ── Data loading helpers ───────────────────────────────────────────────────────
 
-def _week_plan_nsi(fecha_str):
-    return _weekly_plan_nsi.get(fecha_str)
+def load(filename: str) -> pd.DataFrame | None:
+    path = os.path.join(DATA_DIR, filename)
+    if not os.path.exists(path):
+        print(f"  ⚠  {path} not found — section will be empty")
+        return None
+    df = pd.read_csv(path)
+    # normalize date columns
+    for col in df.columns:
+        if "date" in col.lower():
+            df[col] = pd.to_datetime(df[col], errors="coerce").dt.date
+    return df
 
-_wr = []
-for r in _wg:
-    d = _date.fromisoformat(r['Fecha'])
-    if _first_sun <= d <= _last_sun:
-        nmv=_ff(r['NMV']); compras=_fi(r['Compras']); ordenes=_fi(r['Ordenes'])
-        nsi=_ff(r['NSI']); nmv_usd=_ff(r['NMV_USD']); tsie=_ff(r['TSIE_total'])
-        vis=_wvis.get(r['Fecha'],0)
-        _wr.append(dict(
-            fecha=r['Fecha'],
-            label=f"{d.day} {_MES[d.month]}",
-            nmv=round(nmv), nmv_usd=round(nmv_usd), compras=compras,
-            ordenes=ordenes, nsi=round(nsi), tsie=round(tsie), vis=vis,
-            apv=round(nmv/compras) if compras else 0,
-            nasp=round(nmv/nsi) if nsi else 0,
-            fr=round(nsi/tsie, 4) if tsie else 0,
-            nsi_cart=round(nsi/compras, 2) if compras else 0,
-            ord_compra=round(ordenes/compras, 2) if compras else 0,
-            cvr=round(compras/vis, 4) if vis else None,
-            plan_nmv=_week_plan_nmv(r['Fecha']),
-            plan_nsi=_week_plan_nsi(r['Fecha']),
-        ))
 
-WEEK_LABELS = [r['label'] for r in _wr]
-weekly_growth = [
-    {'metric':'NMV','fmt':'money','rows':[{'s':'Total','v':[r['nmv'] for r in _wr]}]},
-    {'metric':'NMV USD','fmt':'num','rows':[{'s':'Total','v':[r['nmv_usd'] for r in _wr]}]},
-    {'metric':'Compras','fmt':'num','rows':[{'s':'Total','v':[r['compras'] for r in _wr]}]},
-    {'metric':'Órdenes','fmt':'num','rows':[{'s':'Total','v':[r['ordenes'] for r in _wr]}]},
-    {'metric':'NSI','fmt':'num','rows':[{'s':'Total','v':[r['nsi'] for r in _wr]}]},
-    {'metric':'APV LC','fmt':'dollar','rows':[{'s':'Total','v':[r['apv'] for r in _wr]}]},
-    {'metric':'NASP LC','fmt':'dollar','rows':[{'s':'Total','v':[r['nasp'] for r in _wr]}]},
-    {'metric':'Fill Rate Items','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['fr'] for r in _wr]}]},
-    {'metric':'NSI/Cart','fmt':'dec','rows':[{'s':'Total','v':[r['nsi_cart'] for r in _wr]}]},
-    {'metric':'Orders/Purchase','fmt':'dec','rows':[{'s':'Total','v':[r['ord_compra'] for r in _wr]}]},
-    {'metric':'Visitas','fmt':'num','rows':[{'s':'Total','v':[r['vis'] for r in _wr]}]},
-    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_cvr_w.get(r['fecha']) for r in _wr]}]},
-]
+def add_store_name(df: pd.DataFrame, id_col: str = "store_id") -> pd.DataFrame:
+    df = df.copy()
+    df["store_name"] = df[id_col].map(STORES).fillna(df[id_col])
+    return df
 
-# === ROLLING WINDOWS (use full daily history from Oct 2025) ===
-def _build_daily_dict(rows, vis_dict):
-    d = {}
-    for r in rows:
-        dt = _date.fromisoformat(r['Fecha'])
-        d[dt] = dict(nmv=_ff(r['NMV']), compras=_fi(r['Compras']), ordenes=_fi(r['Ordenes']),
-                     nsi=_ff(r['NSI']), nmv_usd=_ff(r['NMV_USD']), tsie=_ff(r['TSIE_total']),
-                     vis=vis_dict.get(r['Fecha'], 0))
-    return d
 
-# Full daily from Oct 2025 (for rolling 28d history)
-_dg_full = _rc('daily_growth_full.csv')
-_dv_full = _rc('daily_visits_full.csv')
-_dvis_full = {r['Fecha']: _fi(r['Visitas']) for r in _dv_full}
-_daily_full = _build_daily_dict(_dg_full, _dvis_full)
+# ── Aggregation helpers ────────────────────────────────────────────────────────
 
-# Rolling windows use the last complete calendar day (yesterday)
-# Note: Growth Semanal uses Sun-Sat fixed weeks (from weekly_growth.csv grouping)
-# but Fechas Moviles rolling is pure 7/28-day sliding window
-# Merge recent daily_growth.csv on top of full history (fresher data wins)
-for _r in _rc('daily_growth.csv'):
-    _dt = _date.fromisoformat(_r['Fecha'])
-    _daily_full[_dt] = dict(
-        nmv=_ff(_r['NMV']), compras=_fi(_r['Compras']), ordenes=_fi(_r['Ordenes']),
-        nsi=_ff(_r['NSI']), nmv_usd=_ff(_r['NMV_USD']), tsie=_ff(_r['TSIE_total']),
-        vis=_dvis.get(_r['Fecha'], 0)
+def iso_week_start(d: date) -> date:
+    """Return the Monday of the ISO week containing d."""
+    return d - timedelta(days=d.weekday())
+
+
+def month_key(d: date) -> str:
+    return d.strftime("%Y-%m")
+
+
+def agg_numeric(df: pd.DataFrame, group_cols: list, sum_cols: list) -> pd.DataFrame:
+    """Sum numeric columns, keeping group_cols as index."""
+    return df.groupby(group_cols)[sum_cols].sum().reset_index()
+
+
+# ── Spark line generator ───────────────────────────────────────────────────────
+
+def sparkline_svg(values: list, width: int = 80, height: int = 28,
+                  color: str = "#3b82f6", lower_is_better: bool = False) -> str:
+    """Return an inline SVG sparkline path."""
+    clean = [v for v in values if v is not None and not math.isnan(float(v))]
+    if len(clean) < 2:
+        return ""
+    mn, mx = min(clean), max(clean)
+    rng = mx - mn or 1
+    n = len(clean)
+    step = width / (n - 1)
+    pts = []
+    for i, v in enumerate(clean):
+        x = round(i * step, 1)
+        y = round(height - ((float(v) - mn) / rng) * (height - 4) - 2, 1)
+        pts.append(f"{x},{y}")
+    path = " ".join(pts)
+    last = clean[-1]
+    prev = clean[-2] if len(clean) >= 2 else last
+    if lower_is_better:
+        stroke = "#ef4444" if last > prev else "#22c55e"
+    else:
+        stroke = "#22c55e" if last >= prev else "#ef4444"
+    return (
+        f'<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" '
+        f'fill="none" xmlns="http://www.w3.org/2000/svg">'
+        f'<polyline points="{path}" stroke="{stroke}" stroke-width="1.8" '
+        f'stroke-linecap="round" stroke-linejoin="round"/>'
+        f"</svg>"
     )
 
-# last_day = ayer, siempre que tenga datos reales (NMV > 1M como proxy de día completo)
-_last_day = _today - _td(days=1)
-while _last_day > _date(2025,10,20):
-    if _last_day in _daily_full and _daily_full[_last_day]['nmv'] > 1_000_000:
-        break
-    _last_day -= _td(days=1)
 
-def _agg(s, e, daily_dict):
-    nmv=compras=ordenes=nsi=nmv_usd=tsie=vis=0
-    cvr_buyers=cvr_visitors=0
-    d=s
-    while d<=e:
-        if d in daily_dict:
-            row=daily_dict[d]; nmv+=row['nmv']; compras+=row['compras']
-            ordenes+=row['ordenes']; nsi+=row['nsi']; nmv_usd+=row['nmv_usd']
-            tsie+=row['tsie']; vis+=row['vis']
-            # CVR from daily_cvr.csv (merged into daily_dict)
-            ds = str(d)
-            if ds in _cvr_d:
-                _rd = _cvr_d_raw_dict.get(ds, {})
-                cvr_buyers   += int(float(_rd.get('Buyers', 0) or 0))
-                cvr_visitors += int(float(_rd.get('Visitors', 0) or 0))
-        d+=_td(days=1)
-    return dict(nmv=round(nmv), nmv_usd=round(nmv_usd), compras=compras,
-        ordenes=ordenes, nsi=round(nsi), tsie=round(tsie), vis=vis,
-        apv=round(nmv/compras) if compras else 0,
-        nasp=round(nmv/nsi) if nsi else 0,
-        fr=round(nsi/tsie, 4) if tsie else 0,
-        nsi_cart=round(nsi/compras, 2) if compras else 0,
-        cvr=round(cvr_buyers/cvr_visitors, 4) if cvr_visitors else None,
-        lbl=f"{s.day}/{s.month}-{e.day}/{e.month}")
+# ── Delta computation ──────────────────────────────────────────────────────────
 
-_min_full = _date(2025,10,20)
-rolling_7, end = [], _last_day
-for _ in range(14):
-    s = end - _td(days=6)
-    if s < _min_full: break
-    rolling_7.append(_agg(s, end, _daily_full)); end = s - _td(days=1)
+def pct_delta(current, previous) -> float | None:
+    if previous is None or previous == 0 or current is None:
+        return None
+    return (current - previous) / abs(previous)
 
-rolling_28, end = [], _last_day
-for _ in range(14):
-    s = end - _td(days=27)
-    if s < _min_full: break
-    rolling_28.append(_agg(s, end, _daily_full)); end = s - _td(days=1)
 
-# Transposed rolling (oldest-first, for column-per-period display)
-def _build_transposed(rolling):
-    data = list(reversed(rolling))  # oldest first = leftmost column
-    labels = [r['lbl'] for r in data]
-    fields = [('nmv','NMV','money'),('compras','Compras','num'),('ordenes','Órdenes','num'),
-              ('apv','APV LC','dollar'),('nsi','NSI','num'),('fr','Fill Rate Items','pct'),
-              ('vis','Visitas','num'),('cvr','CVR','pct')]
-    return [{'metric':n,'fmt':f,'rows':[{'s':'Total','v':[r[k] for r in data]}]}
-            for k,n,f in fields], labels
+def fmt_delta(delta: float | None, lower_is_better: bool = False,
+              as_pct: bool = True) -> str:
+    """Return an HTML badge for a delta value."""
+    if delta is None:
+        return '<span class="delta neutral">—</span>'
+    if as_pct:
+        val_str = f"{delta:+.1%}"
+    else:
+        val_str = f"{delta:+,.0f}"
+    good = delta <= 0 if lower_is_better else delta >= 0
+    cls = "positive" if good else "negative"
+    arrow = "▲" if delta > 0 else "▼"
+    return f'<span class="delta {cls}">{arrow} {val_str}</span>'
 
-rolling_7_t, rolling_7_labels = _build_transposed(rolling_7)
-rolling_28_t, rolling_28_labels = _build_transposed(rolling_28)
 
-# === WEEKLY BY STORE ===
-_wbs_raw = _rc('weekly_by_store.csv')
-_STORES = ['Scalabrini','Vicente Lopez','Caballito','Villa Urquiza']
-_wbs = {}
-for r in _wbs_raw:
-    f = r['Semana']; t = r['Tienda']
-    if f not in _wbs: _wbs[f] = {}
-    _wbs[f][t] = dict(nmv=round(_ff(r['NMV'])), compras=_fi(r['Compras']),
-                      ordenes=_fi(r['Ordenes']), nsi=round(_ff(r['NSI'])))
+def fmt_num(v, fmt=",.0f", suffix="") -> str:
+    if v is None or (isinstance(v, float) and math.isnan(v)):
+        return "—"
+    if fmt.endswith("%"):
+        return f"{v:.1%}{suffix}"
+    return f"{v:{fmt}}{suffix}"
 
-_w_dates = [r['fecha'] for r in _wr]
 
-def _sv(metric): return [_wbs.get(d,{}).get(s,{}).get(metric) for d in _w_dates for s in [s]][0] if False else None
-def _store_series(metric):
-    return {s: [_wbs.get(d,{}).get(s,{}).get(metric) for d in _w_dates] for s in _STORES}
+def fmt_usd(v) -> str:
+    if v is None or (isinstance(v, float) and math.isnan(v)):
+        return "—"
+    if v >= 1_000_000:
+        return f"${v/1_000_000:.1f}M"
+    if v >= 1_000:
+        return f"${v/1_000:.1f}K"
+    return f"${v:,.0f}"
 
-_ss_nmv     = _store_series('nmv')
-_ss_compras = _store_series('compras')
-_ss_ordenes = _store_series('ordenes')
-_ss_nsi     = _store_series('nsi')
 
-weekly_growth_stores = [
-    {'metric':'NMV','fmt':'money','rows':[{'s':'Total','v':[r['nmv'] for r in _wr]}]+[{'s':s,'v':_ss_nmv[s]} for s in _STORES]},
-    {'metric':'Compras','fmt':'num','rows':[{'s':'Total','v':[r['compras'] for r in _wr]}]+[{'s':s,'v':_ss_compras[s]} for s in _STORES]},
-    {'metric':'Órdenes','fmt':'num','rows':[{'s':'Total','v':[r['ordenes'] for r in _wr]}]+[{'s':s,'v':_ss_ordenes[s]} for s in _STORES]},
-    {'metric':'NSI','fmt':'num','rows':[{'s':'Total','v':[r['nsi'] for r in _wr]}]+[{'s':s,'v':_ss_nsi[s]} for s in _STORES]},
-    {'metric':'APV LC','fmt':'dollar','rows':[{'s':'Total','v':[r['apv'] for r in _wr]}]},
-    {'metric':'NASP LC','fmt':'dollar','rows':[{'s':'Total','v':[r['nasp'] for r in _wr]}]},
-    {'metric':'Fill Rate Items','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[r['fr'] for r in _wr]}]},
-    {'metric':'NSI/Cart','fmt':'dec','rows':[{'s':'Total','v':[r['nsi_cart'] for r in _wr]}]},
-    {'metric':'Orders/Purchase','fmt':'dec','rows':[{'s':'Total','v':[r['ord_compra'] for r in _wr]}]},
-    {'metric':'Visitas','fmt':'num','rows':[{'s':'Total','v':[r['vis'] for r in _wr]}]},
-    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_cvr_w.get(r['fecha']) for r in _wr]}]},
-]
+# ══════════════════════════════════════════════════════════════════════════════
+#  DATA PROCESSING — GROWTH
+# ══════════════════════════════════════════════════════════════════════════════
 
-# === WEEKLY BUYERS ===
-_wb_raw = _rc('weekly_buyers.csv')
-_wb = {}
-for r in _wb_raw:
-    f=r['Semana']; t=r['TIENDA']
-    if f not in _wb: _wb[f]={}
-    _wb[f][t] = _fi(r['Buyers'])
+def process_growth(period: str = "weekly") -> dict:
+    """
+    Returns {total: {...}, stores: {name: {...}}}
+    Each entry: {current, vs_lp, sparkline_html}
+    Metrics: orders, buyers, gmv_usd, fresh_orders, fresh_rate
+    """
+    df = load("growth_daily.csv")
+    vis = load("visits_daily.csv")
+    result = {"total": {}, "stores": {}}
+    if df is None:
+        return result
 
-_wb_total = [sum(_wb.get(d,{}).values()) or 0 for d in _w_dates]
-_wb_stores = {s:[_wb.get(d,{}).get(s) for d in _w_dates] for s in _STORES}
-weekly_buyers_w = [
-    {'metric':'Visitas','fmt':'num','rows':[{'s':'Total','v':[r['vis'] for r in _wr]}]},
-    {'metric':'CVR','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_cvr_w.get(r['fecha']) for r in _wr]}]},
-]
+    df = add_store_name(df)
+    NUM_COLS = ["orders", "buyers", "gmv_usd", "fresh_orders", "fresh_buyers"]
 
-# === WEEKLY OPS — from DM_OPS_FH_TB_DASH_SCORECARD_2025_GLOBAL ===
-_ops_raw = _rc('weekly_ops.csv')
-# Columns: Semana, FR_Items, FR_Items_Reemplazo, FR_Compras, FR_Compras_Reemplazo, On_Time, Cancel_Rate
-_ops = {r['Semana']: r for r in _ops_raw}
+    # ── aggregate by period ────────────────────────────────────────────────
+    if period == "daily":
+        latest = df["order_date"].max()
+        prev   = latest - timedelta(days=1)
+        lpy    = latest - timedelta(days=365)
+        curr_df = df[df["order_date"] == latest]
+        prev_df = df[df["order_date"] == prev]
+        lpy_df  = df[df["order_date"] == lpy]
+        spark_dates = sorted([latest - timedelta(days=i) for i in range(27, -1, -1)])
+        spark_period_col = "order_date"
+    elif period == "weekly":
+        df["period"] = df["order_date"].apply(iso_week_start)
+        latest_week = df["period"].max()
+        prev_week   = latest_week - timedelta(weeks=1)
+        lpy_week    = latest_week - timedelta(weeks=52)
+        curr_df = df[df["period"] == latest_week]
+        prev_df = df[df["period"] == prev_week]
+        lpy_df  = df[df["period"] == lpy_week]
+        spark_weeks = sorted([latest_week - timedelta(weeks=i) for i in range(11, -1, -1)])
+        spark_period_col = "period"
+    else:  # monthly
+        df["period"] = df["order_date"].apply(month_key)
+        latest_month = df["period"].max()
+        months = sorted(df["period"].unique())
+        idx = months.index(latest_month)
+        prev_month   = months[idx - 1] if idx > 0 else None
+        lpy_idx      = idx - 12
+        lpy_month    = months[lpy_idx] if lpy_idx >= 0 else None
+        curr_df = df[df["period"] == latest_month]
+        prev_df = df[df["period"] == prev_month] if prev_month else pd.DataFrame()
+        lpy_df  = df[df["period"] == lpy_month]  if lpy_month  else pd.DataFrame()
+        spark_months = months[max(0, idx-11): idx+1]
+        spark_period_col = "period"
 
-def _opv(fecha, key):
-    return _fopt(_ops.get(fecha, {}).get(key))
+    def totals(sub: pd.DataFrame) -> dict | None:
+        if sub.empty:
+            return None
+        t = {c: sub[c].sum() for c in NUM_COLS if c in sub.columns}
+        t["fresh_rate"] = t.get("fresh_orders", 0) / t.get("orders", 1)
+        return t
 
-weekly_ops_w = [
-    {'metric':'Fill Rate Items','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'FR_Items') for r in _wr]}]},
-    {'metric':'Fill Rate Items c/reemplazos','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'FR_Items_Reemplazo') for r in _wr]}]},
-    {'metric':'Fill Rate Compras','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'FR_Compras') for r in _wr]}]},
-    {'metric':'Fill Rate Compras c/reemplazos','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'FR_Compras_Reemplazo') for r in _wr]}]},
-    {'metric':'On Time','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'On_Time') for r in _wr]}]},
-    {'metric':'Cancelaciones','fmt':'pct','isPP':True,'isNegGood':True,'rows':[{'s':'Total','v':[_opv(r['fecha'],'Cancel_Rate') for r in _wr]}]},
-]
+    curr_t = totals(curr_df)
+    prev_t = totals(prev_df)
+    lpy_t  = totals(lpy_df)
 
-# Merge daily CVR into _daily_full for rolling windows
-for _dt, _row in _daily_full.items():
-    _row['cvr'] = _cvr_d.get(str(_dt))
+    # sparkline (orders, all stores combined)
+    if period == "daily":
+        spark_vals = [
+            df[df["order_date"] == d]["orders"].sum() if d in df["order_date"].values else None
+            for d in spark_dates
+        ]
+    elif period == "weekly":
+        spark_vals = [
+            df[df["period"] == w]["orders"].sum() if w in df["period"].values else None
+            for w in spark_weeks
+        ]
+    else:
+        spark_vals = [
+            df[df["period"] == m]["orders"].sum() if m in df["period"].values else None
+            for m in spark_months
+        ]
 
-# === WEEKLY PLAN (valores exactos del plan semanal) ===
-weekly_plan_data_w = [
-    {'metric':'NMV','fmt':'money','isNegGood':False,
-     'plan':[r['plan_nmv'] for r in _wr],
-     'real':[r['nmv'] for r in _wr]},
-    {'metric':'NSI','fmt':'num','isNegGood':False,
-     'plan':[r['plan_nsi'] for r in _wr],
-     'real':[r['nsi'] for r in _wr]},
-    {'metric':'Compras','fmt':'num','isNegGood':False,
-     'plan':[None]*len(_wr), 'real':[r['compras'] for r in _wr]},
-]
+    def build_entry(curr, prev, lpy, spark_series):
+        if curr is None:
+            return {}
+        return {
+            "orders":      fmt_num(curr.get("orders")),
+            "buyers":      fmt_num(curr.get("buyers")),
+            "gmv":         fmt_usd(curr.get("gmv_usd")),
+            "fresh_orders":fmt_num(curr.get("fresh_orders")),
+            "fresh_rate":  fmt_num(curr.get("fresh_rate"), fmt="%"),
+            "orders_dlp":  fmt_delta(pct_delta(curr.get("orders"),  prev.get("orders")  if prev else None)),
+            "buyers_dlp":  fmt_delta(pct_delta(curr.get("buyers"),  prev.get("buyers")  if prev else None)),
+            "gmv_dlp":     fmt_delta(pct_delta(curr.get("gmv_usd"), prev.get("gmv_usd") if prev else None)),
+            "fresh_dlp":   fmt_delta(pct_delta(curr.get("fresh_rate"), prev.get("fresh_rate") if prev else None)),
+            "orders_dly":  fmt_delta(pct_delta(curr.get("orders"),  lpy.get("orders")   if lpy  else None)),
+            "sparkline":   sparkline_svg(spark_series),
+        }
 
-MONTHS = ["Oct'25","Nov'25","Dic'25","Ene'26","Feb'26","Mar'26"]
-MONTHS_NPS = ["Dic'25","Ene'26","Feb'26","Mar'26"]
+    result["total"] = build_entry(curr_t, prev_t, lpy_t, spark_vals)
 
-# ======================================================
-# DATA
-# ======================================================
+    # Per-store entries
+    for store_id, store_name in STORES.items():
+        sc = curr_df[curr_df["store_id"] == store_id]
+        sp = prev_df[prev_df["store_id"] == store_id] if not prev_df.empty else pd.DataFrame()
+        sl = lpy_df[lpy_df["store_id"] == store_id]  if not lpy_df.empty  else pd.DataFrame()
+        sc_t = totals(sc); sp_t = totals(sp); sl_t = totals(sl)
 
-growth_data = [
-  {'metric':'NMV','fmt':'money','rows':[
-    {'s':'Total','v':[10451118,56806992,170234400,175439531,242175980,306868637]},
-    {'s':'Caballito','v':[None,None,34055079,44895424,57731083,68029249]},
-    {'s':'Scalabrini','v':[10451118,34150904,56456356,50747817,69074828,90765907]},
-    {'s':'Vicente Lopez','v':[None,22656087,51330633,46035027,69560421,91646470]},
-    {'s':'Villa Urquiza','v':[None,None,28392332,33761265,45809648,56480628]},
-  ]},
-  {'metric':'NSI','fmt':'num','rows':[
-    {'s':'Total','v':[3075,16231,43115,46662,63266,78175]},
-    {'s':'Caballito','v':[None,None,9054,12562,16804,19118]},
-    {'s':'Scalabrini','v':[3075,9912,14894,13275,17661,23740]},
-    {'s':'Vicente Lopez','v':[None,6319,12180,11289,16385,20329]},
-    {'s':'Villa Urquiza','v':[None,None,6988,9537,12416,15033]},
-  ]},
-  {'metric':'Compras','fmt':'num','rows':[
-    {'s':'Total','v':[202,987,2927,3098,4244,5262]},
-    {'s':'Caballito','v':[None,None,656,837,1122,1309]},
-    {'s':'Scalabrini','v':[202,593,946,885,1186,1556]},
-    {'s':'Vicente Lopez','v':[None,394,843,794,1151,1438]},
-    {'s':'Villa Urquiza','v':[None,None,482,582,785,961]},
-  ]},
-  {'metric':'Órdenes','fmt':'num','rows':[
-    {'s':'Total','v':[1449,6836,17261,19825,26254,33162]},
-    {'s':'Caballito','v':[None,None,3652,5241,7075,7866]},
-    {'s':'Scalabrini','v':[1449,4144,5688,5588,7063,9899]},
-    {'s':'Vicente Lopez','v':[None,2692,4968,4858,6839,8649]},
-    {'s':'Villa Urquiza','v':[None,None,2955,4138,5277,6776]},
-  ]},
-  {'metric':'APV LC','fmt':'dollar','rows':[
-    {'s':'Total','v':[51738,57555,58160,56630,57063,58318]},
-    {'s':'Caballito','v':[None,None,51913,53638,51454,52059]},
-    {'s':'Scalabrini','v':[51738,57590,59679,57342,58242,58391]},
-    {'s':'Vicente Lopez','v':[None,57503,60890,57979,60435,63732]},
-    {'s':'Villa Urquiza','v':[None,None,58905,58009,58356,58773]},
-  ]},
-  {'metric':'NASP LC','fmt':'dollar','rows':[
-    {'s':'Total','v':[3399,3500,3948,3760,3828,3925]},
-    {'s':'Caballito','v':[None,None,3761,3574,3436,3564]},
-    {'s':'Scalabrini','v':[3399,3445,3791,3823,3911,3827]},
-    {'s':'Vicente Lopez','v':[None,3585,4214,4078,4245,4508]},
-    {'s':'Villa Urquiza','v':[None,None,4063,3540,3690,3757]},
-  ]},
-  {'metric':'CVR','fmt':'pct','isPP':True,'rows':[
-    {'s':'Total','v':[None,0.0273,0.0279,0.0275,0.0273,0.0201]},
-  ]},
-  {'metric':'NSI/Cart','fmt':'dec','rows':[
-    {'s':'Total','v':[15.22,16.44,14.73,15.06,14.91,14.86]},
-    {'s':'Caballito','v':[None,None,14.0,15.0,15.0,15.0]},
-    {'s':'Scalabrini','v':[15.0,17.0,16.0,15.0,15.0,15.0]},
-    {'s':'Vicente Lopez','v':[None,16.0,14.0,14.0,14.0,15.0]},
-    {'s':'Villa Urquiza','v':[None,None,14.0,16.0,16.0,16.0]},
-  ]},
-  {'metric':'Stores','fmt':'num','rows':[{'s':'Total','v':[1,2,4,4,4,4]}]},
-  {'metric':'Orders/Purchase','fmt':'dec','rows':[{'s':'Total','v':[7.17,6.93,5.90,6.40,6.19,6.30]}]},
-]
+        if period == "daily":
+            sv = [
+                df[(df["order_date"]==d) & (df["store_id"]==store_id)]["orders"].sum()
+                if d in df["order_date"].values else None for d in spark_dates
+            ]
+        elif period == "weekly":
+            sv = [
+                df[(df["period"]==w) & (df["store_id"]==store_id)]["orders"].sum()
+                if w in df["period"].values else None for w in spark_weeks
+            ]
+        else:
+            sv = [
+                df[(df["period"]==m) & (df["store_id"]==store_id)]["orders"].sum()
+                if m in df["period"].values else None for m in spark_months
+            ]
 
-ops_data = [
-  {'metric':'Fill Rate Items','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[0.8958,0.9191,0.9051,0.9172,0.9123,0.8898]}]},
-  {'metric':'Fill Rate Items c/reemplazos','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[0.9135,0.9246,0.9138,0.9289,0.9225,0.9013]}]},
-  {'metric':'Fill Rate Compras','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[0.6215,0.7217,0.6570,0.6436,0.6469,0.5930]}]},
-  {'metric':'Fill Rate Compras c/reemplazos','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[0.6776,0.7549,0.6876,0.6882,0.6795,0.6254]}]},
-  {'metric':'On Time','fmt':'pct','isPP':True,'rows':[{'s':'Total','v':[0.9645,0.9287,0.7897,0.8923,0.8082,0.8558]}]},
-  {'metric':'Cancelaciones','fmt':'pct','isPP':True,'isNegGood':True,'rows':[{'s':'Total','v':[0.0789,0.0519,0.0878,0.0510,0.0523,0.0668]}]},
-]
+        result["stores"][store_name] = build_entry(sc_t, sp_t, sl_t, sv)
 
-# Buyers tab: Visitas + Buyers mensuales + Frecuencia
-demanda_data = [
-  {'metric':'Visitas','fmt':'num','rows':[{'s':'Total','v':[5858,23194,72015,87194,107601,153449]}]},
-  {'metric':'Buyers','fmt':'num','rows':[{'s':'Total','v':[188,878,2537,2597,3599,4293]}]},
-  {'metric':'Frecuencia','sub':'Compras / Buyers','fmt':'dec','rows':[{'s':'Total','v':[1.07,1.12,1.15,1.19,1.18,1.23]}]},
-]
+    return result
 
-# YTD unique buyers Jan-Mar 2026 (sum of monthly distinct buyers, q3_buyers_ytd.csv)
-# Jan: 2597 | Feb: 3599 | Mar: 4293 → sum Q1 = 10,489
-# Note: includes cross-month repeat buyers. Replace with true DISTINCT if needed.
-buyers_ytd = 10344
 
-# Buyers chart data (from BigQuery)
-buyers_genero = [
-  {'name':'Femenino','vals':[107,492,1447,1445,2045,2465]},
-  {'name':'Masculino','vals':[67,326,962,1013,1385,1595]},
-  {'name':'Otro','vals':[14,60,128,139,169,233]},
-]
-buyers_edad = [
-  {'name':'30-44','vals':[63,304,876,895,1326,1487]},
-  {'name':'45-59','vals':[61,269,767,762,1029,1277]},
-  {'name':'60+','vals':[31,147,498,529,660,810]},
-  {'name':'18-29','vals':[17,89,235,242,386,434]},
-  {'name':'Sin clasif.','vals':[16,69,161,169,198,285]},
-]
-visitas_vals = [5858,23194,72015,87194,107601,153449]
+# ══════════════════════════════════════════════════════════════════════════════
+#  DATA PROCESSING — OPS
+# ══════════════════════════════════════════════════════════════════════════════
 
-buyers_nse_tienda = [
-  {'tienda':'Caballito','PLATINUM':1168,'GOLD':962,'SILVER':529,'BRONZE':361},
-  {'tienda':'Scalabrini','PLATINUM':1717,'GOLD':1073,'SILVER':670,'BRONZE':587},
-  {'tienda':'Vic. Lopez','PLATINUM':1745,'GOLD':1002,'SILVER':525,'BRONZE':363},
-  {'tienda':'Villa Urquiza','PLATINUM':870,'GOLD':662,'SILVER':352,'BRONZE':235},
-]
+def process_ops(period: str = "weekly") -> dict:
+    """
+    Tries scorecard CSV first; falls back to component tables.
+    Metrics: cancel_rate, cancel breakdown (seller/buyer/stockout),
+             fill_rate, ot_rate (early/delay/ontime), perfect_purchase_rate
+    """
+    scorecard = load("ops_scorecard.csv")
+    cancels   = load("ops_cancels.csv")
+    ontime    = load("ops_ontime.csv")
+    perfect   = load("ops_perfect.csv")
+    fillrate  = load("ops_fillrate.csv")
 
-buyers_nse_mes = [
-  {'mes':"Oct'25",'PLATINUM':74,'GOLD':44,'SILVER':20,'BRONZE':26,'SinClasif':24},
-  {'mes':"Nov'25",'PLATINUM':371,'GOLD':207,'SILVER':108,'BRONZE':100,'SinClasif':92},
-  {'mes':"Dic'25",'PLATINUM':983,'GOLD':676,'SILVER':392,'BRONZE':267,'SinClasif':221},
-  {'mes':"Ene'26",'PLATINUM':1009,'GOLD':709,'SILVER':376,'BRONZE':272,'SinClasif':232},
-  {'mes':"Feb'26",'PLATINUM':1420,'GOLD':959,'SILVER':520,'BRONZE':394,'SinClasif':309},
-  {'mes':"Mar'26",'PLATINUM':1643,'GOLD':1104,'SILVER':660,'BRONZE':487,'SinClasif':408},
-]
+    result = {"total": {}, "stores": {}}
 
-nps_data = [
-  {'metric':'NPS','fmt':'nps','isPP':True,'rows':[
-    {'s':'Total','v':[0.26,0.39,0.20,0.15]},
-    {'s':'Scalabrini','v':[0.14,0.48,0.25,0.09]},
-    {'s':'Vicente Lopez','v':[0.21,0.19,-0.05,0.27]},
-    {'s':'Caballito','v':[0.16,0.45,0.20,0.06]},
-    {'s':'Villa Urquiza','v':[0.27,0.44,0.37,0.17]},
-  ]},
-]
+    # ── use scorecard if available ─────────────────────────────────────────
+    if scorecard is not None and not scorecard.empty:
+        df = add_store_name(scorecard)
+        RATE_COLS  = ["cancel_rate", "fill_rate", "ot_rate", "perfect_purchase_rate",
+                      "ot_early_pct", "ot_delay_pct", "ot_ontime_pct"]
+        COUNT_COLS = ["cancels_total", "cancels_seller", "cancels_buyer",
+                      "cancels_stockout", "total_orders"]
+        # keep only cols that actually exist
+        RATE_COLS  = [c for c in RATE_COLS  if c in df.columns]
+        COUNT_COLS = [c for c in COUNT_COLS if c in df.columns]
 
-# NMV aligned with Growth tab (same source)
-nmv_vals = [10451118,56806992,170234400,175439531,242175980,306868637]
+        if period == "daily":
+            latest = df["order_date"].max()
+            prev   = latest - timedelta(days=1)
+            curr_df = df[df["order_date"] == latest]
+            prev_df = df[df["order_date"] == prev]
+            spark_dates = sorted([latest - timedelta(days=i) for i in range(27, -1, -1)])
+        elif period == "weekly":
+            df["period"] = df["order_date"].apply(iso_week_start)
+            latest_w = df["period"].max(); prev_w = latest_w - timedelta(weeks=1)
+            curr_df = df[df["period"] == latest_w]
+            prev_df = df[df["period"] == prev_w]
+            spark_weeks = sorted([latest_w - timedelta(weeks=i) for i in range(11, -1, -1)])
+        else:
+            df["period"] = df["order_date"].apply(month_key)
+            months = sorted(df["period"].unique())
+            latest_m = months[-1]; prev_m = months[-2] if len(months) > 1 else None
+            curr_df = df[df["period"] == latest_m]
+            prev_df = df[df["period"] == prev_m] if prev_m else pd.DataFrame()
+            spark_months = months[max(0,len(months)-12):]
 
-pl_lines = [
-  {'metric':'NMV','isNmv':True,'children':[]},
-  {'metric':'Net Variable Fee','v':[0.0830,0.0831,0.0856,0.0825,0.0838,0.0845],'children':[
-    {'metric':'Net Fix Fees','v':[0.0000,0.0000,0.0000,0.0000,0.0000,0.0000]},
-    {'metric':'Promotions','v':[0.0000,-0.0002,0.0000,-0.0003,-0.0001,-0.0001]},
-  ]},
-  {'metric':'Product Monetization','v':[0.0830,0.0829,0.0856,0.0822,0.0838,0.0844],'children':[
-    {'metric':'Financing gross','v':[0.0120,0.0057,0.0124,0.0096,0.0081,0.0077]},
-    {'metric':'Financing Cost','v':[-0.0159,-0.0143,-0.0150,-0.0128,-0.0110,-0.0124]},
-    {'metric':'Buyer Real Revenue','v':[0.0340,0.0288,0.0282,0.0285,0.0293,0.0279]},
-    {'metric':'Seller Real Revenue','v':[0.0012,0.0001,0.0004,0.0001,0.0001,0.0001]},
-    {'metric':'Advertising','v':[0.0008,0.0031,0.0034,0.0017,0.0015,0.0034]},
-    {'metric':'Sales Taxes','v':[-0.0054,-0.0060,-0.0062,-0.0067,-0.0061,-0.0048]},
-  ]},
-  {'metric':'Net Monetization','v':[0.1097,0.1003,0.1089,0.1027,0.1058,0.1064],'children':[
-    {'metric':'Shipping Distribution Cost','v':[-0.0626,-0.0534,-0.0529,-0.0542,-0.0571,-0.0569]},
-    {'metric':'Shipping Ops Variable','v':[-0.0001,0.0000,0.0000,0.0000,0.0000,0.0000]},
-    {'metric':'Collection Fees','v':[-0.0097,-0.0108,-0.0119,-0.0098,-0.0091,-0.0090]},
-    {'metric':'Chargebacks','v':[0.0000,0.0000,-0.0015,-0.0001,-0.0061,-0.0003]},
-    {'metric':'Bad Debt','v':[0.0001,-0.0007,0.0005,-0.0003,-0.0012,-0.0002]},
-    {'metric':'BPP','v':[-0.0231,-0.0056,-0.0066,-0.0033,-0.0034,-0.0058]},
-    {'metric':'Marketing Performance','v':[-0.0032,-0.0033,-0.0031,-0.0032,-0.0031,-0.0036]},
-    {'metric':'Coupons Mkt','v':[0.0000,-0.0016,-0.0013,-0.0016,-0.0030,-0.0026]},
-    {'metric':'CX + Hosting + Fraud Prev Variable','v':[-0.0138,-0.0100,-0.0100,-0.0107,-0.0110,-0.0161]},
-  ]},
-  {'metric':'Variable Contribution','v':[-0.0030,0.0146,0.0217,0.0191,0.0113,0.0116],'children':[
-    {'metric':'CX + Hosting + Fraud Prev Fix','v':[-0.0039,-0.0033,-0.0040,-0.0035,-0.0037,-0.0038]},
-  ]},
-  {'metric':'Direct Contribution','v':[-0.0103,0.0081,0.0129,0.0137,0.0054,0.0056],'children':[]},
-]
+        def wtd_avg(sub, rate_col):
+            """Weight rate by total_orders if available, else simple mean."""
+            if sub.empty or rate_col not in sub.columns:
+                return None
+            if "total_orders" in sub.columns:
+                orders = sub["total_orders"].sum()
+                if orders == 0:
+                    return None
+                return (sub[rate_col] * sub["total_orders"]).sum() / orders
+            return sub[rate_col].mean()
 
-tiendas_names = ['Caballito','Palermo\n(Scalabrini)','Vicente Lopez','Villa Urquiza']
-tiendas_nmv   = [69362977, 93016605, 92558674, 57180812]
-pl_tiendas = [
-  {'metric':'NMV','isNmv':True,'children':[]},
-  {'metric':'Net Variable Fee','v':[0.0868,0.0849,0.0851,0.0795],'children':[
-    {'metric':'Net Fix Fees','v':[0,0,0,0]},
-    {'metric':'Promotions','v':[-0.000124,-0.0000948,-0.0000342,-0.0000687]},
-  ]},
-  {'metric':'Product Monetization','v':[0.0867,0.0848,0.0851,0.0794],'children':[
-    {'metric':'Financing gross','v':[0.00629,0.00745,0.00694,0.01105]},
-    {'metric':'Financing Cost','v':[-0.00970,-0.01337,-0.01342,-0.01119]},
-    {'metric':'Buyer Real Revenue','v':[0.03408,0.02707,0.02502,0.02644]},
-    {'metric':'Seller Real Revenue','v':[0.000191,0.0000711,0,0.000116]},
-    {'metric':'Advertising','v':[0.003701,0.003304,0.003341,0.003243]},
-    {'metric':'Sales Taxes','v':[-0.004887,-0.004830,-0.004818,-0.004738]},
-  ]},
-  {'metric':'Net Monetization','v':[0.1165,0.1046,0.1023,0.1045],'children':[
-    {'metric':'Shipping Distribution Cost','v':[-0.0643,-0.0559,-0.0528,-0.0563]},
-    {'metric':'Collection Fees','v':[-0.00796,-0.00947,-0.00984,-0.00808]},
-    {'metric':'Chargebacks','v':[0.00432,-0.000135,0,-0.00632]},
-    {'metric':'Bad Debt','v':[-0.000246,-0.000245,-0.000246,-0.000245]},
-    {'metric':'BPP','v':[-0.00586,-0.00432,-0.00725,-0.00540]},
-    {'metric':'Marketing Performance','v':[-0.00350,-0.00357,-0.00371,-0.00347]},
-    {'metric':'Coupons Mkt','v':[-0.00358,-0.00214,-0.00233,-0.00248]},
-    {'metric':'CX + Hosting + Fraud Prev Variable','v':[-0.01931,-0.01363,-0.01211,-0.02072]},
-  ]},
-  {'metric':'Variable Contribution','v':[0.01590,0.01489,0.01369,0.00140],'children':[
-    {'metric':'CX + Hosting + Fraud Prev Fix','v':[-0.003698,-0.004157,-0.003800,-0.003586]},
-  ]},
-  {'metric':'Direct Contribution','v':[0.00977,0.00895,0.00795,-0.00487],'children':[]},
-]
+        def totals(sub):
+            if sub.empty:
+                return None
+            t = {c: sub[c].sum() for c in COUNT_COLS}
+            for r in RATE_COLS:
+                t[r] = wtd_avg(sub, r)
+            return t
 
-verticals = [
-  {'v':'CPG','nmv':300826500,'pm_pct':0.0838,'vc_pct':0.0109,'dc_pct':0.0049},
-  {'v':'Beauty','nmv':8830423,'pm_pct':0.1001,'vc_pct':0.0664,'dc_pct':0.0607},
-  {'v':'Health','nmv':775434,'pm_pct':0.0999,'vc_pct':0.0479,'dc_pct':0.0410},
-  {'v':'Furnishing & Houseware','nmv':816013,'pm_pct':0.1122,'vc_pct':-0.3225,'dc_pct':-0.3287},
-  {'v':'Construction & Industry','nmv':587929,'pm_pct':0.0993,'vc_pct':0.0026,'dc_pct':0.0040},
-  {'v':'T & B','nmv':143979,'pm_pct':0.1000,'vc_pct':0.0456,'dc_pct':0.0431},
-  {'v':'Sports','nmv':97193,'pm_pct':0.1000,'vc_pct':-0.0177,'dc_pct':-0.0261},
-  {'v':'Entertainment','nmv':41596,'pm_pct':0.1000,'vc_pct':-0.1472,'dc_pct':-0.1556},
-]
+        curr_t = totals(curr_df); prev_t = totals(prev_df)
 
-# ======================================================
-# HTML
-# ======================================================
+        def spark_for(sub_df, rate_col):
+            if period == "daily":
+                return [
+                    wtd_avg(sub_df[sub_df["order_date"]==d], rate_col) for d in spark_dates
+                ]
+            elif period == "weekly":
+                return [
+                    wtd_avg(sub_df[sub_df["period"]==w], rate_col) for w in spark_weeks
+                ]
+            else:
+                return [
+                    wtd_avg(sub_df[sub_df["period"]==m], rate_col) for m in spark_months
+                ]
 
-def j(x): return json.dumps(x, ensure_ascii=False)
+        def build_entry(curr, prev, sub_df):
+            if curr is None:
+                return {}
+            e = {}
+            for key, col, lib, fmt in [
+                ("cancel_rate",    "cancel_rate",           True,  "%"),
+                ("fill_rate",      "fill_rate",             False, "%"),
+                ("ot_rate",        "ot_rate",               False, "%"),
+                ("perfect_rate",   "perfect_purchase_rate", False, "%"),
+                ("ot_early",       "ot_early_pct",          False, "%"),
+                ("ot_delay",       "ot_delay_pct",          True,  "%"),
+                ("ot_ontime",      "ot_ontime_pct",         False, "%"),
+                ("cancels_seller", "cancels_seller",        True,  ",.0f"),
+                ("cancels_buyer",  "cancels_buyer",         True,  ",.0f"),
+                ("cancels_stockout","cancels_stockout",     True,  ",.0f"),
+            ]:
+                v = curr.get(col)
+                pv= prev.get(col) if prev else None
+                e[key]          = fmt_num(v, fmt=fmt) if fmt == "%" else fmt_num(v, fmt=fmt)
+                e[f"{key}_dlp"] = fmt_delta(pct_delta(v, pv), lower_is_better=lib)
+            if "cancel_rate" in (RATE_COLS or []):
+                e["cancel_sparkline"] = sparkline_svg(spark_for(sub_df, "cancel_rate"),
+                                                       lower_is_better=True)
+                e["fr_sparkline"]     = sparkline_svg(spark_for(sub_df, "fill_rate"))
+                e["ot_sparkline"]     = sparkline_svg(spark_for(sub_df, "ot_rate"))
+                e["pp_sparkline"]     = sparkline_svg(spark_for(sub_df, "perfect_purchase_rate"))
+            return e
 
-html = f"""<!DOCTYPE html>
+        result["total"] = build_entry(curr_t, prev_t, df)
+        for store_id, store_name in STORES.items():
+            sc = curr_df[curr_df["store_id"] == store_id]
+            sp = prev_df[prev_df["store_id"] == store_id] if not prev_df.empty else pd.DataFrame()
+            result["stores"][store_name] = build_entry(totals(sc), totals(sp),
+                                                        df[df["store_id"] == store_id])
+    return result
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  DATA PROCESSING — CX
+# ══════════════════════════════════════════════════════════════════════════════
+
+def process_cx(period: str = "weekly") -> dict:
+    claims_df = load("cx_claims.csv")
+    bpp_df    = load("cx_bpp.csv")
+    result    = {"total": {}, "stores": {}, "bpp": {}}
+
+    if claims_df is not None and not claims_df.empty:
+        claims_df = add_store_name(claims_df)
+        # pivot claim_type into columns
+        claims_df["claim_date"] = pd.to_datetime(claims_df["claim_date"], errors="coerce").dt.date
+
+        if period == "daily":
+            latest  = claims_df["claim_date"].max()
+            prev    = latest - timedelta(days=1)
+            curr_c  = claims_df[claims_df["claim_date"] == latest]
+            prev_c  = claims_df[claims_df["claim_date"] == prev]
+        elif period == "weekly":
+            claims_df["period"] = claims_df["claim_date"].apply(iso_week_start)
+            latest_w = claims_df["period"].max(); prev_w = latest_w - timedelta(weeks=1)
+            curr_c = claims_df[claims_df["period"] == latest_w]
+            prev_c = claims_df[claims_df["period"] == prev_w]
+        else:
+            claims_df["period"] = claims_df["claim_date"].apply(month_key)
+            months_c = sorted(claims_df["period"].unique())
+            latest_m = months_c[-1]; prev_m = months_c[-2] if len(months_c) > 1 else None
+            curr_c = claims_df[claims_df["period"] == latest_m]
+            prev_c = claims_df[claims_df["period"] == prev_m] if prev_m else pd.DataFrame()
+
+        def cx_totals(sub):
+            if sub.empty:
+                return None
+            return {
+                "claims_total": sub["claims"].sum(),
+                "claims_by_type": sub.groupby("claim_type")["claims"].sum().to_dict(),
+            }
+
+        curr_cx = cx_totals(curr_c)
+        prev_cx = cx_totals(prev_c)
+
+        if curr_cx:
+            ct = curr_cx["claims_total"]
+            pt = prev_cx["claims_total"] if prev_cx else None
+            result["total"] = {
+                "claims_total":     fmt_num(ct),
+                "claims_total_dlp": fmt_delta(pct_delta(ct, pt), lower_is_better=True),
+                "by_type":          {k: fmt_num(v) for k, v in curr_cx["claims_by_type"].items()},
+            }
+
+        for store_id, store_name in STORES.items():
+            sc = curr_c[curr_c["store_id"] == store_id]
+            sp = prev_c[prev_c["store_id"] == store_id] if not prev_c.empty else pd.DataFrame()
+            sc_t = cx_totals(sc); sp_t = cx_totals(sp)
+            if sc_t:
+                ct = sc_t["claims_total"]
+                pt = sp_t["claims_total"] if sp_t else None
+                result["stores"][store_name] = {
+                    "claims_total":     fmt_num(ct),
+                    "claims_total_dlp": fmt_delta(pct_delta(ct, pt), lower_is_better=True),
+                    "by_type":          {k: fmt_num(v) for k, v in sc_t["claims_by_type"].items()},
+                }
+
+    # BPP summary
+    if bpp_df is not None and not bpp_df.empty:
+        bpp_df["bpp_date"] = pd.to_datetime(bpp_df["bpp_date"], errors="coerce").dt.date
+        if period == "daily":
+            latest_b = bpp_df["bpp_date"].max()
+            prev_b   = latest_b - timedelta(days=1)
+            curr_b = bpp_df[bpp_df["bpp_date"] == latest_b]
+            prev_b = bpp_df[bpp_df["bpp_date"] == prev_b]
+        elif period == "weekly":
+            bpp_df["period"] = bpp_df["bpp_date"].apply(iso_week_start)
+            bw = bpp_df["period"].max()
+            curr_b = bpp_df[bpp_df["period"] == bw]
+            prev_b = bpp_df[bpp_df["period"] == bw - timedelta(weeks=1)]
+        else:
+            bpp_df["period"] = bpp_df["bpp_date"].apply(month_key)
+            bm = sorted(bpp_df["period"].unique())
+            curr_b = bpp_df[bpp_df["period"] == bm[-1]]
+            prev_b = bpp_df[bpp_df["period"] == bm[-2]] if len(bm) > 1 else pd.DataFrame()
+
+        ct = curr_b["bpp_total_usd"].sum() if not curr_b.empty else None
+        pt = prev_b["bpp_total_usd"].sum() if not prev_b.empty else None
+        cr = curr_b["bpp_recovery_usd"].sum() if not curr_b.empty else None
+        result["bpp"] = {
+            "total":      fmt_usd(ct),
+            "recovery":   fmt_usd(cr),
+            "total_dlp":  fmt_delta(pct_delta(ct, pt), lower_is_better=True),
+            "by_type":    {k: fmt_usd(v) for k, v in
+                           curr_b.groupby("claim_type")["bpp_total_usd"].sum().items()},
+        }
+
+    return result
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  DATA PROCESSING — P&L
+# ══════════════════════════════════════════════════════════════════════════════
+
+def process_pnl(period: str = "weekly") -> dict:
+    df = load("pnl_daily.csv")
+    result = {"total": {}, "stores": {}}
+    if df is None or df.empty:
+        return result
+
+    df = add_store_name(df)
+    NUM_COLS = ["orders", "gmv_usd", "nmv_usd", "delivery_fee_usd", "service_fee_usd"]
+
+    if period == "daily":
+        latest = df["order_date"].max()
+        prev   = latest - timedelta(days=1)
+        lpy    = latest - timedelta(days=365)
+        curr_df = df[df["order_date"] == latest]
+        prev_df = df[df["order_date"] == prev]
+        lpy_df  = df[df["order_date"] == lpy]
+        spark_dates = sorted([latest - timedelta(days=i) for i in range(27, -1, -1)])
+        spark_period_col = "order_date"
+    elif period == "weekly":
+        df["period"] = df["order_date"].apply(iso_week_start)
+        lw = df["period"].max(); pw = lw - timedelta(weeks=1)
+        lyw = lw - timedelta(weeks=52)
+        curr_df = df[df["period"] == lw]; prev_df = df[df["period"] == pw]
+        lpy_df  = df[df["period"] == lyw]
+        spark_weeks = sorted([lw - timedelta(weeks=i) for i in range(11, -1, -1)])
+        spark_period_col = "period"
+    else:
+        df["period"] = df["order_date"].apply(month_key)
+        months = sorted(df["period"].unique())
+        lm = months[-1]; pm = months[-2] if len(months) > 1 else None
+        lym = months[-13] if len(months) >= 13 else None
+        curr_df = df[df["period"] == lm]
+        prev_df = df[df["period"] == pm]  if pm  else pd.DataFrame()
+        lpy_df  = df[df["period"] == lym] if lym else pd.DataFrame()
+        spark_months = months[max(0, len(months)-12):]
+        spark_period_col = "period"
+
+    def totals(sub):
+        if sub.empty:
+            return None
+        t = {c: sub[c].sum() for c in NUM_COLS if c in sub.columns}
+        g = t.get("gmv_usd", 0); n = t.get("nmv_usd", 0)
+        t["take_rate"]    = n / g if g else None
+        t["contribution"] = n - t.get("delivery_fee_usd", 0) - t.get("service_fee_usd", 0)
+        return t
+
+    def spark_gmv(sub_df):
+        if period == "daily":
+            return [sub_df[sub_df["order_date"]==d]["gmv_usd"].sum() or None for d in spark_dates]
+        elif period == "weekly":
+            return [sub_df[sub_df["period"]==w]["gmv_usd"].sum() or None for w in spark_weeks]
+        else:
+            return [sub_df[sub_df["period"]==m]["gmv_usd"].sum() or None for m in spark_months]
+
+    curr_t = totals(curr_df); prev_t = totals(prev_df); lpy_t = totals(lpy_df)
+
+    def build_entry(curr, prev, lpy, sub_df):
+        if curr is None:
+            return {}
+        return {
+            "gmv":           fmt_usd(curr.get("gmv_usd")),
+            "nmv":           fmt_usd(curr.get("nmv_usd")),
+            "take_rate":     fmt_num(curr.get("take_rate"), fmt="%"),
+            "delivery_fee":  fmt_usd(curr.get("delivery_fee_usd")),
+            "service_fee":   fmt_usd(curr.get("service_fee_usd")),
+            "contribution":  fmt_usd(curr.get("contribution")),
+            "gmv_dlp":       fmt_delta(pct_delta(curr.get("gmv_usd"),   prev.get("gmv_usd")  if prev else None)),
+            "nmv_dlp":       fmt_delta(pct_delta(curr.get("nmv_usd"),   prev.get("nmv_usd")  if prev else None)),
+            "gmv_dly":       fmt_delta(pct_delta(curr.get("gmv_usd"),   lpy.get("gmv_usd")   if lpy  else None)),
+            "take_rate_dlp": fmt_delta(pct_delta(curr.get("take_rate"), prev.get("take_rate") if prev else None)),
+            "sparkline":     sparkline_svg(spark_gmv(sub_df)),
+        }
+
+    result["total"] = build_entry(curr_t, prev_t, lpy_t, df)
+    for store_id, store_name in STORES.items():
+        sc = curr_df[curr_df["store_id"] == store_id]
+        sp = prev_df[prev_df["store_id"] == store_id] if not prev_df.empty else pd.DataFrame()
+        sl = lpy_df[lpy_df["store_id"] == store_id]  if not lpy_df.empty  else pd.DataFrame()
+        result["stores"][store_name] = build_entry(
+            totals(sc), totals(sp), totals(sl),
+            df[df["store_id"] == store_id]
+        )
+
+    return result
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  HTML GENERATION
+# ══════════════════════════════════════════════════════════════════════════════
+
+CSS = """
+:root {
+  --bg:        #0d0f14;
+  --surface:   #161b26;
+  --surface2:  #1e2535;
+  --border:    #2a3347;
+  --text:      #e2e8f0;
+  --muted:     #64748b;
+  --accent:    #f59e0b;
+  --positive:  #22c55e;
+  --negative:  #ef4444;
+  --neutral:   #94a3b8;
+  --blue:      #3b82f6;
+  --purple:    #a855f7;
+  --emerald:   #10b981;
+  --radius:    8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; padding: 0 0 40px;
+}
+/* ── Header ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.header h1 { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: .3px; }
+.header h1 span { color: var(--accent); }
+.updated { font-size: 11px; color: var(--muted); }
+/* ── Controls bar ── */
+.controls {
+  display: flex; align-items: center; gap: 24px;
+  padding: 12px 24px; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.tab-group { display: flex; gap: 2px; background: var(--bg); border-radius: 6px; padding: 3px; }
+.tab {
+  padding: 5px 14px; font-size: 12px; font-weight: 500; cursor: pointer;
+  border-radius: 5px; border: none; background: transparent;
+  color: var(--muted); transition: all .15s;
+}
+.tab.active { background: var(--surface2); color: var(--text); }
+.tab:hover:not(.active) { color: var(--text); }
+/* ── Section nav ── */
+.section-nav {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  padding: 0 24px; background: var(--surface);
+}
+.sec-tab {
+  padding: 11px 18px; font-size: 13px; font-weight: 500; cursor: pointer;
+  border: none; background: transparent; color: var(--muted);
+  border-bottom: 2px solid transparent; transition: all .15s; margin-bottom: -1px;
+}
+.sec-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.sec-tab:hover:not(.active) { color: var(--text); }
+/* ── Hero cards ── */
+.hero-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px; padding: 20px 24px 0;
+}
+.hero-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; position: relative; overflow: hidden;
+}
+.hero-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent);
+}
+.hero-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 8px; }
+.hero-value { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.1; }
+.hero-delta { margin-top: 6px; }
+/* ── Data table ── */
+.section-body { padding: 20px 24px; }
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+}
+thead tr { background: var(--surface2); }
+th {
+  padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .5px; color: var(--muted);
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+td { padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+.total-row td { font-weight: 600; background: var(--surface2); cursor: pointer; }
+.total-row td:first-child::before {
+  content: attr(data-arrow); margin-right: 6px; font-size: 10px; color: var(--accent);
+  transition: transform .2s;
+}
+.store-row td { color: var(--muted); }
+.store-row td:first-child { padding-left: 36px; color: var(--text); }
+.store-row { display: none; }
+.store-row.visible { display: table-row; }
+.store-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  margin-right: 8px; vertical-align: middle;
+}
+/* ── Deltas ── */
+.delta { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+.delta.positive { color: var(--positive); background: rgba(34,197,94,.1); }
+.delta.negative { color: var(--negative); background: rgba(239,68,68,.1); }
+.delta.neutral  { color: var(--muted); }
+/* ── Sections ── */
+.section { display: none; }
+.section.active { display: block; }
+/* ── Period label ── */
+.period-label {
+  font-size: 11px; color: var(--muted); padding: 6px 24px 0;
+}
+/* ── Loading / empty ── */
+.empty-row td { color: var(--muted); text-align: center; padding: 32px; font-style: italic; }
+/* ── Sub-table for details ── */
+.sub-label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
+             color: var(--muted); margin: 20px 0 8px; }
+.metric-group { margin-bottom: 28px; }
+.metric-group h3 { font-size: 11px; font-weight: 600; text-transform: uppercase;
+                   letter-spacing: .7px; color: var(--accent); margin-bottom: 12px;
+                   padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+"""
+
+JS = """
+const periodLabels = {daily:'Day', weekly:'Week', monthly:'Month'};
+let currentPeriod = 'weekly';
+let currentSection = 'growth';
+
+function setPeriod(p) {
+  currentPeriod = p;
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('ptab-' + p).classList.add('active');
+  refreshView();
+}
+
+function setSection(s) {
+  currentSection = s;
+  document.querySelectorAll('.sec-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('stab-' + s).classList.add('active');
+  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+  document.getElementById('sec-' + s).classList.add('active');
+  refreshView();
+}
+
+function toggleStores(sectionKey) {
+  const rows = document.querySelectorAll('#' + sectionKey + '-store-rows .store-row');
+  const arrow = document.getElementById(sectionKey + '-total-row');
+  const isOpen = rows[0] && rows[0].classList.contains('visible');
+  rows.forEach(r => r.classList.toggle('visible', !isOpen));
+  if (arrow) arrow.setAttribute('data-arrow', isOpen ? '▶' : '▼');
+}
+
+function refreshView() {
+  const d = window.DATA;
+  if (!d) return;
+  const sec = d[currentSection] && d[currentSection][currentPeriod];
+  if (!sec) return;
+  // update hero cards
+  const hero = document.getElementById('hero-' + currentSection);
+  if (hero && window.heroBuilders && window.heroBuilders[currentSection]) {
+    hero.innerHTML = window.heroBuilders[currentSection](sec);
+  }
+  // update tables
+  const tbody = document.getElementById('tbody-' + currentSection);
+  if (tbody && window.tableBuilders && window.tableBuilders[currentSection]) {
+    tbody.innerHTML = window.tableBuilders[currentSection](sec);
+  }
+  // update period label
+  const lbl = document.getElementById('period-lbl-' + currentSection);
+  if (lbl) lbl.textContent = 'Showing: ' + periodLabels[currentPeriod] + ' view  |  vs LP = vs last ' + periodLabels[currentPeriod];
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setSection('growth');
+  setPeriod('weekly');
+});
+"""
+
+
+def hero_card(label: str, value: str, delta_html: str = "") -> str:
+    return (
+        f'<div class="hero-card">'
+        f'<div class="hero-label">{label}</div>'
+        f'<div class="hero-value">{value}</div>'
+        f'<div class="hero-delta">{delta_html}</div>'
+        f"</div>"
+    )
+
+
+def store_dot(name: str) -> str:
+    color = STORE_COLORS.get(name, "#94a3b8")
+    return f'<span class="store-dot" style="background:{color}"></span>'
+
+
+def table_row(cells: list, is_store: bool = False, store_name: str = "") -> str:
+    cls = 'store-row' if is_store else 'total-row'
+    tds = ""
+    for i, c in enumerate(cells):
+        if is_store and i == 0:
+            tds += f"<td>{store_dot(store_name)}{c}</td>"
+        else:
+            tds += f"<td>{c}</td>"
+    return f'<tr class="{cls}">{tds}</tr>'
+
+
+# ── Section builders ───────────────────────────────────────────────────────────
+
+def build_growth_section(data_by_period: dict) -> str:
+    def hero(sec):
+        t = sec.get("total", {})
+        if not t:
+            return '<p class="empty-row">No data available</p>'
+        return (
+            hero_card("Orders",       t.get("orders","—"),       t.get("orders_dlp","")) +
+            hero_card("Buyers",       t.get("buyers","—"),       t.get("buyers_dlp","")) +
+            hero_card("GMV",          t.get("gmv","—"),           t.get("gmv_dlp","")) +
+            hero_card("Fresh Orders", t.get("fresh_orders","—"), t.get("fresh_dlp","")) +
+            hero_card("Fresh Rate",   t.get("fresh_rate","—"),   "")
+        )
+
+    def tbody(sec):
+        t = sec.get("total", {})
+        stores = sec.get("stores", {})
+        rows = ""
+        # Total row
+        if t:
+            rows += (
+                f'<tr class="total-row" id="growth-total-row" data-arrow="▶" '
+                f'onclick="toggleStores(\'growth\')">'
+                f'<td data-arrow="▶">Todas las tiendas</td>'
+                f'<td>{t.get("orders","—")}</td>'
+                f'<td>{t.get("orders_dlp","—")}</td>'
+                f'<td>{t.get("buyers","—")}</td>'
+                f'<td>{t.get("gmv","—")}</td>'
+                f'<td>{t.get("gmv_dlp","—")}</td>'
+                f'<td>{t.get("fresh_orders","—")}</td>'
+                f'<td>{t.get("fresh_rate","—")}</td>'
+                f'<td>{t.get("fresh_dlp","—")}</td>'
+                f'<td>{t.get("sparkline","")}</td>'
+                f"</tr>"
+            )
+        else:
+            rows += '<tr class="empty-row"><td colspan="10">No data</td></tr>'
+        # Store rows
+        rows += f'<tbody id="growth-store-rows">'
+        for sname in STORE_ORDER:
+            s = stores.get(sname, {})
+            if s:
+                rows += (
+                    f'<tr class="store-row">'
+                    f'<td>{store_dot(sname)}{sname}</td>'
+                    f'<td>{s.get("orders","—")}</td>'
+                    f'<td>{s.get("orders_dlp","—")}</td>'
+                    f'<td>{s.get("buyers","—")}</td>'
+                    f'<td>{s.get("gmv","—")}</td>'
+                    f'<td>{s.get("gmv_dlp","—")}</td>'
+                    f'<td>{s.get("fresh_orders","—")}</td>'
+                    f'<td>{s.get("fresh_rate","—")}</td>'
+                    f'<td>{s.get("fresh_dlp","—")}</td>'
+                    f'<td>{s.get("sparkline","")}</td>'
+                    f"</tr>"
+                )
+        rows += "</tbody>"
+        return rows
+
+    # Build section for current weekly period (default shown on load)
+    sec = data_by_period.get("weekly", {})
+    return f"""
+<div class="hero-grid" id="hero-growth">{hero(sec)}</div>
+<div class="section-body">
+  <p class="period-label" id="period-lbl-growth"></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Store</th>
+        <th>Orders</th><th>vs LP</th>
+        <th>Buyers</th>
+        <th>GMV</th><th>vs LP</th>
+        <th>Fresh Orders</th><th>Fresh Rate</th><th>vs LP</th>
+        <th>Trend</th>
+      </tr></thead>
+      <tbody id="tbody-growth">{tbody(sec)}</tbody>
+    </table>
+  </div>
+</div>"""
+
+
+def build_ops_section(data_by_period: dict) -> str:
+    def hero(sec):
+        t = sec.get("total", {})
+        if not t:
+            return '<p class="empty-row">No data</p>'
+        return (
+            hero_card("Cancel Rate",    t.get("cancel_rate","—"),    t.get("cancel_rate_dlp","")) +
+            hero_card("Fill Rate",      t.get("fill_rate","—"),      t.get("fill_rate_dlp","")) +
+            hero_card("On-Time Rate",   t.get("ot_rate","—"),        t.get("ot_rate_dlp","")) +
+            hero_card("Perfect Purch.", t.get("perfect_rate","—"),   t.get("perfect_rate_dlp",""))
+        )
+
+    def tbody(sec):
+        t = sec.get("total", {}); stores = sec.get("stores", {})
+        def row_cells(d, is_total=False):
+            name = "Todas las tiendas" if is_total else ""
+            return [
+                name,
+                d.get("cancel_rate","—"), d.get("cancel_rate_dlp","—"),
+                d.get("cancels_seller","—"), d.get("cancels_buyer","—"), d.get("cancels_stockout","—"),
+                d.get("fill_rate","—"), d.get("fill_rate_dlp","—"),
+                d.get("ot_rate","—"), d.get("ot_early","—"), d.get("ot_delay","—"),
+                d.get("perfect_rate","—"), d.get("perfect_rate_dlp","—"),
+                d.get("cancel_sparkline",""),
+            ]
+        rows = ""
+        if t:
+            cells = row_cells(t, True)
+            rows += (
+                f'<tr class="total-row" onclick="toggleStores(\'ops\')">'
+                + "".join(f"<td>{c}</td>" for c in cells) + "</tr>"
+            )
+        rows += '<tbody id="ops-store-rows">'
+        for sname in STORE_ORDER:
+            s = stores.get(sname, {})
+            if s:
+                cells = row_cells(s)
+                cells[0] = sname
+                rows += (
+                    f'<tr class="store-row">'
+                    f'<td>{store_dot(sname)}{sname}</td>'
+                    + "".join(f"<td>{c}</td>" for c in cells[1:]) + "</tr>"
+                )
+        rows += "</tbody>"
+        return rows
+
+    sec = data_by_period.get("weekly", {})
+    return f"""
+<div class="hero-grid" id="hero-ops">{hero(sec)}</div>
+<div class="section-body">
+  <p class="period-label" id="period-lbl-ops"></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Store</th>
+        <th>Cancel Rate</th><th>vs LP</th>
+        <th>⚠ Seller</th><th>⚠ Buyer</th><th>⚠ Stockout</th>
+        <th>Fill Rate</th><th>vs LP</th>
+        <th>On-Time</th><th>Early%</th><th>Delay%</th>
+        <th>Perfect Purch.</th><th>vs LP</th>
+        <th>Cancel Trend</th>
+      </tr></thead>
+      <tbody id="tbody-ops">{tbody(sec)}</tbody>
+    </table>
+  </div>
+</div>"""
+
+
+def build_cx_section(data_by_period: dict) -> str:
+    def hero(sec):
+        t = sec.get("total", {}); b = sec.get("bpp", {})
+        if not t and not b:
+            return '<p class="empty-row">No data</p>'
+        cards = ""
+        if t:
+            cards += hero_card("Claims Total", t.get("claims_total","—"), t.get("claims_total_dlp",""))
+            for ctype, val in (t.get("by_type") or {}).items():
+                cards += hero_card(f"Claims {ctype}", val, "")
+        if b:
+            cards += hero_card("BPP Total", b.get("total","—"), b.get("total_dlp",""))
+            cards += hero_card("BPP Recovery", b.get("recovery","—"), "")
+        return cards
+
+    def tbody(sec):
+        t = sec.get("total", {}); stores = sec.get("stores", {})
+        rows = ""
+        if t:
+            rows += (
+                f'<tr class="total-row" onclick="toggleStores(\'cx\')">'
+                f'<td data-arrow="▶">Todas las tiendas</td>'
+                f'<td>{t.get("claims_total","—")}</td>'
+                f'<td>{t.get("claims_total_dlp","—")}</td>'
+                + "".join(f'<td>{v}</td>' for v in (t.get("by_type") or {}).values())
+                + "</tr>"
+            )
+        all_types = sorted({k for s in stores.values() for k in (s.get("by_type") or {}).keys()})
+        rows += '<tbody id="cx-store-rows">'
+        for sname in STORE_ORDER:
+            s = stores.get(sname, {})
+            if s:
+                rows += (
+                    f'<tr class="store-row">'
+                    f'<td>{store_dot(sname)}{sname}</td>'
+                    f'<td>{s.get("claims_total","—")}</td>'
+                    f'<td>{s.get("claims_total_dlp","—")}</td>'
+                    + "".join(f'<td>{(s.get("by_type") or {}).get(ct,"—")}</td>' for ct in all_types)
+                    + "</tr>"
+                )
+        rows += "</tbody>"
+        return rows
+
+    sec = data_by_period.get("weekly", {})
+    bpp = sec.get("bpp", {})
+    bpp_html = ""
+    if bpp:
+        bpp_rows = "".join(
+            f"<tr><td>{k}</td><td>{v}</td></tr>"
+            for k, v in (bpp.get("by_type") or {}).items()
+        )
+        bpp_html = f"""
+<div class="metric-group">
+  <h3>BPP — Bad Purchase Protection</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th>Amount</th></tr></thead>
+    <tbody>{bpp_rows}</tbody>
+  </table></div>
+</div>"""
+
+    return f"""
+<div class="hero-grid" id="hero-cx">{hero(sec)}</div>
+<div class="section-body">
+  <p class="period-label" id="period-lbl-cx"></p>
+  <div class="metric-group">
+    <h3>Claims</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Store</th><th>Total Claims</th><th>vs LP</th>
+          <th>By Type →</th>
+        </tr></thead>
+        <tbody id="tbody-cx">{tbody(sec)}</tbody>
+      </table>
+    </div>
+  </div>
+  {bpp_html}
+</div>"""
+
+
+def build_pnl_section(data_by_period: dict) -> str:
+    def hero(sec):
+        t = sec.get("total", {})
+        if not t:
+            return '<p class="empty-row">No data</p>'
+        return (
+            hero_card("GMV",          t.get("gmv","—"),          t.get("gmv_dlp","")) +
+            hero_card("NMV",          t.get("nmv","—"),          t.get("nmv_dlp","")) +
+            hero_card("Take Rate",    t.get("take_rate","—"),    t.get("take_rate_dlp","")) +
+            hero_card("Delivery Fee", t.get("delivery_fee","—"), "") +
+            hero_card("Service Fee",  t.get("service_fee","—"),  "") +
+            hero_card("Contribution", t.get("contribution","—"), "")
+        )
+
+    def tbody(sec):
+        t = sec.get("total", {}); stores = sec.get("stores", {})
+        rows = ""
+        if t:
+            rows += (
+                f'<tr class="total-row" onclick="toggleStores(\'pnl\')">'
+                f'<td data-arrow="▶">Todas las tiendas</td>'
+                f'<td>{t.get("gmv","—")}</td><td>{t.get("gmv_dlp","—")}</td>'
+                f'<td>{t.get("gmv_dly","—")}</td>'
+                f'<td>{t.get("nmv","—")}</td><td>{t.get("nmv_dlp","—")}</td>'
+                f'<td>{t.get("take_rate","—")}</td><td>{t.get("take_rate_dlp","—")}</td>'
+                f'<td>{t.get("delivery_fee","—")}</td>'
+                f'<td>{t.get("service_fee","—")}</td>'
+                f'<td>{t.get("contribution","—")}</td>'
+                f'<td>{t.get("sparkline","")}</td>'
+                f"</tr>"
+            )
+        rows += '<tbody id="pnl-store-rows">'
+        for sname in STORE_ORDER:
+            s = stores.get(sname, {})
+            if s:
+                rows += (
+                    f'<tr class="store-row">'
+                    f'<td>{store_dot(sname)}{sname}</td>'
+                    f'<td>{s.get("gmv","—")}</td><td>{s.get("gmv_dlp","—")}</td>'
+                    f'<td>{s.get("gmv_dly","—")}</td>'
+                    f'<td>{s.get("nmv","—")}</td><td>{s.get("nmv_dlp","—")}</td>'
+                    f'<td>{s.get("take_rate","—")}</td><td>{s.get("take_rate_dlp","—")}</td>'
+                    f'<td>{s.get("delivery_fee","—")}</td>'
+                    f'<td>{s.get("service_fee","—")}</td>'
+                    f'<td>{s.get("contribution","—")}</td>'
+                    f'<td>{s.get("sparkline","")}</td>'
+                    f"</tr>"
+                )
+        rows += "</tbody>"
+        return rows
+
+    sec = data_by_period.get("weekly", {})
+    return f"""
+<div class="hero-grid" id="hero-pnl">{hero(sec)}</div>
+<div class="section-body">
+  <p class="period-label" id="period-lbl-pnl"></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Store</th>
+        <th>GMV</th><th>vs LP</th><th>vs LY</th>
+        <th>NMV</th><th>vs LP</th>
+        <th>Take Rate</th><th>vs LP</th>
+        <th>Delivery Fee</th>
+        <th>Service Fee</th>
+        <th>Contribution</th>
+        <th>GMV Trend</th>
+      </tr></thead>
+      <tbody id="tbody-pnl">{tbody(sec)}</tbody>
+    </table>
+  </div>
+</div>"""
+
+
+# ── JS data embedding ──────────────────────────────────────────────────────────
+
+def build_js_data(all_data: dict) -> str:
+    """Serialize the processed data into a JS object for client-side switching."""
+    return f"window.DATA = {json.dumps(all_data, ensure_ascii=False, default=str)};"
+
+
+def build_js_builders() -> str:
+    """
+    Client-side table/hero rebuilders for period switching.
+    These mirror the Python builders but operate on the embedded JS data.
+    """
+    return """
+window.heroBuilders = {
+  growth: function(sec) {
+    const t = sec.total || {};
+    return card('Orders', t.orders, t.orders_dlp)
+      + card('Buyers', t.buyers, t.buyers_dlp)
+      + card('GMV', t.gmv, t.gmv_dlp)
+      + card('Fresh Orders', t.fresh_orders, t.fresh_dlp)
+      + card('Fresh Rate', t.fresh_rate, '');
+  },
+  ops: function(sec) {
+    const t = sec.total || {};
+    return card('Cancel Rate', t.cancel_rate, t.cancel_rate_dlp)
+      + card('Fill Rate', t.fill_rate, t.fill_rate_dlp)
+      + card('On-Time', t.ot_rate, t.ot_rate_dlp)
+      + card('Perfect Purch.', t.perfect_rate, t.perfect_rate_dlp);
+  },
+  cx: function(sec) {
+    const t = sec.total || {}; const b = sec.bpp || {};
+    let h = card('Claims Total', t.claims_total, t.claims_total_dlp);
+    if (t.by_type) Object.entries(t.by_type).forEach(([k,v]) => h += card('Claims '+k, v, ''));
+    if (b.total) h += card('BPP Total', b.total, b.total_dlp);
+    return h;
+  },
+  pnl: function(sec) {
+    const t = sec.total || {};
+    return card('GMV', t.gmv, t.gmv_dlp)
+      + card('NMV', t.nmv, t.nmv_dlp)
+      + card('Take Rate', t.take_rate, t.take_rate_dlp)
+      + card('Delivery Fee', t.delivery_fee, '')
+      + card('Service Fee', t.service_fee, '')
+      + card('Contribution', t.contribution, '');
+  }
+};
+
+window.tableBuilders = {
+  growth: function(sec) {
+    const t = sec.total || {}; const s = sec.stores || {};
+    let rows = rowTotal('growth', [t.orders,'',t.orders_dlp, t.buyers, t.gmv,'',t.gmv_dlp,
+                                    t.fresh_orders, t.fresh_rate,'',t.fresh_dlp, t.sparkline||'']);
+    rows += '<tbody id="growth-store-rows">';
+    storeOrder.forEach(name => {
+      const d = s[name] || {};
+      rows += rowStore(name, [d.orders,'',d.orders_dlp, d.buyers, d.gmv,'',d.gmv_dlp,
+                               d.fresh_orders, d.fresh_rate,'',d.fresh_dlp, d.sparkline||'']);
+    });
+    return rows + '</tbody>';
+  },
+  ops: function(sec) {
+    const t = sec.total || {}; const s = sec.stores || {};
+    let rows = rowTotal('ops', [t.cancel_rate,'',t.cancel_rate_dlp,
+                                 t.cancels_seller, t.cancels_buyer, t.cancels_stockout,
+                                 t.fill_rate,'',t.fill_rate_dlp,
+                                 t.ot_rate, t.ot_early, t.ot_delay,
+                                 t.perfect_rate,'',t.perfect_rate_dlp,
+                                 t.cancel_sparkline||'']);
+    rows += '<tbody id="ops-store-rows">';
+    storeOrder.forEach(name => {
+      const d = s[name] || {};
+      rows += rowStore(name, [d.cancel_rate,'',d.cancel_rate_dlp,
+                               d.cancels_seller, d.cancels_buyer, d.cancels_stockout,
+                               d.fill_rate,'',d.fill_rate_dlp,
+                               d.ot_rate, d.ot_early, d.ot_delay,
+                               d.perfect_rate,'',d.perfect_rate_dlp,
+                               d.cancel_sparkline||'']);
+    });
+    return rows + '</tbody>';
+  },
+  cx: function(sec) {
+    const t = sec.total || {}; const s = sec.stores || {};
+    let rows = rowTotal('cx', [t.claims_total,'',t.claims_total_dlp]);
+    rows += '<tbody id="cx-store-rows">';
+    storeOrder.forEach(name => {
+      const d = s[name] || {};
+      rows += rowStore(name, [d.claims_total,'',d.claims_total_dlp]);
+    });
+    return rows + '</tbody>';
+  },
+  pnl: function(sec) {
+    const t = sec.total || {}; const s = sec.stores || {};
+    let rows = rowTotal('pnl', [t.gmv,'',t.gmv_dlp,t.gmv_dly,
+                                  t.nmv,'',t.nmv_dlp,
+                                  t.take_rate,'',t.take_rate_dlp,
+                                  t.delivery_fee, t.service_fee, t.contribution,
+                                  t.sparkline||'']);
+    rows += '<tbody id="pnl-store-rows">';
+    storeOrder.forEach(name => {
+      const d = s[name] || {};
+      rows += rowStore(name, [d.gmv,'',d.gmv_dlp,d.gmv_dly,
+                               d.nmv,'',d.nmv_dlp,
+                               d.take_rate,'',d.take_rate_dlp,
+                               d.delivery_fee, d.service_fee, d.contribution,
+                               d.sparkline||'']);
+    });
+    return rows + '</tbody>';
+  }
+};
+
+const storeOrder = ['Scalabrini','Caballito','Villa Urquiza','Vicente Lopez'];
+const storeColors = {
+  'Scalabrini':'#3b82f6','Caballito':'#f59e0b',
+  'Villa Urquiza':'#10b981','Vicente Lopez':'#a855f7'
+};
+
+function card(label, value, delta) {
+  return '<div class="hero-card"><div class="hero-label">'+label+'</div>'
+       + '<div class="hero-value">'+(value||'—')+'</div>'
+       + '<div class="hero-delta">'+(delta||'')+'</div></div>';
+}
+function rowTotal(sec, cells) {
+  return '<tr class="total-row" onclick="toggleStores(\''+sec+'\')">'
+       + '<td data-arrow="▶">Todas las tiendas</td>'
+       + cells.map(c => '<td>'+(c===''?'':c||'—')+'</td>').join('') + '</tr>';
+}
+function rowStore(name, cells) {
+  const dot = '<span class="store-dot" style="background:'+(storeColors[name]||'#94a3b8')+'"></span>';
+  return '<tr class="store-row">'
+       + '<td>'+dot+name+'</td>'
+       + cells.map(c => '<td>'+(c===''?'':c||'—')+'</td>').join('') + '</tr>';
+}
+"""
+
+
+# ── Main assembly ──────────────────────────────────────────────────────────────
+
+def build_html(meta_json: str) -> str:
+    try:
+        meta = json.loads(meta_json)
+        updated_at = meta.get("fetched_at", "unknown")
+    except Exception:
+        updated_at = "unknown"
+
+    periods = ["daily", "weekly", "monthly"]
+    sections_map = {
+        "growth": process_growth,
+        "ops":    process_ops,
+        "cx":     process_cx,
+        "pnl":    process_pnl,
+    }
+
+    # Build all section data for all periods
+    all_data: dict = {}
+    for sec_key, func in sections_map.items():
+        all_data[sec_key] = {}
+        for p in periods:
+            print(f"  processing {sec_key}/{p}…")
+            all_data[sec_key][p] = func(p)
+
+    # Build section HTML (initial render = weekly)
+    growth_html = build_growth_section(all_data["growth"])
+    ops_html    = build_ops_section(all_data["ops"])
+    cx_html     = build_cx_section(all_data["cx"])
+    pnl_html    = build_pnl_section(all_data["pnl"])
+
+    js_data     = build_js_data(all_data)
+    js_builders = build_js_builders()
+
+    html = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Proximity Groceries Scorecard</title>
-<style>
-*{{box-sizing:border-box;margin:0;padding:0}}
-body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;padding:24px;color:#1e293b}}
-.card{{background:#ffffff;border-radius:14px;padding:24px 28px;box-shadow:0 2px 12px rgba(0,0,0,0.06);max-width:1300px;margin:0 auto;border:1px solid #e2e8f0}}
-.hdr{{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.1rem}}
-.title{{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:3px}}
-.subtitle{{font-size:12px;color:#64748b}}
-.upd{{font-size:11px;color:#94a3b8;text-align:right;padding-top:2px}}
-.tabs{{display:flex;gap:2px;border-bottom:1.5px solid #e2e8f0;margin-bottom:1.2rem;flex-wrap:wrap}}
-.tab{{padding:8px 22px;font-size:13px;cursor:pointer;border-bottom:2.5px solid transparent;color:#64748b;font-weight:500;transition:all .15s;margin-bottom:-1.5px}}
-.tab.active{{color:#2563eb;border-bottom-color:#2563eb;font-weight:700}}
-.tab:hover{{color:#334155}}
-.subtabs{{display:flex;gap:6px;margin-bottom:1rem}}
-.subtab{{padding:4px 14px;font-size:12px;cursor:pointer;border-radius:20px;color:#64748b;border:1px solid #e2e8f0;font-weight:500;background:#f8fafc}}
-.subtab.active{{background:rgba(37,99,235,0.08);color:#2563eb;border-color:#2563eb;font-weight:600}}
-.filter-bar{{display:flex;align-items:center;gap:8px;margin-bottom:14px}}
-.filter-lbl{{font-size:11px;color:#64748b;font-weight:500}}
-.fsel{{background:#ffffff;color:#334155;border:1px solid #e2e8f0;border-radius:7px;padding:5px 28px 5px 10px;font-size:12px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;font-family:inherit;transition:border-color .15s}}
-.fsel:hover,.fsel:focus{{border-color:#2563eb;color:#0f172a}}
-.fsel option{{background:#ffffff;color:#334155}}
-.tbl{{overflow-x:auto}}
-table{{width:100%;border-collapse:collapse;font-size:12px;min-width:920px}}
-th{{background:#f8fafc;color:#64748b;font-weight:600;padding:0 10px;text-align:right;white-space:nowrap;font-size:11px;letter-spacing:.02em;line-height:1.3}}
-th .rel{{font-size:9px;color:#94a3b8;font-weight:400;display:block;margin-bottom:2px;letter-spacing:.04em}}
-th .dt{{display:block;padding:6px 0}}
-th.left{{text-align:left}}
-th.hl{{background:#eff6ff}}
-th.last{{background:#dbeafe;color:#1d4ed8}}
-td{{padding:6px 10px;text-align:right;border-bottom:1px solid #f1f5f9;color:#334155;white-space:nowrap}}
-td.left{{text-align:left}}
-td.metric{{font-weight:700;color:#0f172a}}
-td.apert{{font-size:11px;color:#94a3b8}}
-td.apert-total{{font-size:11px;color:#2563eb;font-weight:600}}
-td.store{{color:#94a3b8;padding-left:26px;font-size:11px}}
-td.hl{{background:rgba(59,130,246,0.04);font-weight:500}}
-td.last{{background:rgba(59,130,246,0.10);font-weight:600;color:#1e40af}}
-td.store.hl{{background:rgba(59,130,246,0.02)}}
-td.store.last{{background:rgba(59,130,246,0.05)}}
-td.main{{font-weight:700;background:#f8fafc;color:#0f172a}}
-td.main.hl{{background:rgba(59,130,246,0.05)}}
-td.main.last{{background:rgba(59,130,246,0.12);color:#1e40af}}
-td.child{{color:#94a3b8;background:#fafafa}}
-td.child.hl{{background:rgba(59,130,246,0.02)}}
-td.child.last{{background:rgba(59,130,246,0.04)}}
-td.pos{{color:#16a34a;font-weight:700}}
-td.neg{{color:#dc2626;font-weight:700}}
-td.neu{{color:#94a3b8}}
-tr:hover td{{background:#f0f9ff!important}}
-tr:hover td.last{{background:#dbeafe!important}}
-.tog{{font-size:9px;cursor:pointer;color:#cbd5e1;margin-right:4px;user-select:none}}
-.tog:hover{{color:#2563eb}}
-.charts-grid{{display:grid;grid-template-columns:1fr 1fr;gap:16px}}
-@media(max-width:800px){{.charts-grid{{grid-template-columns:1fr}}}}
-.chart-card{{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px}}
-.chart-title{{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}}
-.plan-hdr{{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px}}
-.plan-sub{{font-size:12px;color:#64748b;margin-bottom:18px}}
-.plan-badge{{display:inline-block;background:rgba(37,99,235,0.10);color:#2563eb;border-radius:5px;padding:2px 9px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}}
-.kpi-strip{{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}}
-.kpi-box{{background:#f0f9ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 20px;min-width:190px}}
-.kpi-box-lbl{{font-size:10px;font-weight:600;color:#2563eb;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}}
-.kpi-box-val{{font-size:24px;font-weight:700;color:#0f172a;line-height:1}}
-.kpi-box-sub{{font-size:10px;color:#94a3b8;margin-top:3px}}
-#tt{{position:fixed;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:7px 12px;font-size:12px;color:#f8fafc;pointer-events:none;display:none;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,0.25);white-space:nowrap}}
-#tt .tt-lbl{{font-size:10px;color:#60a5fa;font-weight:600;margin-bottom:2px}}
-#tt .tt-val{{font-size:13px;font-weight:700;color:#f8fafc}}
-.mode-toggle{{display:flex;gap:4px;margin-bottom:16px}}
-.mode-btn{{padding:6px 20px;font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;border:1.5px solid #e2e8f0;background:#f8fafc;color:#64748b;transition:all .15s}}
-.mode-btn.active{{background:#2563eb;color:#ffffff;border-color:#2563eb}}
-.fm-section{{margin-bottom:24px}}
-.fm-title{{font-size:13px;font-weight:700;color:#0f172a;margin:18px 0 8px;padding-bottom:6px;border-bottom:1.5px solid #e2e8f0}}
-.fm-title:first-child{{margin-top:0}}
-.fm-period{{font-size:11px;color:#64748b;font-weight:500}}
-</style>
+<style>{CSS}</style>
 </head>
 <body>
-<div id="tt"><div class="tt-lbl" id="tt-lbl"></div><div class="tt-val" id="tt-val"></div></div>
-<div class="card">
-  <div class="hdr">
-    <div>
-      <div class="title">Proximity Groceries Scorecard</div>
-      <div class="subtitle">Meses cerrados &nbsp;·&nbsp; Oct'25 → Mar'26 &nbsp;·&nbsp; Caballito · Scalabrini · Vicente Lopez · Villa Urquiza</div>
-    </div>
-    <div class="upd">Actualizado: {today}</div>
-  </div>
-  <div class="mode-toggle">
-    <button id="btn-monthly" class="mode-btn active" onclick="setMode('monthly')">Mensual</button>
-    <button id="btn-weekly" class="mode-btn" onclick="setMode('weekly')">Semanal</button>
-  </div>
 
-  <div id="monthly-section">
-    <div class="tabs" id="monthly-tabs">
-      <div class="tab active" onclick="switchTab('growth')">Growth</div>
-      <div class="tab" onclick="switchTab('ops')">Ops</div>
-      <div class="tab" onclick="switchTab('buyers')">Buyers</div>
-      <div class="tab" onclick="switchTab('demog')">Datos Demográficos</div>
-      <div class="tab" onclick="switchTab('nps')">NPS</div>
-      <div class="tab" onclick="switchTab('pl')">P&amp;L</div>
-      <div class="tab" onclick="switchTab('charts')">Gráficos</div>
-      <div class="tab" onclick="switchTab('plan')">Plan</div>
-      <div class="tab" onclick="switchTab('fechasmoviles')">Fechas Móviles</div>
-    </div>
-  <div class="tbl" id="monthly-tbl">
-    <div id="t-growth">
-      <div class="filter-bar">
-        <span class="filter-lbl">Apertura:</span>
-        <select class="fsel" id="store-filter" onchange="setStore(this.value)">
-          <option value="Todas">Todas las tiendas</option>
-          <option value="Caballito">Caballito</option>
-          <option value="Scalabrini">Scalabrini</option>
-          <option value="Vicente Lopez">Vicente Lopez</option>
-          <option value="Villa Urquiza">Villa Urquiza</option>
-        </select>
-      </div>
-      <table><thead id="hg"></thead><tbody id="bg"></tbody></table>
-    </div>
-    <div id="t-ops" style="display:none"><table><thead id="ho"></thead><tbody id="bo"></tbody></table></div>
-    <div id="t-buyers" style="display:none">
-      <div class="kpi-strip">
-        <div class="kpi-box">
-          <div class="kpi-box-lbl">Buyers Únicos YTD 2026</div>
-          <div class="kpi-box-val" id="kpi-ytd-val">—</div>
-          <div class="kpi-box-sub">Ene–Mar acumulado</div>
-        </div>
-      </div>
-      <table><thead id="hbu"></thead><tbody id="bbu"></tbody></table>
-    </div>
-    <div id="t-demog" style="display:none">
-      <div class="charts-grid" style="grid-template-columns:1fr 1fr">
-        <div class="chart-card">
-          <div class="chart-title">Buyers por Género</div>
-          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">Femenino vs Masculino · % por mes</div>
-          <svg id="c-gen" width="100%" style="overflow:visible"></svg>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">Buyers por Rango Etario</div>
-          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% por mes</div>
-          <svg id="c-edad" width="100%" style="overflow:visible"></svg>
-        </div>
-      </div>
-      <div class="charts-grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
-        <div class="chart-card">
-          <div class="chart-title">NSE por Mes</div>
-          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% del total · todas las tiendas</div>
-          <svg id="c-nse-mes" width="100%" style="overflow:visible"></svg>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">NSE por Tienda</div>
-          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% acumulado Oct-Mar</div>
-          <svg id="c-nse-tienda" width="100%" style="overflow:visible"></svg>
-        </div>
-      </div>
-    </div>
-    <div id="t-nps" style="display:none"><table><thead id="hn"></thead><tbody id="bn"></tbody></table></div>
-    <div id="t-pl" style="display:none">
-      <div class="subtabs">
-        <div class="subtab active" onclick="switchSub('s-total')">Total</div>
-        <div class="subtab" onclick="switchSub('s-tiendas')">Tiendas</div>
-        <div class="subtab" onclick="switchSub('s-vert')">Verticales</div>
-      </div>
-      <div id="s-total"><table><thead id="hpt"></thead><tbody id="bpt"></tbody></table></div>
-      <div id="s-tiendas" style="display:none"><table><thead id="hpti"></thead><tbody id="bpti"></tbody></table></div>
-      <div id="s-vert" style="display:none"><table><thead id="hpv"></thead><tbody id="bpv"></tbody></table></div>
-    </div>
-    <div id="t-charts" style="display:none">
-      <div class="charts-grid">
-        <div class="chart-card"><div class="chart-title">NMV Mensual</div><svg id="c-nmv" width="100%" style="overflow:visible"></svg></div>
-        <div class="chart-card"><div class="chart-title">Compras Mensual</div><svg id="c-ord" width="100%" style="overflow:visible"></svg></div>
-        <div class="chart-card"><div class="chart-title">Fill Rate Items</div><svg id="c-fr" width="100%" style="overflow:visible"></svg></div>
-        <div class="chart-card"><div class="chart-title">Visitas Mensuales</div><svg id="c-vis" width="100%" style="overflow:visible"></svg></div>
-      </div>
-    </div>
-    <div id="t-plan" style="display:none">
-      <div class="plan-hdr">Plan V2 <span class="plan-badge">Forecast 2+10 2026</span></div>
-      <div class="plan-sub">Proximity Groceries MLA · Plan V2 vs Real &nbsp;·&nbsp; Plan disponible desde Ene'26</div>
-      <div class="tbl"><table><thead id="h-plan"></thead><tbody id="b-plan"></tbody></table></div>
-    </div>
-    <div id="t-fechasmoviles" style="display:none">
-      <div class="fm-section" id="fm28-cont"></div>
-    </div>
-  </div>
-  </div>
+<header class="header">
+  <h1>Proximity <span>Groceries</span> Scorecard</h1>
+  <span class="updated">Updated: {updated_at}</span>
+</header>
 
-  <div id="weekly-section" style="display:none">
-    <div class="tabs" id="weekly-tabs">
-      <div class="tab active" onclick="switchWeeklyTab('wgrowth')">Growth</div>
-      <div class="tab" onclick="switchWeeklyTab('wops')">Ops</div>
-      <div class="tab" onclick="switchWeeklyTab('wbuyers')">Buyers</div>
-      <div class="tab" onclick="switchWeeklyTab('wcharts')">Gráficos</div>
-      <div class="tab" onclick="switchWeeklyTab('wplan')">Plan</div>
-      <div class="tab" onclick="switchWeeklyTab('wfechas')">Fechas Móviles</div>
-    </div>
-    <div class="tbl" id="weekly-tbl">
-      <div id="t-wgrowth">
-        <div class="filter-bar">
-          <span class="filter-lbl">Apertura:</span>
-          <select class="fsel" id="wstore-filter" onchange="setWStore(this.value)">
-            <option value="Todas">Todas las tiendas</option>
-            <option value="Scalabrini">Scalabrini</option>
-            <option value="Caballito">Caballito</option>
-            <option value="Vicente Lopez">Vicente Lopez</option>
-            <option value="Villa Urquiza">Villa Urquiza</option>
-          </select>
-        </div>
-        <table><thead id="hwg"></thead><tbody id="bwg"></tbody></table>
-      </div>
-      <div id="t-wops" style="display:none"><table><thead id="hwo"></thead><tbody id="bwo"></tbody></table></div>
-      <div id="t-wbuyers" style="display:none"><table><thead id="hwbu"></thead><tbody id="bwbu"></tbody></table></div>
-      <div id="t-wcharts" style="display:none">
-        <div class="charts-grid">
-          <div class="chart-card"><div class="chart-title">NMV Semanal</div><svg id="cw-nmv" width="100%" style="overflow:visible"></svg></div>
-          <div class="chart-card"><div class="chart-title">Compras Semanales</div><svg id="cw-ord" width="100%" style="overflow:visible"></svg></div>
-          <div class="chart-card"><div class="chart-title">Fill Rate Items</div><svg id="cw-fr" width="100%" style="overflow:visible"></svg></div>
-          <div class="chart-card"><div class="chart-title">Visitas Semanales</div><svg id="cw-vis" width="100%" style="overflow:visible"></svg></div>
-        </div>
-      </div>
-      <div id="t-wplan" style="display:none">
-        <div class="plan-hdr">Plan Semanal <span class="plan-badge">NMV vs Real</span></div>
-        <div class="plan-sub">Plan distribuido proporcionalmente desde targets mensuales</div>
-        <table><thead id="hwpl"></thead><tbody id="bwpl"></tbody></table>
-      </div>
-      <div id="t-wfechas" style="display:none">
-        <div class="fm-section" id="fm7-cont"></div>
-      </div>
-    </div>
+<div class="controls">
+  <div class="tab-group">
+    <button class="tab period-tab active" id="ptab-daily"   onclick="setPeriod('daily')">Daily</button>
+    <button class="tab period-tab active" id="ptab-weekly"  onclick="setPeriod('weekly')">Weekly</button>
+    <button class="tab period-tab"        id="ptab-monthly" onclick="setPeriod('monthly')">Monthly</button>
   </div>
 </div>
 
+<nav class="section-nav">
+  <button class="sec-tab active" id="stab-growth" onclick="setSection('growth')">📈 Growth</button>
+  <button class="sec-tab"        id="stab-ops"    onclick="setSection('ops')">⚙️  Ops</button>
+  <button class="sec-tab"        id="stab-cx"     onclick="setSection('cx')">💬 CX</button>
+  <button class="sec-tab"        id="stab-pnl"    onclick="setSection('pnl')">💰 P&amp;L</button>
+</nav>
+
+<div id="sec-growth" class="section active">{growth_html}</div>
+<div id="sec-ops"    class="section">{ops_html}</div>
+<div id="sec-cx"     class="section">{cx_html}</div>
+<div id="sec-pnl"    class="section">{pnl_html}</div>
+
 <script>
-const MONTHS={j(MONTHS)};
-const MONTHS_NPS={j(MONTHS_NPS)};
-const growthData={j(growth_data)};
-const opsData={j(ops_data)};
-const demandaData={j(demanda_data)};
-const visitasVals={j(visitas_vals)};
-const buyersGenero={j(buyers_genero)};
-const buyersEdad={j(buyers_edad)};
-const buyersNseTienda={j(buyers_nse_tienda)};
-const buyersNseMes={j(buyers_nse_mes)};
-const buyersYtd={j(buyers_ytd)};
-const npsData={j(nps_data)};
-const nmvVals={j(nmv_vals)};
-const plLines={j(pl_lines)};
-const tiendasNames={j(tiendas_names)};
-const tiendasNmv={j(tiendas_nmv)};
-const plTiendas={j(pl_tiendas)};
-const verticals={j(verticals)};
-const weekLabels={j(WEEK_LABELS)};
-const weeklyGrowthStores={j(weekly_growth_stores)};
-const weeklyBuyersW={j(weekly_buyers_w)};
-const weeklyOpsW={j(weekly_ops_w)};
-const weeklyPlanDataW={j(weekly_plan_data_w)};
-const rolling7T={j(rolling_7_t)};
-const rolling7TLabels={j(rolling_7_labels)};
-const rolling28T={j(rolling_28_t)};
-const rolling28TLabels={j(rolling_28_labels)};
-
-let activeStore='Todas';
-
-function relLabel(months,i){{
-  const offset=months.length-1-i;
-  if(offset===0)return'Ult. mes';
-  return'M-'+offset;
-}}
-function relLabelS(labels,i){{
-  const offset=labels.length-1-i;
-  if(offset===0)return'Ult. sem.';
-  return'S-'+offset;
-}}
-function relLabelP(labels,i){{
-  const offset=labels.length-1-i;
-  if(offset===0)return'P';
-  return'P-'+offset;
-}}
-
-window.setStore=function(s){{activeStore=s;buildBody('bg',growthData,MONTHS,4,5);}};
-
-function fv(v,fmt){{
-  if(v===null||v===undefined)return'-';
-  if(fmt==='money'){{if(v>=1e9)return'$'+(v/1e9).toFixed(1)+'B';if(v>=1e6)return'$'+(v/1e6).toFixed(1)+'M';if(v>=1e3)return'$'+(v/1e3).toFixed(0)+'K';return'$'+v;}}
-  if(fmt==='dollar')return'$'+Math.round(v).toLocaleString();
-  if(fmt==='pct')return(v*100).toFixed(1)+'%';
-  if(fmt==='pp')return(v>=0?'+':'')+Math.round(v*100)+'pp';
-  if(fmt==='nps')return Math.round(v*100)+'%';
-  if(fmt==='dec')return v.toFixed(1);
-  if(v>=1e6)return(v/1e6).toFixed(1)+'M';
-  if(v>=1e3)return(v/1e3).toFixed(1)+'K';
-  return v.toLocaleString();
-}}
-
-function fpl(v,isNmv){{
-  if(v===null||v===undefined)return'-';
-  if(isNmv)return fv(v,'money');
-  return(v>=0?'':'')+( v*100).toFixed(2)+'%';
-}}
-
-function vsLP(vals,isPP,isNegGood,idx){{
-  const c=vals[idx],p=vals[idx-1];
-  if(c==null||p==null)return null;
-  if(isPP)return{{val:(c-p)*100,isPP:true,isNegGood}};
-  return{{val:(c-p)/p*100,isPP:false,isNegGood}};
-}}
-
-function fmtVs(obj){{
-  if(!obj)return{{txt:'-',cls:'last neu'}};
-  const{{val,isPP,isNegGood}}=obj;
-  const s=val>=0?'+':'';
-  const txt=isPP?s+val.toFixed(2)+'pp':s+val.toFixed(1)+'%';
-  const good=isNegGood?val<=0:val>=0;
-  return{{txt,cls:good?'last pos':'last neg'}};
-}}
-
-function spark(vals){{
-  const pts=vals.map((v,i)=>{{return{{v,i}}}}).filter(p=>p.v!=null);
-  if(pts.length<2)return'<td></td>';
-  const xs=pts.map(p=>p.i),ys=pts.map(p=>p.v);
-  const mnX=Math.min(...xs),mxX=Math.max(...xs),mnY=Math.min(...ys),mxY=Math.max(...ys);
-  const W=64,H=22,pd=2;
-  const sx=x=>mxX===mnX?W/2:pd+(x-mnX)/(mxX-mnX)*(W-2*pd);
-  const sy=y=>mxY===mnY?H/2:H-pd-(y-mnY)/(mxY-mnY)*(H-2*pd);
-  const d=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
-  const l=pts[pts.length-1],p2=pts[pts.length-2];
-  const col=l.v>=p2.v?'#16a34a':'#dc2626';
-  return`<td style="text-align:center;padding:4px 8px"><svg width="${{W}}" height="${{H}}" viewBox="0 0 ${{W}} ${{H}}"><path d="${{d}}" fill="none" stroke="${{col}}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${{sx(l.i).toFixed(1)}}" cy="${{sy(l.v).toFixed(1)}}" r="2.5" fill="${{col}}"/></svg></td>`;
-}}
-
-const EXP={{}};
-
-function buildHead(hid,months,hlIdx,relFn){{
-  relFn=relFn||relLabel;
-  const lastIdx=months.length-1;
-  document.getElementById(hid).innerHTML=`<tr>
-    <th class="left" style="min-width:180px"><span class="dt">Métrica</span></th>
-    <th class="left" style="min-width:72px"><span class="rel">&nbsp;</span><span class="dt">Apertura</span></th>
-    ${{months.map((m,i)=>{{
-      const isLast=i===lastIdx;
-      const cls=isLast?'last':(i>=hlIdx?'hl':'');
-      const rel=relFn(months,i);
-      return`<th class="${{cls}}"><span class="rel">${{rel}}</span><span class="dt">${{m}}</span></th>`;
-    }}).join('')}}
-    <th class="last"><span class="rel">cambio</span><span class="dt">vs LP</span></th>
-    <th style="min-width:80px"><span class="dt">Tendencia</span></th></tr>`;
-}}
-
-function buildBody(bid,data,months,hlIdx,lpIdx){{
-  const tb=document.getElementById(bid);tb.innerHTML='';
-  const isGrowth=bid==='bg';
-  const lastIdx=months.length-1;
-  data.forEach((m,mi)=>{{
-    if(isGrowth&&activeStore!=='Todas'){{
-      const sRow=m.rows.find(r=>r.s===activeStore)||m.rows[0];
-      const tr=document.createElement('tr');
-      let h=`<td class="metric left"><span class="tog"></span>${{m.metric}}</td>`;
-      h+=`<td class="apert-total left">${{sRow.s}}</td>`;
-      sRow.v.forEach((v,i)=>{{
-        const cls=i===lastIdx?'last':(i>=hlIdx?'hl':'');
-        h+=`<td class="${{cls}}">${{fv(v,m.fmt)}}</td>`;
-      }});
-      const vl=vsLP(sRow.v,m.isPP,m.isNegGood,lpIdx);
-      const{{txt,cls}}=fmtVs(vl);
-      h+=`<td class="${{cls}}">${{txt}}</td>`;
-      h+=spark(sRow.v);
-      tr.innerHTML=h;tb.appendChild(tr);
-      return;
-    }}
-    const isExp=EXP[bid+'_'+mi],hasC=m.rows.length>1;
-    m.rows.forEach((row,ri)=>{{
-      if(ri>0&&!isExp)return;
-      const isT=ri===0,tr=document.createElement('tr');
-      let h='';
-      if(isT){{
-        h+=`<td class="metric left"><span class="tog" onclick="tog('${{bid}}',${{mi}})">${{hasC?(isExp?'▼':'▶'):''}}</span>${{m.metric}}</td>`;
-        const subHtml=m.sub?`<div style="font-size:9px;color:#94a3b8;font-weight:400;margin-top:1px">${{m.sub}}</div>`:'';
-        h=`<td class="metric left"><span class="tog" onclick="tog('${{bid}}',${{mi}})">${{hasC?(isExp?'▼':'▶'):''}}</span>${{m.metric}}${{subHtml}}</td>`;
-        h+=`<td class="apert-total left">● Total</td>`;
-      }} else {{
-        h+=`<td></td><td class="store left">${{row.s}}</td>`;
-      }}
-      row.v.forEach((v,i)=>{{
-        const isLast=i===lastIdx;
-        const cls=isT?(isLast?'last':(i>=hlIdx?'hl':'')):(isLast?'store last':(i>=hlIdx?'store hl':'store'));
-        h+=`<td class="${{cls}}">${{fv(v,m.fmt)}}</td>`;
-      }});
-      const vl=vsLP(row.v,m.isPP,m.isNegGood,lpIdx);
-      const{{txt,cls}}=fmtVs(vl);
-      h+=`<td class="${{isT?cls:cls+' store'}}">${{txt}}</td>`;
-      h+=spark(row.v);
-      tr.innerHTML=h;tb.appendChild(tr);
-    }});
-  }});
-}}
-
-function buildPLHead(hid,cols,isTienda){{
-  const w=isTienda?240:220;
-  const lastIdx=cols.length-1;
-  let ths='';
-  if(!isTienda){{
-    ths=cols.map((c,i)=>{{
-      const isLast=i===lastIdx;
-      const cls=isLast?'last':(i>=lastIdx-1?'hl':'');
-      const rel=relLabel(cols,i);
-      return`<th class="${{cls}}"><span class="rel">${{rel}}</span><span class="dt">${{c}}</span></th>`;
-    }}).join('');
-  }} else {{
-    ths=cols.map((c,i)=>`<th class="${{i===lastIdx?'last':'hl'}}"><span class="rel">Tienda</span><span class="dt">${{c}}</span></th>`).join('');
-  }}
-  document.getElementById(hid).innerHTML=`<tr>
-    <th class="left" style="min-width:${{w}}px"><span class="dt">Línea P&L</span></th>
-    ${{ths}}
-    ${{!isTienda?'<th class="last"><span class="rel">cambio</span><span class="dt">vs LP</span></th><th><span class="dt">Tendencia</span></th>':''}}</tr>`;
-}}
-
-function buildPLBody(bid,lines,nmvArr,cols,isTienda){{
-  const tb=document.getElementById(bid);tb.innerHTML='';
-  const lastIdx=cols.length-1;
-  lines.forEach((line,li)=>{{
-    const isExp=EXP[bid+'_'+li],hasC=line.children&&line.children.length>0;
-    const isNmv=line.isNmv;
-    const vals=isNmv?nmvArr:(line.v||[]);
-    const tr=document.createElement('tr');
-    let h=`<td class="main left"><span class="tog" onclick="togPL('${{bid}}',${{li}})">${{hasC?(isExp?'▼':'▶'):''}}</span>${{line.metric}}</td>`;
-    vals.forEach((v,i)=>{{
-      const cls=i===lastIdx?'main last':'main'+(i>=lastIdx-1?' hl':'');
-      h+=`<td class="${{cls}}">${{fpl(v,isNmv)}}</td>`;
-    }});
-    if(!isTienda){{
-      if(isNmv){{
-        const d=vals[4]&&vals[5]?(vals[5]-vals[4])/vals[4]*100:null;
-        h+=d!=null?`<td class="main last ${{d>=0?'pos':'neg'}}">${{d>=0?'+':''}}${{d.toFixed(1)}}%</td>`:`<td class="main last neu">-</td>`;
-      }} else if(vals.length>=6){{
-        const d=(vals[5]-vals[4])*100;
-        h+=`<td class="main last ${{d>=0?'pos':'neg'}}">${{d>=0?'+':''}}${{d.toFixed(2)}}pp</td>`;
-      }} else h+=`<td class="main last neu">-</td>`;
-      h+=spark(vals);
-    }}
-    tr.innerHTML=h;tb.appendChild(tr);
-    if(isExp&&hasC){{
-      line.children.forEach(child=>{{
-        const cr=document.createElement('tr');
-        let ch=`<td class="child left" style="padding-left:28px">${{child.metric}}</td>`;
-        child.v.forEach((v,i)=>{{
-          const cls=i===lastIdx?'child last':'child'+(i>=lastIdx-1?' hl':'');
-          ch+=`<td class="${{cls}}">${{fpl(v,false)}}</td>`;
-        }});
-        if(!isTienda){{
-          const d=(child.v[5]-child.v[4])*100;
-          ch+=`<td class="child last ${{d>=0?'pos':'neg'}}">${{d>=0?'+':''}}${{d.toFixed(2)}}pp</td>`;
-          ch+=spark(child.v);
-        }}
-        cr.innerHTML=ch;tb.appendChild(cr);
-      }});
-    }}
-  }});
-}}
-
-function buildVertBody(){{
-  const tb=document.getElementById('bpv');tb.innerHTML='';
-  document.getElementById('hpv').innerHTML=`<tr>
-    <th class="left" style="min-width:220px"><span class="dt">Vertical</span></th>
-    <th><span class="dt">NMV</span></th>
-    <th><span class="dt">Prod. Monetization</span></th>
-    <th><span class="dt">Variable Contribution</span></th>
-    <th class="last"><span class="dt">Direct Contribution</span></th></tr>`;
-  verticals.forEach(vt=>{{
-    const tr=document.createElement('tr');
-    const dc_cls=vt.dc_pct>=0?'pos':'neg';
-    const vc_cls=vt.vc_pct>=0?'pos':'neg';
-    tr.innerHTML=`
-      <td class="left metric">${{vt.v}}</td>
-      <td>${{fv(vt.nmv,'money')}}</td>
-      <td>${{(vt.pm_pct*100).toFixed(2)}}%</td>
-      <td class="${{vc_cls}}">${{(vt.vc_pct*100).toFixed(2)}}%</td>
-      <td class="last ${{dc_cls}}">${{(vt.dc_pct*100).toFixed(2)}}%</td>`;
-    tb.appendChild(tr);
-  }});
-}}
-
-window.tog=function(bid,mi){{EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildBody(bid,bid==='bg'?growthData:bid==='bo'?opsData:bid==='bbu'?demandaData:npsData,bid==='bn'?MONTHS_NPS:MONTHS,bid==='bn'?3:5,bid==='bn'?3:5);}};
-window.togPL=function(bid,li){{EXP[bid+'_'+li]=!EXP[bid+'_'+li];if(bid==='bpt')buildPLBody('bpt',plLines,nmvVals,MONTHS,false);else buildPLBody('bpti',plTiendas,tiendasNmv,tiendasNames,true);}};
-
-window.switchTab=function(tab){{
-  ['growth','ops','buyers','demog','nps','pl','charts','plan','fechasmoviles'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
-  document.querySelectorAll('#monthly-tabs .tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','buyers','demog','nps','pl','charts','plan','fechasmoviles'][i]===tab));
-  if(tab==='charts')buildCharts();
-  if(tab==='demog')buildBuyersCharts();
-  if(tab==='plan')buildPlan();
-  if(tab==='fechasmoviles')buildFechasMoviles();
-}};
-
-window.switchSub=function(sub){{
-  ['s-total','s-tiendas','s-vert'].forEach(s=>document.getElementById(s).style.display=s===sub?'':'none');
-  document.querySelectorAll('.subtab').forEach((el,i)=>el.classList.toggle('active',['s-total','s-tiendas','s-vert'][i]===sub));
-}};
-
-let activeWStore='Todas';
-
-window.setMode=function(mode){{
-  const isW=mode==='weekly';
-  ['monthly-section','monthly-tbl'].forEach(id=>{{
-    const el=document.getElementById(id);if(el)el.style.display=isW?'none':'';
-  }});
-  document.getElementById('weekly-section').style.display=isW?'':'none';
-  document.getElementById('btn-monthly').classList.toggle('active',!isW);
-  document.getElementById('btn-weekly').classList.toggle('active',isW);
-  if(isW)buildWeeklyGrowth();
-}};
-
-const _wTabs=['wgrowth','wops','wbuyers','wcharts','wplan','wfechas'];
-window.switchWeeklyTab=function(tab){{
-  _wTabs.forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
-  document.querySelectorAll('#weekly-tabs .tab').forEach((el,i)=>el.classList.toggle('active',_wTabs[i]===tab));
-  if(tab==='wfechas')buildFechasMov7();
-  if(tab==='wcharts')buildWeeklyCharts();
-  if(tab==='wops')buildWeeklyOps();
-  if(tab==='wbuyers')buildWeeklyBuyers();
-  if(tab==='wplan')buildWeeklyPlan();
-}};
-
-window.setWStore=function(s){{
-  activeWStore=s;
-  buildWeeklyGrowth();
-}};
-
-// ── BUILD HEAD for weekly (with relLabelS) ────────────────────────────────────
-function buildHeadW(hid,labels,hlIdx){{
-  buildHead(hid,labels,hlIdx,relLabelS);
-}}
-function buildHeadP(hid,labels,hlIdx){{
-  buildHead(hid,labels,hlIdx,relLabelP);
-}}
-
-// ── BODY weekly (same pattern as buildBody but for weekly) ────────────────────
-function buildBodyW(bid,data,labels,hlIdx,lpIdx){{
-  const tb=document.getElementById(bid);tb.innerHTML='';
-  const isGrowth=bid==='bwg';
-  const lastIdx=labels.length-1;
-  data.forEach((m,mi)=>{{
-    if(isGrowth&&activeWStore!=='Todas'){{
-      const sRow=m.rows.find(r=>r.s===activeWStore)||m.rows[0];
-      const tr=document.createElement('tr');
-      let h=`<td class="metric left"><span class="tog"></span>${{m.metric}}</td>`;
-      h+=`<td class="apert-total left">${{sRow.s}}</td>`;
-      sRow.v.forEach((v,i)=>{{
-        const cls=i===lastIdx?'last':(i>=hlIdx?'hl':'');
-        h+=`<td class="${{cls}}">${{fv(v,m.fmt)}}</td>`;
-      }});
-      const vl=vsLP(sRow.v,m.isPP,m.isNegGood,lpIdx);
-      const{{txt,cls}}=fmtVs(vl);
-      h+=`<td class="${{cls}}">${{txt}}</td>`;
-      h+=spark(sRow.v);
-      tr.innerHTML=h;tb.appendChild(tr);
-      return;
-    }}
-    const isExp=EXP[bid+'_'+mi],hasC=m.rows.length>1;
-    m.rows.forEach((row,ri)=>{{
-      if(ri>0&&!isExp)return;
-      const isT=ri===0,tr=document.createElement('tr');
-      let h='';
-      if(isT){{
-        h+=`<td class="metric left"><span class="tog" onclick="togW('${{bid}}',${{mi}})">${{hasC?(isExp?'▼':'▶'):''}}</span>${{m.metric}}</td>`;
-        h+=`<td class="apert-total left">● Total</td>`;
-      }} else {{
-        h+=`<td></td><td class="store left">${{row.s}}</td>`;
-      }}
-      row.v.forEach((v,i)=>{{
-        const isLast=i===lastIdx;
-        const cls=isT?(isLast?'last':(i>=hlIdx?'hl':'')):(isLast?'store last':(i>=hlIdx?'store hl':'store'));
-        h+=`<td class="${{cls}}">${{fv(v,m.fmt)}}</td>`;
-      }});
-      const vl=vsLP(row.v,m.isPP,m.isNegGood,lpIdx);
-      const{{txt,cls}}=fmtVs(vl);
-      h+=`<td class="${{isT?cls:cls+' store'}}">${{txt}}</td>`;
-      h+=spark(row.v);
-      tr.innerHTML=h;tb.appendChild(tr);
-    }});
-  }});
-}}
-window.togW=function(bid,mi){{EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildWeeklyGrowth();}};
-
-function buildWeeklyGrowth(){{
-  const N=weekLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
-  buildHeadW('hwg',weekLabels,hlIdx);
-  buildBodyW('bwg',weeklyGrowthStores,weekLabels,hlIdx,lpIdx);
-}}
-
-function buildWeeklyOps(){{
-  const N=weekLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
-  buildHeadW('hwo',weekLabels,hlIdx);
-  buildBodyW('bwo',weeklyOpsW,weekLabels,hlIdx,lpIdx);
-}}
-
-function buildWeeklyBuyers(){{
-  const N=weekLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
-  buildHeadW('hwbu',weekLabels,hlIdx);
-  buildBodyW('bwbu',weeklyBuyersW,weekLabels,hlIdx,lpIdx);
-}}
-
-function buildWeeklyCharts(){{
-  const nmvV=weeklyGrowthStores.find(m=>m.metric==='NMV').rows[0].v;
-  const cmpV=weeklyGrowthStores.find(m=>m.metric==='Compras').rows[0].v;
-  const frV=weeklyGrowthStores.find(m=>m.metric==='Fill Rate Items').rows[0].v;
-  const visV=weeklyGrowthStores.find(m=>m.metric==='Visitas').rows[0].v;
-  drawLineArea('cw-nmv',nmvV,weekLabels,'#2563eb','money');
-  drawBars('cw-ord',cmpV,weekLabels,'#16a34a','num');
-  drawLineArea('cw-fr',frV,weekLabels,'#d97706','pct');
-  drawBars('cw-vis',visV,weekLabels,'#7c3aed','num');
-}}
-
-function buildWeeklyPlan(){{
-  const lastIdx=weekLabels.length-1;
-  document.getElementById('hwpl').innerHTML='<tr>'+
-    '<th class="left" style="min-width:150px"><span class="dt">Métrica</span></th>'+
-    '<th class="left" style="min-width:60px"><span class="dt">Apertura</span></th>'+
-    weekLabels.map((m,i)=>{{
-      const cls=i===lastIdx?'last':(i>=weekLabels.length-4?'hl':'');
-      return'<th class="'+cls+'"><span class="rel">'+relLabelS(weekLabels,i)+'</span><span class="dt">'+m+'</span></th>';
-    }}).join('')+
-    '<th class="last"><span class="rel">vs plan</span><span class="dt">Ult.&nbsp;sem.</span></th></tr>';
-  const tb=document.getElementById('bwpl');tb.innerHTML='';
-  weeklyPlanDataW.forEach(row=>{{
-    const trP=document.createElement('tr');
-    let hP='<td class="metric left">'+row.metric+'</td>';
-    hP+='<td class="apert left" style="color:#94a3b8;font-size:11px">◌ Plan</td>';
-    row.plan.forEach((v,i)=>{{
-      const cls=i===lastIdx?'last':(i>=weekLabels.length-4?'hl':'');
-      hP+='<td class="'+cls+'" style="opacity:0.55;font-style:italic">'+fv(v,row.fmt)+'</td>';
-    }});
-    hP+='<td class="last neu">—</td>';
-    trP.innerHTML=hP;tb.appendChild(trP);
-    const trR=document.createElement('tr');
-    let hR='<td></td><td class="apert-total left" style="font-size:11px">● Real</td>';
-    row.real.forEach((v,i)=>{{
-      const cls=i===lastIdx?'last':(i>=weekLabels.length-4?'hl':'');
-      hR+='<td class="'+cls+'">'+fv(v,row.fmt)+'</td>';
-    }});
-    const pm=row.plan[lastIdx],rm=row.real[lastIdx];
-    let vs='<td class="last neu">—</td>';
-    if(pm&&rm){{const d=(rm-pm)/pm*100;vs='<td class="last '+(d>=0?'pos':'neg')+'">'+(d>=0?'+':'')+d.toFixed(1)+'%</td>';}}
-    hR+=vs;trR.innerHTML=hR;tb.appendChild(trR);
-  }});
-}}
-
-// ── FECHAS MÓVILES — transposed (KPIs=rows, períodos=columns) ─────────────────
-function buildFMTransposed(containerId,tData,tLabels,titleText){{
-  const c=document.getElementById(containerId);
-  if(!c||c.dataset.built)return;
-  c.dataset.built='1';
-  const N=tLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
-  const titleEl=document.createElement('div');
-  titleEl.className='fm-title';titleEl.textContent=titleText;
-  c.appendChild(titleEl);
-  // Build head manually
-  const hid='fm-h-'+containerId, bid='fm-b-'+containerId;
-  const tbl=document.createElement('div');
-  tbl.className='tbl';
-  tbl.innerHTML='<table><thead id="'+hid+'"></thead><tbody id="'+bid+'"></tbody></table>';
-  c.appendChild(tbl);
-  buildHeadP(hid,tLabels,hlIdx);
-  buildBodyW(bid,tData,tLabels,hlIdx,lpIdx);
-}}
-
-function buildFechasMoviles(){{
-  buildFMTransposed('fm28-cont',rolling28T,rolling28TLabels,'Rolling 28 días · KPIs como filas · períodos como columnas (P = más reciente)');
-}}
-function buildFechasMov7(){{
-  buildFMTransposed('fm7-cont',rolling7T,rolling7TLabels,'Rolling 7 días · KPIs como filas · períodos como columnas (P = más reciente)');
-}}
-
-// ── KPI YTD ───────────────────────────────────────────────────────────────────
-if(buyersYtd!=null){{
-  document.getElementById('kpi-ytd-val').textContent=buyersYtd.toLocaleString('es-AR');
-}}
-
-// ── CHARTS ────────────────────────────────────────────────────────────────────
-function getW(id){{const r=document.getElementById(id).getBoundingClientRect();return Math.max(r.width,300)||380;}}
-
-const tt=document.getElementById('tt');
-const ttLbl=document.getElementById('tt-lbl');
-const ttVal=document.getElementById('tt-val');
-function showTT(e,lbl,val){{tt.style.display='block';ttLbl.textContent=lbl;ttVal.textContent=val;moveTT(e);}}
-function moveTT(e){{tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-36)+'px';}}
-function hideTT(){{tt.style.display='none';}}
-
-function fmtChart(v,fmt){{
-  if(v==null)return'-';
-  if(fmt==='pct')return(v*100).toFixed(1)+'%';
-  if(fmt==='money')return v>=1e9?'$'+(v/1e9).toFixed(2)+'B':v>=1e6?'$'+(v/1e6).toFixed(2)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v;
-  return v>=1e6?(v/1e6).toFixed(2)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v.toLocaleString();
-}}
-
-function drawLineArea(svgId,vals,labels,color,fmt){{
-  const W=getW(svgId),H=200,PL=52,PR=14,PT=28,PB=32;
-  const cW=W-PL-PR,cH=H-PT-PB;
-  const pts=vals.map((v,i)=>{{return{{v,i,lbl:labels[i]}}}}).filter(p=>p.v!=null);
-  if(pts.length<2)return;
-  const ys=pts.map(p=>p.v),mnY=Math.min(...ys)*0.92,mxY=Math.max(...ys)*1.04,rng=mxY-mnY||mxY||1;
-  const N=vals.length;
-  const sx=i=>PL+i/(N-1)*cW;
-  const sy=v=>PT+cH-(v-mnY)/rng*cH;
-  let svg=`<defs><linearGradient id="ag${{svgId}}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${{color}}" stop-opacity="0.2"/><stop offset="100%" stop-color="${{color}}" stop-opacity="0.02"/></linearGradient></defs>`;
-  for(let g=0;g<=3;g++){{
-    const yg=PT+cH*g/3;
-    const val=mxY-(rng*g/3);
-    const lbl=fmtChart(val,fmt);
-    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#e2e8f0" stroke-width="1"/>`;
-    svg+=`<text x="${{PL-5}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#94a3b8">${{lbl}}</text>`;
-  }}
-  const path=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
-  const lastP=pts[pts.length-1],firstP=pts[0];
-  svg+=`<path d="${{path}} L${{sx(lastP.i).toFixed(1)}},${{(PT+cH).toFixed(1)}} L${{sx(firstP.i).toFixed(1)}},${{(PT+cH).toFixed(1)}} Z" fill="url(#ag${{svgId}})"/>`;
-  svg+=`<path d="${{path}}" fill="none" stroke="${{color}}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-  pts.forEach((p,pi)=>{{
-    const isLast=pi===pts.length-1;
-    const cx=sx(p.i).toFixed(1),cy=sy(p.v).toFixed(1);
-    const valLbl=fmtChart(p.v,fmt);
-    const above=pi%2===0;
-    const ly=(sy(p.v)+(above?-9:14)).toFixed(1);
-    svg+=`<text x="${{cx}}" y="${{ly}}" text-anchor="middle" font-size="9" font-weight="${{isLast?700:500}}" fill="${{isLast?color:'#94a3b8'}}">${{valLbl}}</text>`;
-    svg+=`<circle class="hp" cx="${{cx}}" cy="${{cy}}" r="${{isLast?4.5:3}}" fill="${{isLast?color:'#ffffff'}}" stroke="${{color}}" stroke-width="1.8"
-      onmousemove="showTT(event,'${{p.lbl}}','${{valLbl}}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
-  }});
-  labels.forEach((lbl,i)=>{{
-    svg+=`<text x="${{sx(i).toFixed(1)}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#94a3b8">${{lbl}}</text>`;
-  }});
-  const el=document.getElementById(svgId);
-  el.setAttribute('height',H);el.innerHTML=svg;
-}}
-
-function drawBars(svgId,vals,labels,color,fmt){{
-  const W=getW(svgId),H=200,PL=52,PR=14,PT=28,PB=32;
-  const cW=W-PL-PR,cH=H-PT-PB;
-  const N=vals.length,gap=5,bW=(cW-gap*(N-1))/N;
-  const clean=vals.filter(v=>v!=null),mxY=Math.max(...clean)*1.12||1;
-  let svg='';
-  for(let g=0;g<=3;g++){{
-    const yg=PT+cH*g/3;
-    const val=mxY*(1-g/3);
-    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#e2e8f0" stroke-width="1"/>`;
-    svg+=`<text x="${{PL-5}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#94a3b8">${{fmtChart(val,fmt)}}</text>`;
-  }}
-  vals.forEach((v,i)=>{{
-    if(v==null)return;
-    const x=PL+i*(bW+gap);
-    const bH=v/mxY*cH;
-    const isLast=i===N-1;
-    const col=isLast?color:color+'88';
-    const cx=(x+bW/2).toFixed(1);
-    const valLbl=fmtChart(v,fmt);
-    svg+=`<rect class="hp" x="${{x.toFixed(1)}}" y="${{(PT+cH-bH).toFixed(1)}}" width="${{bW.toFixed(1)}}" height="${{bH.toFixed(1)}}" rx="3" fill="${{col}}"
-      onmousemove="showTT(event,'${{labels[i]}}','${{valLbl}}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
-    svg+=`<text x="${{cx}}" y="${{(PT+cH-bH-5).toFixed(1)}}" text-anchor="middle" font-size="${{isLast?10:9}}" font-weight="${{isLast?700:400}}" fill="${{isLast?color:'#94a3b8'}}">${{valLbl}}</text>`;
-    svg+=`<text x="${{cx}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#94a3b8">${{labels[i]}}</text>`;
-  }});
-  const el=document.getElementById(svgId);
-  el.setAttribute('height',H);el.innerHTML=svg;
-}}
-
-function drawMultiLine(svgId,seriesList,labels){{
-  const W=getW(svgId),H=200,PL=52,PR=64,PT=28,PB=32;
-  const cW=W-PL-PR,cH=H-PT-PB;
-  const N=labels.length;
-  const allV=seriesList.flatMap(s=>s.vals.filter(v=>v!=null));
-  const mnY=Math.min(...allV)*0.95,mxY=Math.max(...allV)*1.05,rng=mxY-mnY||0.01;
-  const sx=i=>PL+i/(N-1)*cW;
-  const sy=v=>PT+cH-(v-mnY)/rng*cH;
-  let svg='';
-  for(let g=0;g<=3;g++){{
-    const yg=PT+cH*g/3;
-    const val=mxY-(rng*g/3);
-    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#e2e8f0" stroke-width="1"/>`;
-    svg+=`<text x="${{PL-5}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#94a3b8">${{(val*100).toFixed(0)}}%</text>`;
-  }}
-  seriesList.forEach((s)=>{{
-    const pts=s.vals.map((v,i)=>{{return{{v,i}}}}).filter(p=>p.v!=null);
-    if(pts.length<2)return;
-    const path=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
-    svg+=`<path d="${{path}}" fill="none" stroke="${{s.color}}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-    pts.forEach((p,pi)=>{{
-      const cx=sx(p.i).toFixed(1),cy=sy(p.v).toFixed(1);
-      const valLbl=(p.v*100).toFixed(1)+'%';
-      const above=pi%2===0;
-      const ly=(sy(p.v)+(above?-8:13)).toFixed(1);
-      svg+=`<text x="${{cx}}" y="${{ly}}" text-anchor="middle" font-size="9" fill="${{s.color}}" opacity="0.85">${{valLbl}}</text>`;
-      svg+=`<circle class="hp" cx="${{cx}}" cy="${{cy}}" r="3" fill="${{s.color}}"
-        onmousemove="showTT(event,'${{labels[p.i]}} · ${{s.label}}','${{valLbl}}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
-    }});
-    const last=pts[pts.length-1];
-    svg+=`<text x="${{(W-PR+6).toFixed(1)}}" y="${{(sy(last.v)+4).toFixed(1)}}" font-size="10" fill="${{s.color}}" font-weight="700">${{s.label}}</text>`;
-  }});
-  labels.forEach((lbl,i)=>{{
-    svg+=`<text x="${{sx(i).toFixed(1)}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#94a3b8">${{lbl}}</text>`;
-  }});
-  const el=document.getElementById(svgId);
-  el.setAttribute('height',H);el.innerHTML=svg;
-}}
-
-function buildCharts(){{
-  const nmvValsGrowth=growthData.find(m=>m.metric==='NMV').rows[0].v;
-  const comprasVals=growthData.find(m=>m.metric==='Compras').rows[0].v;
-  const visVals=visitasVals;
-  const frItems=opsData.find(m=>m.metric==='Fill Rate Items').rows[0].v;
-  const frCompras=opsData.find(m=>m.metric==='Fill Rate Compras').rows[0].v;
-  drawLineArea('c-nmv',nmvValsGrowth,MONTHS,'#2563eb','money');
-  drawBars('c-ord',comprasVals,MONTHS,'#16a34a','num');
-  drawMultiLine('c-fr',[
-    {{vals:frItems,color:'#2563eb',label:'Items'}},
-    {{vals:frCompras,color:'#d97706',label:'Compras'}}
-  ],MONTHS);
-  drawBars('c-vis',visVals,MONTHS,'#7c3aed','num');
-}}
-
-// ── STACKED BAR ───────────────────────────────────────────────────────────────
-function drawStacked100(svgId,series,labels,colors){{
-  const W=getW(svgId),H=230,PL=40,PR=90,PT=24,PB=32;
-  const cW=W-PL-PR,cH=H-PT-PB;
-  const N=labels.length,gap=8,bW=(cW-gap*(N-1))/N;
-  const totals=labels.map((_,i)=>series.reduce((s,ser)=>s+(ser.vals[i]||0),0));
-  let svg='';
-  for(let g=0;g<=4;g++){{
-    const yg=PT+cH*g/4;
-    const pctLbl=(100-g*25)+'%';
-    svg+=`<line x1="${{PL}}" y1="${{yg.toFixed(1)}}" x2="${{W-PR}}" y2="${{yg.toFixed(1)}}" stroke="#e2e8f0" stroke-width="1"/>`;
-    svg+=`<text x="${{PL-4}}" y="${{(yg+4).toFixed(1)}}" text-anchor="end" font-size="9" fill="#94a3b8">${{pctLbl}}</text>`;
-  }}
-  labels.forEach((lbl,i)=>{{
-    const x=PL+i*(bW+gap);
-    const total=totals[i];if(!total)return;
-    let yOff=PT+cH;
-    series.forEach((ser,si)=>{{
-      const v=ser.vals[i]||0;if(!v)return;
-      const ratio=v/total;
-      const bH=ratio*cH;
-      yOff-=bH;
-      const col=colors[si];
-      const pct=Math.round(ratio*100)+'%';
-      const vfmt=fmtChart(v,'num');
-      svg+=`<rect class="hp" x="${{x.toFixed(1)}}" y="${{yOff.toFixed(1)}}" width="${{bW.toFixed(1)}}" height="${{bH.toFixed(1)}}" fill="${{col}}"
-        onmousemove="showTT(event,'${{ser.name}} (${{lbl}})','${{pct}} / ${{vfmt}}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
-      if(bH>=14){{
-        svg+=`<text x="${{(x+bW/2).toFixed(1)}}" y="${{(yOff+bH/2+4).toFixed(1)}}" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.9)">${{pct}}</text>`;
-      }}
-    }});
-    svg+=`<text x="${{(x+bW/2).toFixed(1)}}" y="${{(PT+cH+18).toFixed(1)}}" text-anchor="middle" font-size="9" fill="#94a3b8">${{lbl}}</text>`;
-  }});
-  const rev=[...series].reverse();
-  const revc=[...colors].reverse();
-  rev.forEach((ser,si)=>{{
-    const ly=PT+si*15;
-    svg+=`<rect x="${{W-PR+8}}" y="${{(ly-7).toFixed(1)}}" width="9" height="9" rx="2" fill="${{revc[si]}}"/>`;
-    svg+=`<text x="${{W-PR+21}}" y="${{(ly+2).toFixed(1)}}" font-size="9" fill="#64748b">${{ser.name}}</text>`;
-  }});
-  const el=document.getElementById(svgId);el.setAttribute('height',H);el.innerHTML=svg;
-}}
-
-function buildBuyersCharts(){{
-  const genFM=buyersGenero.filter(g=>g.name!=='Otro');
-  drawStacked100('c-gen',genFM,MONTHS,['#3b82f6','#ec4899']);
-  const edadOrder=['Sin clasif.','18-29','60+','45-59','30-44'];
-  const edadSorted=edadOrder.map(n=>buyersEdad.find(e=>e.name===n)).filter(Boolean);
-  drawStacked100('c-edad',edadSorted,MONTHS,['#e2e8f0','#f59e0b','#dc2626','#16a34a','#2563eb']);
-  const nseKeys=['SinClasif','BRONZE','SILVER','GOLD','PLATINUM'];
-  const nseLabels=['Sin clasif.','BRONZE','SILVER','GOLD','PLATINUM'];
-  const nseColors=['#e2e8f0','#b45309','#06b6d4','#f59e0b','#0f766e'];
-  const nseMesSer=nseKeys.map((k,i)=>{{return{{name:nseLabels[i],vals:buyersNseMes.map(m=>m[k]||0)}}}});
-  drawStacked100('c-nse-mes',nseMesSer,MONTHS,nseColors);
-  const tiendas=buyersNseTienda.map(d=>d.tienda);
-  const nseT4=['BRONZE','SILVER','GOLD','PLATINUM'];
-  const nseTSer=nseT4.map(k=>{{return{{name:k,vals:buyersNseTienda.map(d=>d[k]||0)}}}});
-  drawStacked100('c-nse-tienda',nseTSer,tiendas,['#b45309','#06b6d4','#f59e0b','#0f766e']);
-}}
-
-// ── PLAN V2 ───────────────────────────────────────────────────────────────────
-const planData=[
-  {{metric:'NMV',fmt:'money',isNegGood:false,
-    plan:[null,null,null,175799372,196000000,332708333],
-    real:[10451118,56806992,170234400,175439531,242175980,306868637]}},
-  {{metric:'Compras',fmt:'num',isNegGood:false,
-    plan:[null,null,null,3103,3229,5709],
-    real:[202,987,2927,3098,4244,5262]}},
-  {{metric:'APV LC',fmt:'dollar',isNegGood:false,
-    plan:[null,null,null,56655,60700,58278],
-    real:[51738,57555,58160,56630,57063,58318]}},
-  {{metric:'Fill Rate Items',sub:'sin reemplazos',fmt:'pct',isNegGood:false,
-    plan:[null,null,null,0.92,0.92,0.92],
-    real:[0.8958,0.9191,0.9051,0.9172,0.9123,0.8898]}},
-  {{metric:'Fill Rate Compras',sub:'sin reemplazos',fmt:'pct',isNegGood:false,
-    plan:[null,null,null,0.65,0.65,0.65],
-    real:[0.6215,0.7217,0.6570,0.6436,0.6469,0.5930]}},
-  {{metric:'On Time',fmt:'pct',isNegGood:false,
-    plan:[null,null,null,0.96,0.96,0.96],
-    real:[0.9645,0.9287,0.7897,0.8923,0.8082,0.8558]}},
-  {{metric:'Cancelaciones',fmt:'pct',isNegGood:true,
-    plan:[null,null,null,0.05,0.05,0.05],
-    real:[0.0789,0.0519,0.0878,0.0510,0.0523,0.0668]}},
-];
-
-function buildPlan(){{
-  const lastIdx=MONTHS.length-1;
-  document.getElementById('h-plan').innerHTML=`<tr>
-    <th class="left" style="min-width:180px"><span class="dt">Métrica</span></th>
-    <th class="left" style="min-width:60px"><span class="dt">Apertura</span></th>
-    ${{MONTHS.map((m,i)=>{{
-      const isLast=i===lastIdx;
-      const cls=isLast?'last':(i>=4?'hl':'');
-      return`<th class="${{cls}}"><span class="rel">${{relLabel(MONTHS,i)}}</span><span class="dt">${{m}}</span></th>`;
-    }}).join('')}}
-    <th class="last"><span class="rel">vs plan</span><span class="dt">Mar'26</span></th></tr>`;
-  const tb=document.getElementById('b-plan');tb.innerHTML='';
-  planData.forEach(row=>{{
-    const trP=document.createElement('tr');
-    const subLbl=row.sub?`<div style="font-size:9px;color:#94a3b8;font-weight:400;margin-top:1px">${{row.sub}}</div>`:'';
-    let hP=`<td class="metric left">${{row.metric}}${{subLbl}}</td>`;
-    hP+=`<td class="apert left" style="color:#94a3b8;font-size:11px">◌ Plan V2</td>`;
-    row.plan.forEach((v,i)=>{{
-      const isLast=i===lastIdx;
-      const cls=isLast?'last':(i>=4?'hl':'');
-      hP+=`<td class="${{cls}}" style="opacity:0.55;font-style:italic">${{fv(v,row.fmt)}}</td>`;
-    }});
-    hP+=`<td class="last neu">—</td>`;
-    trP.innerHTML=hP;tb.appendChild(trP);
-    const trR=document.createElement('tr');
-    let hR=`<td></td>`;
-    hR+=`<td class="apert-total left" style="font-size:11px">● Real</td>`;
-    row.real.forEach((v,i)=>{{
-      const isLast=i===lastIdx;
-      const cls=isLast?'last':(i>=4?'hl':'');
-      hR+=`<td class="${{cls}}">${{fv(v,row.fmt)}}</td>`;
-    }});
-    const pm=row.plan[lastIdx],rm=row.real[lastIdx];
-    let vs='<td class="last neu">—</td>';
-    if(pm!=null&&rm!=null){{
-      const isPct=row.fmt==='pct'||row.fmt==='pp';
-      const d=isPct?(rm-pm)*100:(rm-pm)/pm*100;
-      const txt=(d>=0?'+':'')+d.toFixed(isPct?2:1)+(isPct?'pp':'%');
-      const good=row.isNegGood?d<=0:d>=0;
-      vs=`<td class="last ${{good?'pos':'neg'}}">${{txt}}</td>`;
-    }}
-    hR+=vs;
-    trR.innerHTML=hR;tb.appendChild(trR);
-  }});
-}}
-
-function rebuildAll(){{
-  buildHead('hg',MONTHS,4);
-  buildBody('bg',growthData,MONTHS,4,5);
-  buildHead('ho',MONTHS,4);
-  buildBody('bo',opsData,MONTHS,4,5);
-  buildHead('hbu',MONTHS,4);
-  buildBody('bbu',demandaData,MONTHS,4,5);
-  buildHead('hn',MONTHS_NPS,2);
-  buildBody('bn',npsData,MONTHS_NPS,2,3);
-  buildPLHead('hpt',MONTHS,false);
-  buildPLBody('bpt',plLines,nmvVals,MONTHS,false);
-  buildPLHead('hpti',tiendasNames,true);
-  buildPLBody('bpti',plTiendas,tiendasNmv,tiendasNames,true);
-  buildVertBody();
-}}
-
-rebuildAll();
+{js_data}
+{js_builders}
+{JS}
 </script>
 </body>
 </html>"""
+    return html
 
-out = r"C:\Users\srioboo\dashboard_data\index.html"
-with open(out,'w',encoding='utf-8') as f:
-    f.write(html)
-print(f"Dashboard generado: {out}")
-print(f"Tamaño: {len(html):,} caracteres")
+
+def main():
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Generating dashboard…\n")
+
+    meta_path = os.path.join(DATA_DIR, "meta.json")
+    meta_json = "{}"
+    if os.path.exists(meta_path):
+        with open(meta_path) as f:
+            meta_json = f.read()
+
+    html = build_html(meta_json)
+
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        f.write(html)
+
+    print(f"\n✓ Dashboard written to {OUTPUT_FILE} ({len(html):,} bytes)")
+
+
+if __name__ == "__main__":
+    main()
