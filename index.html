@@ -6,407 +6,177 @@
 <title>Proximity Groceries Scorecard</title>
 <style>
 :root {
-  --bg:        #0d0f14;
-  --surface:   #161b26;
-  --surface2:  #1e2535;
-  --border:    #2a3347;
-  --text:      #e2e8f0;
-  --muted:     #64748b;
-  --accent:    #f59e0b;
-  --positive:  #22c55e;
-  --negative:  #ef4444;
-  --neutral:   #94a3b8;
-  --blue:      #3b82f6;
-  --purple:    #a855f7;
-  --emerald:   #10b981;
-  --radius:    8px;
+  --bg: #0d0f14; --surface: #161b26; --surface2: #1e2535;
+  --border: #2a3347; --text: #e2e8f0; --muted: #64748b;
+  --accent: #f59e0b; --positive: #22c55e; --negative: #ef4444;
+  --neutral: #94a3b8; --radius: 8px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: var(--bg); color: var(--text);
-  min-height: 100vh; padding: 0 0 40px;
-}
-/* ── Header ── */
-.header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 24px;
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 100;
-}
-.header h1 { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: .3px; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+       background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 0 40px; }
+.header { background: var(--surface); border-bottom: 1px solid var(--border);
+          padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
+          position: sticky; top: 0; z-index: 100; }
+.header h1 { font-size: 16px; font-weight: 600; }
 .header h1 span { color: var(--accent); }
 .updated { font-size: 11px; color: var(--muted); }
-/* ── Controls bar ── */
-.controls {
-  display: flex; align-items: center; gap: 24px;
-  padding: 12px 24px; background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
+.controls { display: flex; gap: 24px; padding: 12px 24px;
+            background: var(--surface); border-bottom: 1px solid var(--border); }
 .tab-group { display: flex; gap: 2px; background: var(--bg); border-radius: 6px; padding: 3px; }
-.tab {
-  padding: 5px 14px; font-size: 12px; font-weight: 500; cursor: pointer;
-  border-radius: 5px; border: none; background: transparent;
-  color: var(--muted); transition: all .15s;
-}
+.tab { padding: 5px 14px; font-size: 12px; font-weight: 500; cursor: pointer;
+       border-radius: 5px; border: none; background: transparent;
+       color: var(--muted); transition: all .15s; }
 .tab.active { background: var(--surface2); color: var(--text); }
 .tab:hover:not(.active) { color: var(--text); }
-/* ── Section nav ── */
-.section-nav {
-  display: flex; gap: 0; border-bottom: 1px solid var(--border);
-  padding: 0 24px; background: var(--surface);
-}
-.sec-tab {
-  padding: 11px 18px; font-size: 13px; font-weight: 500; cursor: pointer;
-  border: none; background: transparent; color: var(--muted);
-  border-bottom: 2px solid transparent; transition: all .15s; margin-bottom: -1px;
-}
+.section-nav { display: flex; border-bottom: 1px solid var(--border);
+               padding: 0 24px; background: var(--surface); }
+.sec-tab { padding: 11px 18px; font-size: 13px; font-weight: 500; cursor: pointer;
+           border: none; background: transparent; color: var(--muted);
+           border-bottom: 2px solid transparent; transition: all .15s; margin-bottom: -1px; }
 .sec-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 .sec-tab:hover:not(.active) { color: var(--text); }
-/* ── Hero cards ── */
-.hero-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px; padding: 20px 24px 0;
-}
-.hero-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 16px; position: relative; overflow: hidden;
-}
-.hero-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: var(--accent);
-}
-.hero-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 8px; }
-.hero-value { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.1; }
+.hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+             gap: 12px; padding: 20px 24px 0; }
+.hero-card { background: var(--surface); border: 1px solid var(--border);
+             border-radius: var(--radius); padding: 16px; position: relative; overflow: hidden; }
+.hero-card::before { content:''; position: absolute; top:0; left:0; right:0;
+                     height: 2px; background: var(--accent); }
+.hero-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px;
+              color: var(--muted); margin-bottom: 8px; }
+.hero-value { font-size: 22px; font-weight: 700; line-height: 1.1; }
 .hero-delta { margin-top: 6px; }
-/* ── Data table ── */
 .section-body { padding: 20px 24px; }
 .table-wrap { overflow-x: auto; }
-table {
-  width: 100%; border-collapse: collapse;
-  font-size: 13px; background: var(--surface);
-  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
-}
+table { width: 100%; border-collapse: collapse; font-size: 13px;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius); overflow: hidden; }
 thead tr { background: var(--surface2); }
-th {
-  padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .5px; color: var(--muted);
-  border-bottom: 1px solid var(--border); white-space: nowrap;
-}
+th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600;
+     text-transform: uppercase; letter-spacing: .5px; color: var(--muted);
+     border-bottom: 1px solid var(--border); white-space: nowrap; }
 td { padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
 tr:last-child td { border-bottom: none; }
 .total-row td { font-weight: 600; background: var(--surface2); cursor: pointer; }
-.total-row td:first-child::before {
-  content: attr(data-arrow); margin-right: 6px; font-size: 10px; color: var(--accent);
-  transition: transform .2s;
-}
 .store-row td { color: var(--muted); }
 .store-row td:first-child { padding-left: 36px; color: var(--text); }
 .store-row { display: none; }
 .store-row.visible { display: table-row; }
-.store-dot {
-  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-  margin-right: 8px; vertical-align: middle;
-}
-/* ── Deltas ── */
+.store-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+             margin-right: 8px; vertical-align: middle; }
 .delta { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
 .delta.positive { color: var(--positive); background: rgba(34,197,94,.1); }
 .delta.negative { color: var(--negative); background: rgba(239,68,68,.1); }
 .delta.neutral  { color: var(--muted); }
-/* ── Sections ── */
 .section { display: none; }
 .section.active { display: block; }
-/* ── Period label ── */
-.period-label {
-  font-size: 11px; color: var(--muted); padding: 6px 24px 0;
-}
-/* ── Loading / empty ── */
-.empty-row td { color: var(--muted); text-align: center; padding: 32px; font-style: italic; }
-/* ── Sub-table for details ── */
-.sub-label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
-             color: var(--muted); margin: 20px 0 8px; }
-.metric-group { margin-bottom: 28px; }
-.metric-group h3 { font-size: 11px; font-weight: 600; text-transform: uppercase;
-                   letter-spacing: .7px; color: var(--accent); margin-bottom: 12px;
-                   padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.period-label { font-size: 11px; color: var(--muted); padding: 6px 24px 0; }
+.empty-msg { color: var(--muted); text-align: center; padding: 32px; font-style: italic; }
 </style>
 </head>
 <body>
 
 <header class="header">
   <h1>Proximity <span>Groceries</span> Scorecard</h1>
-  <span class="updated">Updated: unknown</span>
+  <span class="updated">Actualizado: 2026-04-29 11:52</span>
 </header>
 
 <div class="controls">
   <div class="tab-group">
-    <button class="tab period-tab active" id="ptab-daily"   onclick="setPeriod('daily')">Daily</button>
-    <button class="tab period-tab active" id="ptab-weekly"  onclick="setPeriod('weekly')">Weekly</button>
-    <button class="tab period-tab"        id="ptab-monthly" onclick="setPeriod('monthly')">Monthly</button>
+    <button class="tab" id="ptab-daily"   onclick="setPeriod('daily')">Diario</button>
+    <button class="tab active" id="ptab-weekly"  onclick="setPeriod('weekly')">Semanal</button>
+    <button class="tab" id="ptab-monthly" onclick="setPeriod('monthly')">Mensual</button>
   </div>
 </div>
 
 <nav class="section-nav">
   <button class="sec-tab active" id="stab-growth" onclick="setSection('growth')">📈 Growth</button>
-  <button class="sec-tab"        id="stab-ops"    onclick="setSection('ops')">⚙️  Ops</button>
-  <button class="sec-tab"        id="stab-cx"     onclick="setSection('cx')">💬 CX</button>
-  <button class="sec-tab"        id="stab-pnl"    onclick="setSection('pnl')">💰 P&amp;L</button>
+  <button class="sec-tab"        id="stab-ops"    onclick="setSection('ops')">⚙️ Ops</button>
+  <button class="sec-tab"        id="stab-cx"     onclick="setSection('cx')">📊 CVR</button>
 </nav>
 
 <div id="sec-growth" class="section active">
-<div class="hero-grid" id="hero-growth"><p class="empty-row">No data available</p></div>
+<div class="hero-grid" id="hero-growth"><div class="hero-card"><div class="hero-label">Ordenes</div><div class="hero-value">3,554</div><div class="hero-delta"><span class="delta negative">▼ -46.8%</span></div></div><div class="hero-card"><div class="hero-label">Buyers</div><div class="hero-value">511</div><div class="hero-delta"><span class="delta negative">▼ -44.3%</span></div></div><div class="hero-card"><div class="hero-label">NMV USD</div><div class="hero-value">$21.1K</div><div class="hero-delta"><span class="delta negative">▼ -49.7%</span></div></div><div class="hero-card"><div class="hero-label">Fill Rate</div><div class="hero-value">99.2%</div><div class="hero-delta"><span class="delta negative">▼ -0.3%</span></div></div></div>
 <div class="section-body">
-  <p class="period-label" id="period-lbl-growth"></p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>Store</th>
-        <th>Orders</th><th>vs LP</th>
-        <th>Buyers</th>
-        <th>GMV</th><th>vs LP</th>
-        <th>Fresh Orders</th><th>Fresh Rate</th><th>vs LP</th>
-        <th>Trend</th>
-      </tr></thead>
-      <tbody id="tbody-growth"><tr class="empty-row"><td colspan="10">No data</td></tr><tbody id="growth-store-rows"></tbody></tbody>
-    </table>
-  </div>
+  <p class="period-label" id="lbl-growth">Vista semanal | vs LP = vs semana anterior</p>
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>Tienda</th>
+      <th>Ordenes</th><th>vs LP</th>
+      <th>Buyers</th>
+      <th>NMV USD</th><th>vs LP</th>
+      <th>Fill Rate</th><th>vs LP</th>
+      <th>Trend</th>
+    </tr></thead>
+    <tbody id="tbody-growth"><tr class="total-row" id="growth-total" data-arrow="▶" onclick="toggleStores('growth')"><td data-arrow="▶">Todas las tiendas</td><td>3,554</td><td><span class="delta negative">▼ -46.8%</span></td><td>511</td><td>$21.1K</td><td><span class="delta negative">▼ -49.7%</span></td><td>99.2%</td><td><span class="delta negative">▼ -0.3%</span></td><td><svg width="80" height="28" viewBox="0 0 80 28" fill="none"><polyline points="0.0,12.3 7.3,11.5 14.5,2.0 21.8,4.9 29.1,8.5 36.4,2.3 43.6,5.4 50.9,3.9 58.2,12.6 65.5,13.3 72.7,8.7 80.0,26.0" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr><tbody id="growth-store-rows"><tr class="store-row"><td><span class="store-dot" style="background:#3b82f6"></span>Scalabrini</td><td>1,024</td><td><span class="delta negative">▼ -49.9%</span></td><td>—</td><td>$6.7K</td><td><span class="delta negative">▼ -46.8%</span></td><td>99.6%</td><td><span class="delta positive">▲ +0.1%</span></td><td><svg width="80" height="28" viewBox="0 0 80 28" fill="none"><polyline points="0.0,16.8 7.3,19.6 14.5,3.9 21.8,4.5 29.1,2.0 36.4,5.6 43.6,9.1 50.9,7.0 58.2,14.5 65.5,18.5 72.7,7.6 80.0,26.0" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr><tr class="store-row"><td><span class="store-dot" style="background:#f59e0b"></span>Caballito</td><td>882</td><td><span class="delta negative">▼ -46.4%</span></td><td>—</td><td>$4.5K</td><td><span class="delta negative">▼ -51.6%</span></td><td>99.5%</td><td><span class="delta positive">▲ +0.1%</span></td><td><svg width="80" height="28" viewBox="0 0 80 28" fill="none"><polyline points="0.0,10.6 7.3,6.0 14.5,2.0 21.8,3.4 29.1,17.2 36.4,5.4 43.6,6.7 50.9,5.3 58.2,13.3 65.5,10.2 72.7,10.2 80.0,26.0" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr><tr class="store-row"><td><span class="store-dot" style="background:#10b981"></span>Villa Urquiza</td><td>718</td><td><span class="delta negative">▼ -44.6%</span></td><td>—</td><td>$4.0K</td><td><span class="delta negative">▼ -46.7%</span></td><td>97.3%</td><td><span class="delta negative">▼ -2.3%</span></td><td><svg width="80" height="28" viewBox="0 0 80 28" fill="none"><polyline points="0.0,15.8 7.3,14.8 14.5,4.9 21.8,13.7 29.1,14.5 36.4,2.0 43.6,8.6 50.9,5.0 58.2,17.1 65.5,11.2 72.7,13.8 80.0,26.0" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr><tr class="store-row"><td><span class="store-dot" style="background:#a855f7"></span>Vicente Lopez</td><td>930</td><td><span class="delta negative">▼ -45.2%</span></td><td>—</td><td>$6.0K</td><td><span class="delta negative">▼ -53.0%</span></td><td>99.8%</td><td><span class="delta positive">▲ +0.2%</span></td><td><svg width="80" height="28" viewBox="0 0 80 28" fill="none"><polyline points="0.0,8.7 7.3,7.8 14.5,3.7 21.8,4.0 29.1,5.7 36.4,2.1 43.6,2.0 50.9,3.7 58.2,8.6 65.5,16.1 72.7,8.2 80.0,26.0" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr></tbody></tbody>
+  </table></div>
 </div></div>
 <div id="sec-ops"    class="section">
-<div class="hero-grid" id="hero-ops"><p class="empty-row">No data</p></div>
+<div class="hero-grid" id="hero-ops"><div class="hero-card"><div class="hero-label">Fill Rate Items</div><div class="hero-value">93.6%</div><div class="hero-delta"><span class="delta negative">▼ -2.6%</span></div></div><div class="hero-card"><div class="hero-label">Fill Rate Compras</div><div class="hero-value">71.7%</div><div class="hero-delta"><span class="delta negative">▼ -8.6%</span></div></div><div class="hero-card"><div class="hero-label">On Time</div><div class="hero-value">97.6%</div><div class="hero-delta"><span class="delta negative">▼ -0.9%</span></div></div><div class="hero-card"><div class="hero-label">Cancel Rate</div><div class="hero-value">4.3%</div><div class="hero-delta"><span class="delta negative">▲ +47.6%</span></div></div></div>
 <div class="section-body">
-  <p class="period-label" id="period-lbl-ops"></p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>Store</th>
-        <th>Cancel Rate</th><th>vs LP</th>
-        <th>⚠ Seller</th><th>⚠ Buyer</th><th>⚠ Stockout</th>
-        <th>Fill Rate</th><th>vs LP</th>
-        <th>On-Time</th><th>Early%</th><th>Delay%</th>
-        <th>Perfect Purch.</th><th>vs LP</th>
-        <th>Cancel Trend</th>
-      </tr></thead>
-      <tbody id="tbody-ops"><tbody id="ops-store-rows"></tbody></tbody>
-    </table>
-  </div>
+  <p class="period-label" id="lbl-ops">Vista semanal | vs LP = vs semana anterior</p>
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>Tienda</th>
+      <th>FR Items</th><th>vs LP</th>
+      <th>FR Compras</th><th>vs LP</th>
+      <th>On Time</th><th>vs LP</th>
+      <th>Cancel Rate</th><th>vs LP</th>
+      <th>Cancel Trend</th>
+    </tr></thead>
+    <tbody id="tbody-ops"><tr class="total-row"><td>Todas las tiendas</td><td>93.6%</td><td><span class="delta negative">▼ -2.6%</span></td><td>71.7%</td><td><span class="delta negative">▼ -8.6%</span></td><td>97.6%</td><td><span class="delta negative">▼ -0.9%</span></td><td>4.3%</td><td><span class="delta negative">▲ +47.6%</span></td><td><svg width="80" height="28" viewBox="0 0 80 28" fill="none"><polyline points="0.0,9.0 7.3,18.0 14.5,17.2 21.8,15.2 29.1,2.0 36.4,2.2 43.6,4.0 50.9,4.3 58.2,7.2 65.5,23.6 72.7,26.0 80.0,18.8" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr></tbody>
+  </table></div>
 </div></div>
 <div id="sec-cx"     class="section">
-<div class="hero-grid" id="hero-cx"><p class="empty-row">No data</p></div>
+<div class="hero-grid" id="hero-cx"><div class="hero-card"><div class="hero-label">CVR</div><div class="hero-value">5.9%</div><div class="hero-delta"><span class="delta positive">▲ +68.6%</span></div></div><div class="hero-card"><div class="hero-label">Buyers</div><div class="hero-value">471</div><div class="hero-delta"><span class="delta negative">▼ -48.0%</span></div></div><div class="hero-card"><div class="hero-label">Visitors</div><div class="hero-value">7,912</div><div class="hero-delta"></div></div></div>
 <div class="section-body">
-  <p class="period-label" id="period-lbl-cx"></p>
-  <div class="metric-group">
-    <h3>Claims</h3>
-    <div class="table-wrap">
-      <table>
-        <thead><tr>
-          <th>Store</th><th>Total Claims</th><th>vs LP</th>
-          <th>By Type →</th>
-        </tr></thead>
-        <tbody id="tbody-cx"><tbody id="cx-store-rows"></tbody></tbody>
-      </table>
-    </div>
-  </div>
-  
-</div></div>
-<div id="sec-pnl"    class="section">
-<div class="hero-grid" id="hero-pnl"><p class="empty-row">No data</p></div>
-<div class="section-body">
-  <p class="period-label" id="period-lbl-pnl"></p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>Store</th>
-        <th>GMV</th><th>vs LP</th><th>vs LY</th>
-        <th>NMV</th><th>vs LP</th>
-        <th>Take Rate</th><th>vs LP</th>
-        <th>Delivery Fee</th>
-        <th>Service Fee</th>
-        <th>Contribution</th>
-        <th>GMV Trend</th>
-      </tr></thead>
-      <tbody id="tbody-pnl"><tbody id="pnl-store-rows"></tbody></tbody>
-    </table>
-  </div>
+  <p class="period-label" id="lbl-cx">Vista semanal | vs LP = vs semana anterior</p>
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>Período</th>
+      <th>CVR</th><th>vs LP</th>
+      <th>Buyers</th><th>vs LP</th>
+      <th>Visitors</th>
+      <th>CVR Trend</th>
+    </tr></thead>
+    <tbody id="tbody-cx"><tr class="total-row"><td>Total</td><td>5.9%</td><td><span class="delta positive">▲ +68.6%</span></td><td>471</td><td><span class="delta negative">▼ -48.0%</span></td><td>7,912</td><td><svg width="80" height="28" viewBox="0 0 80 28" fill="none"><polyline points="0.0,16.3 7.3,25.6 14.5,16.7 21.8,24.4 29.1,26.0 36.4,23.6 43.6,25.2 50.9,25.6 58.2,25.6 65.5,24.9 72.7,15.4 80.0,2.0" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr></tbody>
+  </table></div>
 </div></div>
 
 <script>
-window.DATA = {"growth": {"daily": {"total": {}, "stores": {}}, "weekly": {"total": {}, "stores": {}}, "monthly": {"total": {}, "stores": {}}}, "ops": {"daily": {"total": {}, "stores": {}}, "weekly": {"total": {}, "stores": {}}, "monthly": {"total": {}, "stores": {}}}, "cx": {"daily": {"total": {}, "stores": {}, "bpp": {}}, "weekly": {"total": {}, "stores": {}, "bpp": {}}, "monthly": {"total": {}, "stores": {}, "bpp": {}}}, "pnl": {"daily": {"total": {}, "stores": {}}, "weekly": {"total": {}, "stores": {}}, "monthly": {"total": {}, "stores": {}}}};
-
-window.heroBuilders = {
-  growth: function(sec) {
-    const t = sec.total || {};
-    return card('Orders', t.orders, t.orders_dlp)
-      + card('Buyers', t.buyers, t.buyers_dlp)
-      + card('GMV', t.gmv, t.gmv_dlp)
-      + card('Fresh Orders', t.fresh_orders, t.fresh_dlp)
-      + card('Fresh Rate', t.fresh_rate, '');
-  },
-  ops: function(sec) {
-    const t = sec.total || {};
-    return card('Cancel Rate', t.cancel_rate, t.cancel_rate_dlp)
-      + card('Fill Rate', t.fill_rate, t.fill_rate_dlp)
-      + card('On-Time', t.ot_rate, t.ot_rate_dlp)
-      + card('Perfect Purch.', t.perfect_rate, t.perfect_rate_dlp);
-  },
-  cx: function(sec) {
-    const t = sec.total || {}; const b = sec.bpp || {};
-    let h = card('Claims Total', t.claims_total, t.claims_total_dlp);
-    if (t.by_type) Object.entries(t.by_type).forEach(([k,v]) => h += card('Claims '+k, v, ''));
-    if (b.total) h += card('BPP Total', b.total, b.total_dlp);
-    return h;
-  },
-  pnl: function(sec) {
-    const t = sec.total || {};
-    return card('GMV', t.gmv, t.gmv_dlp)
-      + card('NMV', t.nmv, t.nmv_dlp)
-      + card('Take Rate', t.take_rate, t.take_rate_dlp)
-      + card('Delivery Fee', t.delivery_fee, '')
-      + card('Service Fee', t.service_fee, '')
-      + card('Contribution', t.contribution, '');
-  }
-};
-
-window.tableBuilders = {
-  growth: function(sec) {
-    const t = sec.total || {}; const s = sec.stores || {};
-    let rows = rowTotal('growth', [t.orders,'',t.orders_dlp, t.buyers, t.gmv,'',t.gmv_dlp,
-                                    t.fresh_orders, t.fresh_rate,'',t.fresh_dlp, t.sparkline||'']);
-    rows += '<tbody id="growth-store-rows">';
-    storeOrder.forEach(name => {
-      const d = s[name] || {};
-      rows += rowStore(name, [d.orders,'',d.orders_dlp, d.buyers, d.gmv,'',d.gmv_dlp,
-                               d.fresh_orders, d.fresh_rate,'',d.fresh_dlp, d.sparkline||'']);
-    });
-    return rows + '</tbody>';
-  },
-  ops: function(sec) {
-    const t = sec.total || {}; const s = sec.stores || {};
-    let rows = rowTotal('ops', [t.cancel_rate,'',t.cancel_rate_dlp,
-                                 t.cancels_seller, t.cancels_buyer, t.cancels_stockout,
-                                 t.fill_rate,'',t.fill_rate_dlp,
-                                 t.ot_rate, t.ot_early, t.ot_delay,
-                                 t.perfect_rate,'',t.perfect_rate_dlp,
-                                 t.cancel_sparkline||'']);
-    rows += '<tbody id="ops-store-rows">';
-    storeOrder.forEach(name => {
-      const d = s[name] || {};
-      rows += rowStore(name, [d.cancel_rate,'',d.cancel_rate_dlp,
-                               d.cancels_seller, d.cancels_buyer, d.cancels_stockout,
-                               d.fill_rate,'',d.fill_rate_dlp,
-                               d.ot_rate, d.ot_early, d.ot_delay,
-                               d.perfect_rate,'',d.perfect_rate_dlp,
-                               d.cancel_sparkline||'']);
-    });
-    return rows + '</tbody>';
-  },
-  cx: function(sec) {
-    const t = sec.total || {}; const s = sec.stores || {};
-    let rows = rowTotal('cx', [t.claims_total,'',t.claims_total_dlp]);
-    rows += '<tbody id="cx-store-rows">';
-    storeOrder.forEach(name => {
-      const d = s[name] || {};
-      rows += rowStore(name, [d.claims_total,'',d.claims_total_dlp]);
-    });
-    return rows + '</tbody>';
-  },
-  pnl: function(sec) {
-    const t = sec.total || {}; const s = sec.stores || {};
-    let rows = rowTotal('pnl', [t.gmv,'',t.gmv_dlp,t.gmv_dly,
-                                  t.nmv,'',t.nmv_dlp,
-                                  t.take_rate,'',t.take_rate_dlp,
-                                  t.delivery_fee, t.service_fee, t.contribution,
-                                  t.sparkline||'']);
-    rows += '<tbody id="pnl-store-rows">';
-    storeOrder.forEach(name => {
-      const d = s[name] || {};
-      rows += rowStore(name, [d.gmv,'',d.gmv_dlp,d.gmv_dly,
-                               d.nmv,'',d.nmv_dlp,
-                               d.take_rate,'',d.take_rate_dlp,
-                               d.delivery_fee, d.service_fee, d.contribution,
-                               d.sparkline||'']);
-    });
-    return rows + '</tbody>';
-  }
-};
-
-const storeOrder = ['Scalabrini','Caballito','Villa Urquiza','Vicente Lopez'];
-const storeColors = {
-  'Scalabrini':'#3b82f6','Caballito':'#f59e0b',
-  'Villa Urquiza':'#10b981','Vicente Lopez':'#a855f7'
-};
-
-function card(label, value, delta) {
-  return '<div class="hero-card"><div class="hero-label">'+label+'</div>'
-       + '<div class="hero-value">'+(value||'—')+'</div>'
-       + '<div class="hero-delta">'+(delta||'')+'</div></div>';
-}
-function rowTotal(sec, cells) {
-  return '<tr class="total-row" onclick="toggleStores(''+sec+'')">'
-       + '<td data-arrow="▶">Todas las tiendas</td>'
-       + cells.map(c => '<td>'+(c===''?'':c||'—')+'</td>').join('') + '</tr>';
-}
-function rowStore(name, cells) {
-  const dot = '<span class="store-dot" style="background:'+(storeColors[name]||'#94a3b8')+'"></span>';
-  return '<tr class="store-row">'
-       + '<td>'+dot+name+'</td>'
-       + cells.map(c => '<td>'+(c===''?'':c||'—')+'</td>').join('') + '</tr>';
-}
-
-
-const periodLabels = {daily:'Day', weekly:'Week', monthly:'Month'};
+const DATA = {"growth": {"weekly": {"total": {"ordenes": "3,554", "buyers": "511", "nmv": "$21.1K", "fill_rate": "99.2%", "ordenes_dlp": "<span class=\"delta negative\">▼ -46.8%</span>", "buyers_dlp": "<span class=\"delta negative\">▼ -44.3%</span>", "nmv_dlp": "<span class=\"delta negative\">▼ -49.7%</span>", "fr_dlp": "<span class=\"delta negative\">▼ -0.3%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,12.3 7.3,11.5 14.5,2.0 21.8,4.9 29.1,8.5 36.4,2.3 43.6,5.4 50.9,3.9 58.2,12.6 65.5,13.3 72.7,8.7 80.0,26.0\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}, "stores": {"Scalabrini": {"ordenes": "1,024", "nmv": "$6.7K", "fill_rate": "99.6%", "ordenes_dlp": "<span class=\"delta negative\">▼ -49.9%</span>", "nmv_dlp": "<span class=\"delta negative\">▼ -46.8%</span>", "fr_dlp": "<span class=\"delta positive\">▲ +0.1%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,16.8 7.3,19.6 14.5,3.9 21.8,4.5 29.1,2.0 36.4,5.6 43.6,9.1 50.9,7.0 58.2,14.5 65.5,18.5 72.7,7.6 80.0,26.0\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}, "Caballito": {"ordenes": "882", "nmv": "$4.5K", "fill_rate": "99.5%", "ordenes_dlp": "<span class=\"delta negative\">▼ -46.4%</span>", "nmv_dlp": "<span class=\"delta negative\">▼ -51.6%</span>", "fr_dlp": "<span class=\"delta positive\">▲ +0.1%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,10.6 7.3,6.0 14.5,2.0 21.8,3.4 29.1,17.2 36.4,5.4 43.6,6.7 50.9,5.3 58.2,13.3 65.5,10.2 72.7,10.2 80.0,26.0\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}, "Villa Urquiza": {"ordenes": "718", "nmv": "$4.0K", "fill_rate": "97.3%", "ordenes_dlp": "<span class=\"delta negative\">▼ -44.6%</span>", "nmv_dlp": "<span class=\"delta negative\">▼ -46.7%</span>", "fr_dlp": "<span class=\"delta negative\">▼ -2.3%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,15.8 7.3,14.8 14.5,4.9 21.8,13.7 29.1,14.5 36.4,2.0 43.6,8.6 50.9,5.0 58.2,17.1 65.5,11.2 72.7,13.8 80.0,26.0\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}, "Vicente Lopez": {"ordenes": "930", "nmv": "$6.0K", "fill_rate": "99.8%", "ordenes_dlp": "<span class=\"delta negative\">▼ -45.2%</span>", "nmv_dlp": "<span class=\"delta negative\">▼ -53.0%</span>", "fr_dlp": "<span class=\"delta positive\">▲ +0.2%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,8.7 7.3,7.8 14.5,3.7 21.8,4.0 29.1,5.7 36.4,2.1 43.6,2.0 50.9,3.7 58.2,8.6 65.5,16.1 72.7,8.2 80.0,26.0\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}}}, "daily": {"total": {"ordenes": "247", "nmv": "$185", "fill_rate": "100.0%", "ordenes_dlp": "<span class=\"delta negative\">▼ -75.8%</span>", "nmv_dlp": "<span class=\"delta negative\">▼ -97.4%</span>", "fr_dlp": "<span class=\"delta positive\">▲ +0.2%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,10.8 3.0,10.3 5.9,16.9 8.9,21.7 11.9,7.5 14.8,10.4 17.8,9.6 20.7,13.7 23.7,9.9 26.7,14.3 29.6,16.8 32.6,13.9 35.6,15.8 38.5,8.2 41.5,10.2 44.4,11.5 47.4,13.3 50.4,16.4 53.3,11.2 56.3,7.8 59.3,12.5 62.2,15.4 65.2,2.0 68.1,6.0 71.1,11.4 74.1,2.0 77.0,8.7 80.0,26.0\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}, "stores": {}}, "monthly": {"total": {"ordenes": "22,068", "nmv": "$140.4K", "fill_rate": "99.3%", "ordenes_dlp": "<span class=\"delta negative\">▼ -40.0%</span>", "nmv_dlp": "<span class=\"delta negative\">▼ -41.9%</span>", "fr_dlp": "<span class=\"delta positive\">▲ +0.4%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,26.0 13.3,20.5 26.7,16.4 40.0,14.4 53.3,9.2 66.7,2.0 80.0,12.0\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}, "stores": {"Scalabrini": {"ordenes": "6,167", "nmv": "$40.7K", "fill_rate": "99.3%", "ordenes_dlp": "<span class=\"delta negative\">▼ -42.7%</span>", "nmv_dlp": "<span class=\"delta negative\">▼ -41.5%</span>", "fr_dlp": "<span class=\"delta positive\">▲ +0.7%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,26.0 13.3,15.7 26.7,18.0 40.0,16.2 53.3,11.6 66.7,2.0 80.0,13.9\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}, "Caballito": {"ordenes": "5,666", "nmv": "$32.2K", "fill_rate": "99.3%", "ordenes_dlp": "<span class=\"delta negative\">▼ -36.0%</span>", "nmv_dlp": "<span class=\"delta negative\">▼ -41.0%</span>", "fr_dlp": "<span class=\"delta positive\">▲ +0.6%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,26.0 13.3,24.9 26.7,16.3 40.0,12.6 53.3,6.8 66.7,2.0 80.0,10.6\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}, "Villa Urquiza": {"ordenes": "4,574", "nmv": "$26.5K", "fill_rate": "98.9%", "ordenes_dlp": "<span class=\"delta negative\">▼ -40.4%</span>", "nmv_dlp": "<span class=\"delta negative\">▼ -41.1%</span>", "fr_dlp": "<span class=\"delta negative\">▼ -0.3%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,26.0 13.3,25.3 26.7,16.6 40.0,14.0 53.3,9.5 66.7,2.0 80.0,11.7\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}, "Vicente Lopez": {"ordenes": "5,661", "nmv": "$41.0K", "fill_rate": "99.7%", "ordenes_dlp": "<span class=\"delta negative\">▼ -40.4%</span>", "nmv_dlp": "<span class=\"delta negative\">▼ -43.6%</span>", "fr_dlp": "<span class=\"delta positive\">▲ +0.3%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,26.0 13.3,17.1 26.7,14.8 40.0,14.5 53.3,8.7 66.7,2.0 80.0,11.7\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}}}}, "ops": {"weekly": {"total": {"fr_items": "93.6%", "fr_compras": "71.7%", "on_time": "97.6%", "cr": "4.3%", "fr_dlp": "<span class=\"delta negative\">▼ -2.6%</span>", "frc_dlp": "<span class=\"delta negative\">▼ -8.6%</span>", "ot_dlp": "<span class=\"delta negative\">▼ -0.9%</span>", "cr_dlp": "<span class=\"delta negative\">▲ +47.6%</span>", "cr_spark": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,9.0 7.3,18.0 14.5,17.2 21.8,15.2 29.1,2.0 36.4,2.2 43.6,4.0 50.9,4.3 58.2,7.2 65.5,23.6 72.7,26.0 80.0,18.8\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>", "fr_spark": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,14.5 7.3,16.1 14.5,17.6 21.8,15.8 29.1,19.4 36.4,25.2 43.6,26.0 50.9,21.4 58.2,14.8 65.5,4.8 72.7,2.0 80.0,8.7\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>", "ot_spark": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,9.1 7.3,12.0 14.5,26.0 21.8,18.4 29.1,16.1 36.4,16.6 43.6,8.0 50.9,7.6 58.2,7.7 65.5,3.9 72.7,2.0 80.0,2.8\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>", "cancelled": "246", "total_orders": "3,732"}, "stores": {}}, "monthly": {"total": {"fr_items": "94.0%", "fr_compras": "72.2%", "on_time": "96.2%", "cr": "4.3%", "fr_dlp": "<span class=\"delta positive\">▲ +5.8%</span>", "frc_dlp": "<span class=\"delta positive\">▲ +23.2%</span>", "ot_dlp": "<span class=\"delta positive\">▲ +11.6%</span>", "cr_dlp": "<span class=\"delta positive\">▼ -37.6%</span>", "cr_spark": "", "fr_spark": "", "ot_spark": ""}, "stores": {}}, "daily": {"total": {"fr_items": "93.6%", "fr_compras": "71.7%", "on_time": "97.6%", "cr": "4.3%", "fr_dlp": "<span class=\"delta negative\">▼ -2.6%</span>", "frc_dlp": "<span class=\"delta negative\">▼ -8.6%</span>", "ot_dlp": "<span class=\"delta negative\">▼ -0.9%</span>", "cr_dlp": "<span class=\"delta negative\">▲ +47.6%</span>", "cr_spark": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,9.0 7.3,18.0 14.5,17.2 21.8,15.2 29.1,2.0 36.4,2.2 43.6,4.0 50.9,4.3 58.2,7.2 65.5,23.6 72.7,26.0 80.0,18.8\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>", "fr_spark": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,14.5 7.3,16.1 14.5,17.6 21.8,15.8 29.1,19.4 36.4,25.2 43.6,26.0 50.9,21.4 58.2,14.8 65.5,4.8 72.7,2.0 80.0,8.7\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>", "ot_spark": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,9.1 7.3,12.0 14.5,26.0 21.8,18.4 29.1,16.1 36.4,16.6 43.6,8.0 50.9,7.6 58.2,7.7 65.5,3.9 72.7,2.0 80.0,2.8\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>", "cancelled": "246", "total_orders": "3,732"}, "stores": {}}}, "cvr": {"weekly": {"total": {"buyers": "471", "visitors": "7,912", "cvr": "5.9%", "cvr_dlp": "<span class=\"delta positive\">▲ +68.6%</span>", "b_dlp": "<span class=\"delta negative\">▼ -48.0%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,16.3 7.3,25.6 14.5,16.7 21.8,24.4 29.1,26.0 36.4,23.6 43.6,25.2 50.9,25.6 58.2,25.6 65.5,24.9 72.7,15.4 80.0,2.0\" stroke=\"#22c55e\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}}, "monthly": {"total": {"buyers": "3,121", "visitors": "132,835", "cvr": "2.3%", "cvr_dlp": "<span class=\"delta positive\">▲ +29.8%</span>", "b_dlp": "<span class=\"delta negative\">▼ -41.6%</span>", "sparkline": ""}}, "daily": {"total": {"buyers": "167", "visitors": "2,783", "cvr": "6.0%", "cvr_dlp": "<span class=\"delta negative\">▼ -2.3%</span>", "b_dlp": "<span class=\"delta negative\">▼ -11.6%</span>", "sparkline": "<svg width=\"80\" height=\"28\" viewBox=\"0 0 80 28\" fill=\"none\"><polyline points=\"0.0,25.9 3.0,19.5 5.9,12.0 8.9,17.0 11.9,16.1 14.8,6.1 17.8,8.6 20.7,6.8 23.7,7.6 26.7,26.0 29.6,15.3 32.6,12.2 35.6,4.9 38.5,7.4 41.5,6.7 44.4,2.0 47.4,25.8 50.4,16.0 53.3,8.4 56.3,6.5 59.3,8.0 62.2,8.1 65.2,10.3 68.1,22.4 71.1,9.6 74.1,7.9 77.0,4.7 80.0,5.2\" stroke=\"#ef4444\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"}}}};
 let currentPeriod = 'weekly';
-let currentSection = 'growth';
 
 function setPeriod(p) {
   currentPeriod = p;
-  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('ptab-' + p).classList.add('active');
-  refreshView();
+  refreshSection(document.querySelector('.sec-tab.active').id.replace('stab-',''));
 }
 
 function setSection(s) {
-  currentSection = s;
   document.querySelectorAll('.sec-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('stab-' + s).classList.add('active');
   document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
   document.getElementById('sec-' + s).classList.add('active');
-  refreshView();
+  refreshSection(s);
 }
 
-function toggleStores(sectionKey) {
-  const rows = document.querySelectorAll('#' + sectionKey + '-store-rows .store-row');
-  const arrow = document.getElementById(sectionKey + '-total-row');
-  const isOpen = rows[0] && rows[0].classList.contains('visible');
-  rows.forEach(r => r.classList.toggle('visible', !isOpen));
-  if (arrow) arrow.setAttribute('data-arrow', isOpen ? '▶' : '▼');
-}
-
-function refreshView() {
-  const d = window.DATA;
-  if (!d) return;
-  const sec = d[currentSection] && d[currentSection][currentPeriod];
-  if (!sec) return;
-  // update hero cards
-  const hero = document.getElementById('hero-' + currentSection);
-  if (hero && window.heroBuilders && window.heroBuilders[currentSection]) {
-    hero.innerHTML = window.heroBuilders[currentSection](sec);
+function refreshSection(s) {
+  const sec = (DATA[s] || DATA['cvr'])[currentPeriod] || DATA[s]['weekly'] || {};
+  const lbl = document.getElementById('lbl-' + s);
+  if (lbl) {
+    const names = {daily:'Diaria',weekly:'Semanal',monthly:'Mensual'};
+    lbl.textContent = 'Vista ' + (names[currentPeriod]||currentPeriod).toLowerCase() + ' | vs LP = vs período anterior';
   }
-  // update tables
-  const tbody = document.getElementById('tbody-' + currentSection);
-  if (tbody && window.tableBuilders && window.tableBuilders[currentSection]) {
-    tbody.innerHTML = window.tableBuilders[currentSection](sec);
-  }
-  // update period label
-  const lbl = document.getElementById('period-lbl-' + currentSection);
-  if (lbl) lbl.textContent = 'Showing: ' + periodLabels[currentPeriod] + ' view  |  vs LP = vs last ' + periodLabels[currentPeriod];
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  setSection('growth');
-  setPeriod('weekly');
-});
-
+function toggleStores(sec) {
+  const rows = document.querySelectorAll('#' + sec + '-store-rows .store-row');
+  const tr = document.getElementById(sec + '-total');
+  const open = rows[0] && rows[0].classList.contains('visible');
+  rows.forEach(r => r.classList.toggle('visible', !open));
+  if (tr) tr.setAttribute('data-arrow', open ? '▶' : '▼');
+}
 </script>
 </body>
 </html>
