@@ -1,0 +1,1331 @@
+Mes,TIENDA,Segmento,Rango_edad,MABs
+2025-10-01,Scalabrini,BRONZE,18 - 24,4
+2025-10-01,Scalabrini,BRONZE,30 - 34,2
+2025-10-01,Scalabrini,BRONZE,35 - 39,3
+2025-10-01,Scalabrini,BRONZE,40 - 44,4
+2025-10-01,Scalabrini,BRONZE,45 - 49,2
+2025-10-01,Scalabrini,BRONZE,50 - 54,3
+2025-10-01,Scalabrini,BRONZE,55 - 59,2
+2025-10-01,Scalabrini,BRONZE,60 - 64,1
+2025-10-01,Scalabrini,BRONZE,65 - 69,1
+2025-10-01,Scalabrini,BRONZE,70 y más,1
+2025-10-01,Scalabrini,BRONZE,Outliers,1
+2025-10-01,Scalabrini,BRONZE,Sin clasificación,2
+2025-10-01,Scalabrini,GOLD,25 - 29,3
+2025-10-01,Scalabrini,GOLD,30 - 34,9
+2025-10-01,Scalabrini,GOLD,35 - 39,1
+2025-10-01,Scalabrini,GOLD,40 - 44,7
+2025-10-01,Scalabrini,GOLD,45 - 49,10
+2025-10-01,Scalabrini,GOLD,50 - 54,5
+2025-10-01,Scalabrini,GOLD,55 - 59,2
+2025-10-01,Scalabrini,GOLD,65 - 69,2
+2025-10-01,Scalabrini,GOLD,70 y más,5
+2025-10-01,Scalabrini,PLATINUM,18 - 24,1
+2025-10-01,Scalabrini,PLATINUM,25 - 29,5
+2025-10-01,Scalabrini,PLATINUM,30 - 34,4
+2025-10-01,Scalabrini,PLATINUM,35 - 39,10
+2025-10-01,Scalabrini,PLATINUM,40 - 44,10
+2025-10-01,Scalabrini,PLATINUM,45 - 49,8
+2025-10-01,Scalabrini,PLATINUM,50 - 54,11
+2025-10-01,Scalabrini,PLATINUM,55 - 59,9
+2025-10-01,Scalabrini,PLATINUM,60 - 64,4
+2025-10-01,Scalabrini,PLATINUM,65 - 69,3
+2025-10-01,Scalabrini,PLATINUM,70 y más,9
+2025-10-01,Scalabrini,SELLER,18 - 24,1
+2025-10-01,Scalabrini,SELLER,25 - 29,1
+2025-10-01,Scalabrini,SELLER,30 - 34,1
+2025-10-01,Scalabrini,SELLER,35 - 39,1
+2025-10-01,Scalabrini,SELLER,40 - 44,3
+2025-10-01,Scalabrini,SELLER,45 - 49,1
+2025-10-01,Scalabrini,SELLER,50 - 54,3
+2025-10-01,Scalabrini,SELLER,55 - 59,2
+2025-10-01,Scalabrini,SELLER,60 - 64,1
+2025-10-01,Scalabrini,SELLER,65 - 69,2
+2025-10-01,Scalabrini,SELLER,Sin clasificación,8
+2025-10-01,Scalabrini,SILVER,25 - 29,2
+2025-10-01,Scalabrini,SILVER,30 - 34,2
+2025-10-01,Scalabrini,SILVER,35 - 39,2
+2025-10-01,Scalabrini,SILVER,40 - 44,4
+2025-10-01,Scalabrini,SILVER,50 - 54,3
+2025-10-01,Scalabrini,SILVER,65 - 69,1
+2025-10-01,Scalabrini,SILVER,70 y más,1
+2025-10-01,Scalabrini,SILVER,Sin clasificación,5
+2025-11-01,Scalabrini,BRONZE,18 - 24,16
+2025-11-01,Scalabrini,BRONZE,25 - 29,9
+2025-11-01,Scalabrini,BRONZE,30 - 34,11
+2025-11-01,Scalabrini,BRONZE,35 - 39,5
+2025-11-01,Scalabrini,BRONZE,40 - 44,3
+2025-11-01,Scalabrini,BRONZE,45 - 49,5
+2025-11-01,Scalabrini,BRONZE,50 - 54,5
+2025-11-01,Scalabrini,BRONZE,55 - 59,6
+2025-11-01,Scalabrini,BRONZE,65 - 69,2
+2025-11-01,Scalabrini,BRONZE,70 y más,4
+2025-11-01,Scalabrini,BRONZE,Outliers,1
+2025-11-01,Scalabrini,BRONZE,Sin clasificación,2
+2025-11-01,Scalabrini,GOLD,18 - 24,6
+2025-11-01,Scalabrini,GOLD,25 - 29,7
+2025-11-01,Scalabrini,GOLD,30 - 34,8
+2025-11-01,Scalabrini,GOLD,35 - 39,14
+2025-11-01,Scalabrini,GOLD,40 - 44,14
+2025-11-01,Scalabrini,GOLD,45 - 49,16
+2025-11-01,Scalabrini,GOLD,50 - 54,19
+2025-11-01,Scalabrini,GOLD,55 - 59,9
+2025-11-01,Scalabrini,GOLD,60 - 64,9
+2025-11-01,Scalabrini,GOLD,65 - 69,7
+2025-11-01,Scalabrini,GOLD,70 y más,14
+2025-11-01,Scalabrini,GOLD,Sin clasificación,1
+2025-11-01,Scalabrini,MENOR_EDAD,13 - 17,1
+2025-11-01,Scalabrini,NA,Sin clasificación,1
+2025-11-01,Scalabrini,PLATINUM,18 - 24,4
+2025-11-01,Scalabrini,PLATINUM,25 - 29,3
+2025-11-01,Scalabrini,PLATINUM,30 - 34,25
+2025-11-01,Scalabrini,PLATINUM,35 - 39,24
+2025-11-01,Scalabrini,PLATINUM,40 - 44,36
+2025-11-01,Scalabrini,PLATINUM,45 - 49,29
+2025-11-01,Scalabrini,PLATINUM,50 - 54,29
+2025-11-01,Scalabrini,PLATINUM,55 - 59,20
+2025-11-01,Scalabrini,PLATINUM,60 - 64,12
+2025-11-01,Scalabrini,PLATINUM,65 - 69,11
+2025-11-01,Scalabrini,PLATINUM,70 y más,9
+2025-11-01,Scalabrini,PLATINUM,Sin clasificación,1
+2025-11-01,Scalabrini,SELLER,18 - 24,4
+2025-11-01,Scalabrini,SELLER,25 - 29,2
+2025-11-01,Scalabrini,SELLER,30 - 34,2
+2025-11-01,Scalabrini,SELLER,35 - 39,5
+2025-11-01,Scalabrini,SELLER,40 - 44,5
+2025-11-01,Scalabrini,SELLER,45 - 49,3
+2025-11-01,Scalabrini,SELLER,50 - 54,5
+2025-11-01,Scalabrini,SELLER,55 - 59,5
+2025-11-01,Scalabrini,SELLER,60 - 64,3
+2025-11-01,Scalabrini,SELLER,70 y más,1
+2025-11-01,Scalabrini,SELLER,Sin clasificación,20
+2025-11-01,Scalabrini,SILVER,18 - 24,2
+2025-11-01,Scalabrini,SILVER,25 - 29,8
+2025-11-01,Scalabrini,SILVER,30 - 34,6
+2025-11-01,Scalabrini,SILVER,35 - 39,8
+2025-11-01,Scalabrini,SILVER,40 - 44,13
+2025-11-01,Scalabrini,SILVER,45 - 49,2
+2025-11-01,Scalabrini,SILVER,50 - 54,3
+2025-11-01,Scalabrini,SILVER,55 - 59,2
+2025-11-01,Scalabrini,SILVER,60 - 64,1
+2025-11-01,Scalabrini,SILVER,65 - 69,4
+2025-11-01,Scalabrini,SILVER,70 y más,5
+2025-11-01,Scalabrini,SILVER,Sin clasificación,13
+2025-11-01,Vicente Lopez,BRONZE,18 - 24,6
+2025-11-01,Vicente Lopez,BRONZE,25 - 29,4
+2025-11-01,Vicente Lopez,BRONZE,30 - 34,4
+2025-11-01,Vicente Lopez,BRONZE,35 - 39,3
+2025-11-01,Vicente Lopez,BRONZE,45 - 49,2
+2025-11-01,Vicente Lopez,BRONZE,50 - 54,3
+2025-11-01,Vicente Lopez,BRONZE,55 - 59,2
+2025-11-01,Vicente Lopez,BRONZE,60 - 64,4
+2025-11-01,Vicente Lopez,BRONZE,65 - 69,1
+2025-11-01,Vicente Lopez,BRONZE,70 y más,2
+2025-11-01,Vicente Lopez,GOLD,18 - 24,1
+2025-11-01,Vicente Lopez,GOLD,25 - 29,5
+2025-11-01,Vicente Lopez,GOLD,30 - 34,6
+2025-11-01,Vicente Lopez,GOLD,35 - 39,11
+2025-11-01,Vicente Lopez,GOLD,40 - 44,13
+2025-11-01,Vicente Lopez,GOLD,45 - 49,12
+2025-11-01,Vicente Lopez,GOLD,50 - 54,7
+2025-11-01,Vicente Lopez,GOLD,55 - 59,3
+2025-11-01,Vicente Lopez,GOLD,60 - 64,6
+2025-11-01,Vicente Lopez,GOLD,65 - 69,6
+2025-11-01,Vicente Lopez,GOLD,70 y más,12
+2025-11-01,Vicente Lopez,GOLD,Sin clasificación,1
+2025-11-01,Vicente Lopez,MENOR_EDAD,13 - 17,1
+2025-11-01,Vicente Lopez,PLATINUM,18 - 24,2
+2025-11-01,Vicente Lopez,PLATINUM,25 - 29,5
+2025-11-01,Vicente Lopez,PLATINUM,30 - 34,20
+2025-11-01,Vicente Lopez,PLATINUM,35 - 39,20
+2025-11-01,Vicente Lopez,PLATINUM,40 - 44,31
+2025-11-01,Vicente Lopez,PLATINUM,45 - 49,31
+2025-11-01,Vicente Lopez,PLATINUM,50 - 54,24
+2025-11-01,Vicente Lopez,PLATINUM,55 - 59,15
+2025-11-01,Vicente Lopez,PLATINUM,60 - 64,11
+2025-11-01,Vicente Lopez,PLATINUM,65 - 69,5
+2025-11-01,Vicente Lopez,PLATINUM,70 y más,4
+2025-11-01,Vicente Lopez,SELLER,25 - 29,1
+2025-11-01,Vicente Lopez,SELLER,30 - 34,2
+2025-11-01,Vicente Lopez,SELLER,35 - 39,6
+2025-11-01,Vicente Lopez,SELLER,40 - 44,2
+2025-11-01,Vicente Lopez,SELLER,50 - 54,3
+2025-11-01,Vicente Lopez,SELLER,55 - 59,1
+2025-11-01,Vicente Lopez,SELLER,70 y más,2
+2025-11-01,Vicente Lopez,SELLER,Sin clasificación,17
+2025-11-01,Vicente Lopez,SILVER,18 - 24,2
+2025-11-01,Vicente Lopez,SILVER,25 - 29,2
+2025-11-01,Vicente Lopez,SILVER,30 - 34,1
+2025-11-01,Vicente Lopez,SILVER,35 - 39,4
+2025-11-01,Vicente Lopez,SILVER,40 - 44,2
+2025-11-01,Vicente Lopez,SILVER,45 - 49,2
+2025-11-01,Vicente Lopez,SILVER,50 - 54,4
+2025-11-01,Vicente Lopez,SILVER,55 - 59,2
+2025-11-01,Vicente Lopez,SILVER,60 - 64,4
+2025-11-01,Vicente Lopez,SILVER,70 y más,8
+2025-11-01,Vicente Lopez,SILVER,Sin clasificación,10
+2025-12-01,Caballito,BRONZE,18 - 24,14
+2025-12-01,Caballito,BRONZE,25 - 29,8
+2025-12-01,Caballito,BRONZE,30 - 34,8
+2025-12-01,Caballito,BRONZE,35 - 39,1
+2025-12-01,Caballito,BRONZE,40 - 44,7
+2025-12-01,Caballito,BRONZE,45 - 49,12
+2025-12-01,Caballito,BRONZE,50 - 54,1
+2025-12-01,Caballito,BRONZE,55 - 59,3
+2025-12-01,Caballito,BRONZE,60 - 64,2
+2025-12-01,Caballito,BRONZE,65 - 69,3
+2025-12-01,Caballito,BRONZE,70 y más,3
+2025-12-01,Caballito,BRONZE,Sin clasificación,2
+2025-12-01,Caballito,GOLD,18 - 24,6
+2025-12-01,Caballito,GOLD,25 - 29,16
+2025-12-01,Caballito,GOLD,30 - 34,18
+2025-12-01,Caballito,GOLD,35 - 39,22
+2025-12-01,Caballito,GOLD,40 - 44,24
+2025-12-01,Caballito,GOLD,45 - 49,25
+2025-12-01,Caballito,GOLD,50 - 54,22
+2025-12-01,Caballito,GOLD,55 - 59,17
+2025-12-01,Caballito,GOLD,60 - 64,10
+2025-12-01,Caballito,GOLD,65 - 69,7
+2025-12-01,Caballito,GOLD,70 y más,17
+2025-12-01,Caballito,GOLD,Sin clasificación,2
+2025-12-01,Caballito,NA,Sin clasificación,1
+2025-12-01,Caballito,PLATINUM,25 - 29,3
+2025-12-01,Caballito,PLATINUM,30 - 34,19
+2025-12-01,Caballito,PLATINUM,35 - 39,34
+2025-12-01,Caballito,PLATINUM,40 - 44,33
+2025-12-01,Caballito,PLATINUM,45 - 49,39
+2025-12-01,Caballito,PLATINUM,50 - 54,24
+2025-12-01,Caballito,PLATINUM,55 - 59,24
+2025-12-01,Caballito,PLATINUM,60 - 64,20
+2025-12-01,Caballito,PLATINUM,65 - 69,10
+2025-12-01,Caballito,PLATINUM,70 y más,4
+2025-12-01,Caballito,SELLER,18 - 24,3
+2025-12-01,Caballito,SELLER,25 - 29,2
+2025-12-01,Caballito,SELLER,30 - 34,3
+2025-12-01,Caballito,SELLER,35 - 39,5
+2025-12-01,Caballito,SELLER,40 - 44,10
+2025-12-01,Caballito,SELLER,45 - 49,2
+2025-12-01,Caballito,SELLER,50 - 54,7
+2025-12-01,Caballito,SELLER,55 - 59,2
+2025-12-01,Caballito,SELLER,60 - 64,6
+2025-12-01,Caballito,SELLER,65 - 69,1
+2025-12-01,Caballito,SELLER,Sin clasificación,9
+2025-12-01,Caballito,SILVER,25 - 29,10
+2025-12-01,Caballito,SILVER,30 - 34,7
+2025-12-01,Caballito,SILVER,35 - 39,11
+2025-12-01,Caballito,SILVER,40 - 44,8
+2025-12-01,Caballito,SILVER,45 - 49,5
+2025-12-01,Caballito,SILVER,50 - 54,10
+2025-12-01,Caballito,SILVER,55 - 59,7
+2025-12-01,Caballito,SILVER,60 - 64,7
+2025-12-01,Caballito,SILVER,65 - 69,4
+2025-12-01,Caballito,SILVER,70 y más,18
+2025-12-01,Caballito,SILVER,Sin clasificación,4
+2025-12-01,Scalabrini,BRONZE,18 - 24,14
+2025-12-01,Scalabrini,BRONZE,25 - 29,14
+2025-12-01,Scalabrini,BRONZE,30 - 34,11
+2025-12-01,Scalabrini,BRONZE,35 - 39,8
+2025-12-01,Scalabrini,BRONZE,40 - 44,6
+2025-12-01,Scalabrini,BRONZE,45 - 49,8
+2025-12-01,Scalabrini,BRONZE,50 - 54,12
+2025-12-01,Scalabrini,BRONZE,55 - 59,7
+2025-12-01,Scalabrini,BRONZE,60 - 64,6
+2025-12-01,Scalabrini,BRONZE,65 - 69,3
+2025-12-01,Scalabrini,BRONZE,70 y más,4
+2025-12-01,Scalabrini,BRONZE,Sin clasificación,3
+2025-12-01,Scalabrini,GOLD,18 - 24,4
+2025-12-01,Scalabrini,GOLD,25 - 29,14
+2025-12-01,Scalabrini,GOLD,30 - 34,31
+2025-12-01,Scalabrini,GOLD,35 - 39,27
+2025-12-01,Scalabrini,GOLD,40 - 44,20
+2025-12-01,Scalabrini,GOLD,45 - 49,20
+2025-12-01,Scalabrini,GOLD,50 - 54,18
+2025-12-01,Scalabrini,GOLD,55 - 59,13
+2025-12-01,Scalabrini,GOLD,60 - 64,11
+2025-12-01,Scalabrini,GOLD,65 - 69,7
+2025-12-01,Scalabrini,GOLD,70 y más,24
+2025-12-01,Scalabrini,GOLD,Sin clasificación,4
+2025-12-01,Scalabrini,MENOR_EDAD,13 - 17,1
+2025-12-01,Scalabrini,PLATINUM,18 - 24,1
+2025-12-01,Scalabrini,PLATINUM,25 - 29,13
+2025-12-01,Scalabrini,PLATINUM,30 - 34,15
+2025-12-01,Scalabrini,PLATINUM,35 - 39,28
+2025-12-01,Scalabrini,PLATINUM,40 - 44,44
+2025-12-01,Scalabrini,PLATINUM,45 - 49,31
+2025-12-01,Scalabrini,PLATINUM,50 - 54,57
+2025-12-01,Scalabrini,PLATINUM,55 - 59,42
+2025-12-01,Scalabrini,PLATINUM,60 - 64,20
+2025-12-01,Scalabrini,PLATINUM,65 - 69,23
+2025-12-01,Scalabrini,PLATINUM,70 y más,18
+2025-12-01,Scalabrini,PLATINUM,Sin clasificación,2
+2025-12-01,Scalabrini,SELLER,18 - 24,2
+2025-12-01,Scalabrini,SELLER,25 - 29,3
+2025-12-01,Scalabrini,SELLER,35 - 39,9
+2025-12-01,Scalabrini,SELLER,40 - 44,9
+2025-12-01,Scalabrini,SELLER,45 - 49,4
+2025-12-01,Scalabrini,SELLER,50 - 54,3
+2025-12-01,Scalabrini,SELLER,55 - 59,5
+2025-12-01,Scalabrini,SELLER,60 - 64,1
+2025-12-01,Scalabrini,SELLER,65 - 69,1
+2025-12-01,Scalabrini,SELLER,70 y más,3
+2025-12-01,Scalabrini,SELLER,Sin clasificación,25
+2025-12-01,Scalabrini,SILVER,18 - 24,3
+2025-12-01,Scalabrini,SILVER,25 - 29,14
+2025-12-01,Scalabrini,SILVER,30 - 34,13
+2025-12-01,Scalabrini,SILVER,35 - 39,9
+2025-12-01,Scalabrini,SILVER,40 - 44,13
+2025-12-01,Scalabrini,SILVER,45 - 49,6
+2025-12-01,Scalabrini,SILVER,50 - 54,10
+2025-12-01,Scalabrini,SILVER,55 - 59,3
+2025-12-01,Scalabrini,SILVER,60 - 64,6
+2025-12-01,Scalabrini,SILVER,65 - 69,5
+2025-12-01,Scalabrini,SILVER,70 y más,18
+2025-12-01,Scalabrini,SILVER,Sin clasificación,26
+2025-12-01,Vicente Lopez,BRONZE,18 - 24,10
+2025-12-01,Vicente Lopez,BRONZE,25 - 29,6
+2025-12-01,Vicente Lopez,BRONZE,30 - 34,7
+2025-12-01,Vicente Lopez,BRONZE,35 - 39,5
+2025-12-01,Vicente Lopez,BRONZE,40 - 44,6
+2025-12-01,Vicente Lopez,BRONZE,45 - 49,11
+2025-12-01,Vicente Lopez,BRONZE,50 - 54,5
+2025-12-01,Vicente Lopez,BRONZE,55 - 59,5
+2025-12-01,Vicente Lopez,BRONZE,60 - 64,8
+2025-12-01,Vicente Lopez,BRONZE,65 - 69,1
+2025-12-01,Vicente Lopez,BRONZE,70 y más,5
+2025-12-01,Vicente Lopez,BRONZE,Sin clasificación,1
+2025-12-01,Vicente Lopez,GOLD,18 - 24,8
+2025-12-01,Vicente Lopez,GOLD,25 - 29,16
+2025-12-01,Vicente Lopez,GOLD,30 - 34,17
+2025-12-01,Vicente Lopez,GOLD,35 - 39,28
+2025-12-01,Vicente Lopez,GOLD,40 - 44,28
+2025-12-01,Vicente Lopez,GOLD,45 - 49,18
+2025-12-01,Vicente Lopez,GOLD,50 - 54,10
+2025-12-01,Vicente Lopez,GOLD,55 - 59,14
+2025-12-01,Vicente Lopez,GOLD,60 - 64,6
+2025-12-01,Vicente Lopez,GOLD,65 - 69,13
+2025-12-01,Vicente Lopez,GOLD,70 y más,20
+2025-12-01,Vicente Lopez,GOLD,Sin clasificación,3
+2025-12-01,Vicente Lopez,MENOR_EDAD,13 - 17,1
+2025-12-01,Vicente Lopez,PLATINUM,18 - 24,4
+2025-12-01,Vicente Lopez,PLATINUM,25 - 29,11
+2025-12-01,Vicente Lopez,PLATINUM,30 - 34,36
+2025-12-01,Vicente Lopez,PLATINUM,35 - 39,42
+2025-12-01,Vicente Lopez,PLATINUM,40 - 44,55
+2025-12-01,Vicente Lopez,PLATINUM,45 - 49,42
+2025-12-01,Vicente Lopez,PLATINUM,50 - 54,39
+2025-12-01,Vicente Lopez,PLATINUM,55 - 59,29
+2025-12-01,Vicente Lopez,PLATINUM,60 - 64,32
+2025-12-01,Vicente Lopez,PLATINUM,65 - 69,14
+2025-12-01,Vicente Lopez,PLATINUM,70 y más,17
+2025-12-01,Vicente Lopez,SELLER,25 - 29,1
+2025-12-01,Vicente Lopez,SELLER,30 - 34,5
+2025-12-01,Vicente Lopez,SELLER,35 - 39,5
+2025-12-01,Vicente Lopez,SELLER,40 - 44,6
+2025-12-01,Vicente Lopez,SELLER,45 - 49,6
+2025-12-01,Vicente Lopez,SELLER,50 - 54,4
+2025-12-01,Vicente Lopez,SELLER,55 - 59,4
+2025-12-01,Vicente Lopez,SELLER,60 - 64,2
+2025-12-01,Vicente Lopez,SELLER,70 y más,1
+2025-12-01,Vicente Lopez,SELLER,Sin clasificación,24
+2025-12-01,Vicente Lopez,SILVER,18 - 24,3
+2025-12-01,Vicente Lopez,SILVER,25 - 29,8
+2025-12-01,Vicente Lopez,SILVER,30 - 34,7
+2025-12-01,Vicente Lopez,SILVER,35 - 39,9
+2025-12-01,Vicente Lopez,SILVER,40 - 44,9
+2025-12-01,Vicente Lopez,SILVER,45 - 49,4
+2025-12-01,Vicente Lopez,SILVER,50 - 54,6
+2025-12-01,Vicente Lopez,SILVER,55 - 59,9
+2025-12-01,Vicente Lopez,SILVER,60 - 64,6
+2025-12-01,Vicente Lopez,SILVER,65 - 69,6
+2025-12-01,Vicente Lopez,SILVER,70 y más,22
+2025-12-01,Vicente Lopez,SILVER,Sin clasificación,21
+2025-12-01,Villa Urquiza,BRONZE,18 - 24,6
+2025-12-01,Villa Urquiza,BRONZE,25 - 29,7
+2025-12-01,Villa Urquiza,BRONZE,30 - 34,6
+2025-12-01,Villa Urquiza,BRONZE,35 - 39,6
+2025-12-01,Villa Urquiza,BRONZE,40 - 44,1
+2025-12-01,Villa Urquiza,BRONZE,45 - 49,2
+2025-12-01,Villa Urquiza,BRONZE,50 - 54,1
+2025-12-01,Villa Urquiza,BRONZE,55 - 59,1
+2025-12-01,Villa Urquiza,BRONZE,60 - 64,2
+2025-12-01,Villa Urquiza,BRONZE,65 - 69,2
+2025-12-01,Villa Urquiza,BRONZE,70 y más,3
+2025-12-01,Villa Urquiza,GOLD,18 - 24,2
+2025-12-01,Villa Urquiza,GOLD,25 - 29,4
+2025-12-01,Villa Urquiza,GOLD,30 - 34,18
+2025-12-01,Villa Urquiza,GOLD,35 - 39,13
+2025-12-01,Villa Urquiza,GOLD,40 - 44,15
+2025-12-01,Villa Urquiza,GOLD,45 - 49,11
+2025-12-01,Villa Urquiza,GOLD,50 - 54,15
+2025-12-01,Villa Urquiza,GOLD,55 - 59,9
+2025-12-01,Villa Urquiza,GOLD,60 - 64,10
+2025-12-01,Villa Urquiza,GOLD,65 - 69,9
+2025-12-01,Villa Urquiza,GOLD,70 y más,7
+2025-12-01,Villa Urquiza,GOLD,Sin clasificación,3
+2025-12-01,Villa Urquiza,MENOR_EDAD,13 - 17,2
+2025-12-01,Villa Urquiza,PLATINUM,25 - 29,1
+2025-12-01,Villa Urquiza,PLATINUM,30 - 34,15
+2025-12-01,Villa Urquiza,PLATINUM,35 - 39,27
+2025-12-01,Villa Urquiza,PLATINUM,40 - 44,30
+2025-12-01,Villa Urquiza,PLATINUM,45 - 49,25
+2025-12-01,Villa Urquiza,PLATINUM,50 - 54,16
+2025-12-01,Villa Urquiza,PLATINUM,55 - 59,16
+2025-12-01,Villa Urquiza,PLATINUM,60 - 64,14
+2025-12-01,Villa Urquiza,PLATINUM,65 - 69,2
+2025-12-01,Villa Urquiza,PLATINUM,70 y más,11
+2025-12-01,Villa Urquiza,PLATINUM,Sin clasificación,1
+2025-12-01,Villa Urquiza,SELLER,18 - 24,1
+2025-12-01,Villa Urquiza,SELLER,25 - 29,2
+2025-12-01,Villa Urquiza,SELLER,30 - 34,5
+2025-12-01,Villa Urquiza,SELLER,35 - 39,4
+2025-12-01,Villa Urquiza,SELLER,40 - 44,4
+2025-12-01,Villa Urquiza,SELLER,45 - 49,7
+2025-12-01,Villa Urquiza,SELLER,50 - 54,3
+2025-12-01,Villa Urquiza,SELLER,55 - 59,3
+2025-12-01,Villa Urquiza,SELLER,60 - 64,2
+2025-12-01,Villa Urquiza,SELLER,65 - 69,1
+2025-12-01,Villa Urquiza,SELLER,Sin clasificación,11
+2025-12-01,Villa Urquiza,SILVER,25 - 29,1
+2025-12-01,Villa Urquiza,SILVER,30 - 34,3
+2025-12-01,Villa Urquiza,SILVER,35 - 39,7
+2025-12-01,Villa Urquiza,SILVER,40 - 44,4
+2025-12-01,Villa Urquiza,SILVER,45 - 49,5
+2025-12-01,Villa Urquiza,SILVER,50 - 54,7
+2025-12-01,Villa Urquiza,SILVER,55 - 59,3
+2025-12-01,Villa Urquiza,SILVER,60 - 64,3
+2025-12-01,Villa Urquiza,SILVER,65 - 69,4
+2025-12-01,Villa Urquiza,SILVER,70 y más,13
+2025-12-01,Villa Urquiza,SILVER,Sin clasificación,15
+2026-01-01,Caballito,BRONZE,18 - 24,10
+2026-01-01,Caballito,BRONZE,25 - 29,6
+2026-01-01,Caballito,BRONZE,30 - 34,7
+2026-01-01,Caballito,BRONZE,35 - 39,9
+2026-01-01,Caballito,BRONZE,40 - 44,6
+2026-01-01,Caballito,BRONZE,45 - 49,8
+2026-01-01,Caballito,BRONZE,50 - 54,4
+2026-01-01,Caballito,BRONZE,55 - 59,3
+2026-01-01,Caballito,BRONZE,60 - 64,6
+2026-01-01,Caballito,BRONZE,65 - 69,5
+2026-01-01,Caballito,BRONZE,70 y más,4
+2026-01-01,Caballito,BRONZE,Sin clasificación,2
+2026-01-01,Caballito,GOLD,18 - 24,4
+2026-01-01,Caballito,GOLD,25 - 29,10
+2026-01-01,Caballito,GOLD,30 - 34,26
+2026-01-01,Caballito,GOLD,35 - 39,42
+2026-01-01,Caballito,GOLD,40 - 44,19
+2026-01-01,Caballito,GOLD,45 - 49,25
+2026-01-01,Caballito,GOLD,50 - 54,26
+2026-01-01,Caballito,GOLD,55 - 59,14
+2026-01-01,Caballito,GOLD,60 - 64,11
+2026-01-01,Caballito,GOLD,65 - 69,15
+2026-01-01,Caballito,GOLD,70 y más,15
+2026-01-01,Caballito,GOLD,Sin clasificación,2
+2026-01-01,Caballito,MENOR_EDAD,13 - 17,2
+2026-01-01,Caballito,PLATINUM,18 - 24,4
+2026-01-01,Caballito,PLATINUM,25 - 29,11
+2026-01-01,Caballito,PLATINUM,30 - 34,22
+2026-01-01,Caballito,PLATINUM,35 - 39,43
+2026-01-01,Caballito,PLATINUM,40 - 44,40
+2026-01-01,Caballito,PLATINUM,45 - 49,35
+2026-01-01,Caballito,PLATINUM,50 - 54,34
+2026-01-01,Caballito,PLATINUM,55 - 59,22
+2026-01-01,Caballito,PLATINUM,60 - 64,18
+2026-01-01,Caballito,PLATINUM,65 - 69,6
+2026-01-01,Caballito,PLATINUM,70 y más,12
+2026-01-01,Caballito,SELLER,18 - 24,1
+2026-01-01,Caballito,SELLER,25 - 29,3
+2026-01-01,Caballito,SELLER,30 - 34,4
+2026-01-01,Caballito,SELLER,35 - 39,5
+2026-01-01,Caballito,SELLER,40 - 44,3
+2026-01-01,Caballito,SELLER,45 - 49,9
+2026-01-01,Caballito,SELLER,50 - 54,8
+2026-01-01,Caballito,SELLER,55 - 59,3
+2026-01-01,Caballito,SELLER,60 - 64,2
+2026-01-01,Caballito,SELLER,70 y más,4
+2026-01-01,Caballito,SELLER,Sin clasificación,15
+2026-01-01,Caballito,SILVER,18 - 24,4
+2026-01-01,Caballito,SILVER,25 - 29,14
+2026-01-01,Caballito,SILVER,30 - 34,6
+2026-01-01,Caballito,SILVER,35 - 39,11
+2026-01-01,Caballito,SILVER,40 - 44,6
+2026-01-01,Caballito,SILVER,45 - 49,12
+2026-01-01,Caballito,SILVER,50 - 54,3
+2026-01-01,Caballito,SILVER,55 - 59,10
+2026-01-01,Caballito,SILVER,60 - 64,8
+2026-01-01,Caballito,SILVER,65 - 69,4
+2026-01-01,Caballito,SILVER,70 y más,20
+2026-01-01,Caballito,SILVER,Sin clasificación,12
+2026-01-01,Scalabrini,BRONZE,18 - 24,12
+2026-01-01,Scalabrini,BRONZE,25 - 29,18
+2026-01-01,Scalabrini,BRONZE,30 - 34,18
+2026-01-01,Scalabrini,BRONZE,35 - 39,13
+2026-01-01,Scalabrini,BRONZE,40 - 44,4
+2026-01-01,Scalabrini,BRONZE,45 - 49,6
+2026-01-01,Scalabrini,BRONZE,50 - 54,6
+2026-01-01,Scalabrini,BRONZE,55 - 59,5
+2026-01-01,Scalabrini,BRONZE,60 - 64,4
+2026-01-01,Scalabrini,BRONZE,65 - 69,1
+2026-01-01,Scalabrini,BRONZE,70 y más,4
+2026-01-01,Scalabrini,BRONZE,Sin clasificación,2
+2026-01-01,Scalabrini,GOLD,18 - 24,4
+2026-01-01,Scalabrini,GOLD,25 - 29,12
+2026-01-01,Scalabrini,GOLD,30 - 34,21
+2026-01-01,Scalabrini,GOLD,35 - 39,24
+2026-01-01,Scalabrini,GOLD,40 - 44,25
+2026-01-01,Scalabrini,GOLD,45 - 49,18
+2026-01-01,Scalabrini,GOLD,50 - 54,20
+2026-01-01,Scalabrini,GOLD,55 - 59,11
+2026-01-01,Scalabrini,GOLD,60 - 64,8
+2026-01-01,Scalabrini,GOLD,65 - 69,8
+2026-01-01,Scalabrini,GOLD,70 y más,28
+2026-01-01,Scalabrini,GOLD,Sin clasificación,1
+2026-01-01,Scalabrini,MENOR_EDAD,13 - 17,1
+2026-01-01,Scalabrini,PLATINUM,18 - 24,2
+2026-01-01,Scalabrini,PLATINUM,25 - 29,14
+2026-01-01,Scalabrini,PLATINUM,30 - 34,21
+2026-01-01,Scalabrini,PLATINUM,35 - 39,32
+2026-01-01,Scalabrini,PLATINUM,40 - 44,37
+2026-01-01,Scalabrini,PLATINUM,45 - 49,29
+2026-01-01,Scalabrini,PLATINUM,50 - 54,32
+2026-01-01,Scalabrini,PLATINUM,55 - 59,37
+2026-01-01,Scalabrini,PLATINUM,60 - 64,26
+2026-01-01,Scalabrini,PLATINUM,65 - 69,24
+2026-01-01,Scalabrini,PLATINUM,70 y más,22
+2026-01-01,Scalabrini,SELLER,18 - 24,1
+2026-01-01,Scalabrini,SELLER,25 - 29,3
+2026-01-01,Scalabrini,SELLER,30 - 34,5
+2026-01-01,Scalabrini,SELLER,35 - 39,7
+2026-01-01,Scalabrini,SELLER,40 - 44,7
+2026-01-01,Scalabrini,SELLER,45 - 49,5
+2026-01-01,Scalabrini,SELLER,50 - 54,3
+2026-01-01,Scalabrini,SELLER,55 - 59,4
+2026-01-01,Scalabrini,SELLER,60 - 64,1
+2026-01-01,Scalabrini,SELLER,65 - 69,2
+2026-01-01,Scalabrini,SELLER,Sin clasificación,36
+2026-01-01,Scalabrini,SILVER,18 - 24,8
+2026-01-01,Scalabrini,SILVER,25 - 29,7
+2026-01-01,Scalabrini,SILVER,30 - 34,19
+2026-01-01,Scalabrini,SILVER,35 - 39,8
+2026-01-01,Scalabrini,SILVER,40 - 44,7
+2026-01-01,Scalabrini,SILVER,45 - 49,3
+2026-01-01,Scalabrini,SILVER,50 - 54,6
+2026-01-01,Scalabrini,SILVER,55 - 59,2
+2026-01-01,Scalabrini,SILVER,60 - 64,6
+2026-01-01,Scalabrini,SILVER,65 - 69,4
+2026-01-01,Scalabrini,SILVER,70 y más,13
+2026-01-01,Scalabrini,SILVER,Sin clasificación,28
+2026-01-01,Vicente Lopez,BRONZE,18 - 24,7
+2026-01-01,Vicente Lopez,BRONZE,25 - 29,5
+2026-01-01,Vicente Lopez,BRONZE,30 - 34,10
+2026-01-01,Vicente Lopez,BRONZE,35 - 39,5
+2026-01-01,Vicente Lopez,BRONZE,40 - 44,4
+2026-01-01,Vicente Lopez,BRONZE,45 - 49,8
+2026-01-01,Vicente Lopez,BRONZE,50 - 54,8
+2026-01-01,Vicente Lopez,BRONZE,55 - 59,3
+2026-01-01,Vicente Lopez,BRONZE,60 - 64,4
+2026-01-01,Vicente Lopez,BRONZE,65 - 69,1
+2026-01-01,Vicente Lopez,BRONZE,70 y más,4
+2026-01-01,Vicente Lopez,BRONZE,Sin clasificación,1
+2026-01-01,Vicente Lopez,GOLD,18 - 24,4
+2026-01-01,Vicente Lopez,GOLD,25 - 29,13
+2026-01-01,Vicente Lopez,GOLD,30 - 34,20
+2026-01-01,Vicente Lopez,GOLD,35 - 39,21
+2026-01-01,Vicente Lopez,GOLD,40 - 44,22
+2026-01-01,Vicente Lopez,GOLD,45 - 49,25
+2026-01-01,Vicente Lopez,GOLD,50 - 54,17
+2026-01-01,Vicente Lopez,GOLD,55 - 59,13
+2026-01-01,Vicente Lopez,GOLD,60 - 64,6
+2026-01-01,Vicente Lopez,GOLD,65 - 69,10
+2026-01-01,Vicente Lopez,GOLD,70 y más,23
+2026-01-01,Vicente Lopez,GOLD,Sin clasificación,4
+2026-01-01,Vicente Lopez,MENOR_EDAD,13 - 17,2
+2026-01-01,Vicente Lopez,PLATINUM,18 - 24,2
+2026-01-01,Vicente Lopez,PLATINUM,25 - 29,15
+2026-01-01,Vicente Lopez,PLATINUM,30 - 34,31
+2026-01-01,Vicente Lopez,PLATINUM,35 - 39,41
+2026-01-01,Vicente Lopez,PLATINUM,40 - 44,51
+2026-01-01,Vicente Lopez,PLATINUM,45 - 49,46
+2026-01-01,Vicente Lopez,PLATINUM,50 - 54,36
+2026-01-01,Vicente Lopez,PLATINUM,55 - 59,34
+2026-01-01,Vicente Lopez,PLATINUM,60 - 64,16
+2026-01-01,Vicente Lopez,PLATINUM,65 - 69,17
+2026-01-01,Vicente Lopez,PLATINUM,70 y más,21
+2026-01-01,Vicente Lopez,SELLER,25 - 29,2
+2026-01-01,Vicente Lopez,SELLER,30 - 34,1
+2026-01-01,Vicente Lopez,SELLER,35 - 39,4
+2026-01-01,Vicente Lopez,SELLER,40 - 44,2
+2026-01-01,Vicente Lopez,SELLER,45 - 49,1
+2026-01-01,Vicente Lopez,SELLER,50 - 54,3
+2026-01-01,Vicente Lopez,SELLER,55 - 59,3
+2026-01-01,Vicente Lopez,SELLER,60 - 64,1
+2026-01-01,Vicente Lopez,SELLER,65 - 69,3
+2026-01-01,Vicente Lopez,SELLER,70 y más,2
+2026-01-01,Vicente Lopez,SELLER,Sin clasificación,31
+2026-01-01,Vicente Lopez,SILVER,25 - 29,8
+2026-01-01,Vicente Lopez,SILVER,30 - 34,9
+2026-01-01,Vicente Lopez,SILVER,35 - 39,2
+2026-01-01,Vicente Lopez,SILVER,40 - 44,5
+2026-01-01,Vicente Lopez,SILVER,45 - 49,4
+2026-01-01,Vicente Lopez,SILVER,50 - 54,7
+2026-01-01,Vicente Lopez,SILVER,55 - 59,6
+2026-01-01,Vicente Lopez,SILVER,60 - 64,4
+2026-01-01,Vicente Lopez,SILVER,65 - 69,9
+2026-01-01,Vicente Lopez,SILVER,70 y más,18
+2026-01-01,Vicente Lopez,SILVER,Sin clasificación,12
+2026-01-01,Villa Urquiza,BRONZE,18 - 24,6
+2026-01-01,Villa Urquiza,BRONZE,25 - 29,4
+2026-01-01,Villa Urquiza,BRONZE,30 - 34,5
+2026-01-01,Villa Urquiza,BRONZE,35 - 39,7
+2026-01-01,Villa Urquiza,BRONZE,40 - 44,4
+2026-01-01,Villa Urquiza,BRONZE,45 - 49,4
+2026-01-01,Villa Urquiza,BRONZE,50 - 54,4
+2026-01-01,Villa Urquiza,BRONZE,55 - 59,4
+2026-01-01,Villa Urquiza,BRONZE,65 - 69,5
+2026-01-01,Villa Urquiza,BRONZE,70 y más,5
+2026-01-01,Villa Urquiza,BRONZE,Sin clasificación,1
+2026-01-01,Villa Urquiza,GOLD,18 - 24,2
+2026-01-01,Villa Urquiza,GOLD,25 - 29,11
+2026-01-01,Villa Urquiza,GOLD,30 - 34,16
+2026-01-01,Villa Urquiza,GOLD,35 - 39,20
+2026-01-01,Villa Urquiza,GOLD,40 - 44,13
+2026-01-01,Villa Urquiza,GOLD,45 - 49,19
+2026-01-01,Villa Urquiza,GOLD,50 - 54,11
+2026-01-01,Villa Urquiza,GOLD,55 - 59,11
+2026-01-01,Villa Urquiza,GOLD,60 - 64,18
+2026-01-01,Villa Urquiza,GOLD,65 - 69,9
+2026-01-01,Villa Urquiza,GOLD,70 y más,10
+2026-01-01,Villa Urquiza,GOLD,Sin clasificación,2
+2026-01-01,Villa Urquiza,PLATINUM,25 - 29,7
+2026-01-01,Villa Urquiza,PLATINUM,30 - 34,23
+2026-01-01,Villa Urquiza,PLATINUM,35 - 39,26
+2026-01-01,Villa Urquiza,PLATINUM,40 - 44,30
+2026-01-01,Villa Urquiza,PLATINUM,45 - 49,34
+2026-01-01,Villa Urquiza,PLATINUM,50 - 54,22
+2026-01-01,Villa Urquiza,PLATINUM,55 - 59,12
+2026-01-01,Villa Urquiza,PLATINUM,60 - 64,10
+2026-01-01,Villa Urquiza,PLATINUM,65 - 69,5
+2026-01-01,Villa Urquiza,PLATINUM,70 y más,7
+2026-01-01,Villa Urquiza,SELLER,25 - 29,1
+2026-01-01,Villa Urquiza,SELLER,30 - 34,5
+2026-01-01,Villa Urquiza,SELLER,35 - 39,4
+2026-01-01,Villa Urquiza,SELLER,40 - 44,3
+2026-01-01,Villa Urquiza,SELLER,45 - 49,1
+2026-01-01,Villa Urquiza,SELLER,50 - 54,6
+2026-01-01,Villa Urquiza,SELLER,55 - 59,3
+2026-01-01,Villa Urquiza,SELLER,60 - 64,3
+2026-01-01,Villa Urquiza,SELLER,65 - 69,2
+2026-01-01,Villa Urquiza,SELLER,70 y más,2
+2026-01-01,Villa Urquiza,SELLER,Sin clasificación,13
+2026-01-01,Villa Urquiza,SILVER,18 - 24,2
+2026-01-01,Villa Urquiza,SILVER,25 - 29,5
+2026-01-01,Villa Urquiza,SILVER,30 - 34,2
+2026-01-01,Villa Urquiza,SILVER,35 - 39,8
+2026-01-01,Villa Urquiza,SILVER,40 - 44,4
+2026-01-01,Villa Urquiza,SILVER,45 - 49,6
+2026-01-01,Villa Urquiza,SILVER,50 - 54,4
+2026-01-01,Villa Urquiza,SILVER,55 - 59,4
+2026-01-01,Villa Urquiza,SILVER,60 - 64,6
+2026-01-01,Villa Urquiza,SILVER,65 - 69,7
+2026-01-01,Villa Urquiza,SILVER,70 y más,20
+2026-01-01,Villa Urquiza,SILVER,Sin clasificación,3
+2026-02-01,Caballito,BRONZE,18 - 24,18
+2026-02-01,Caballito,BRONZE,25 - 29,17
+2026-02-01,Caballito,BRONZE,30 - 34,16
+2026-02-01,Caballito,BRONZE,35 - 39,12
+2026-02-01,Caballito,BRONZE,40 - 44,9
+2026-02-01,Caballito,BRONZE,45 - 49,7
+2026-02-01,Caballito,BRONZE,50 - 54,5
+2026-02-01,Caballito,BRONZE,55 - 59,3
+2026-02-01,Caballito,BRONZE,60 - 64,7
+2026-02-01,Caballito,BRONZE,65 - 69,7
+2026-02-01,Caballito,BRONZE,70 y más,4
+2026-02-01,Caballito,BRONZE,Sin clasificación,1
+2026-02-01,Caballito,GOLD,18 - 24,2
+2026-02-01,Caballito,GOLD,25 - 29,24
+2026-02-01,Caballito,GOLD,30 - 34,39
+2026-02-01,Caballito,GOLD,35 - 39,42
+2026-02-01,Caballito,GOLD,40 - 44,45
+2026-02-01,Caballito,GOLD,45 - 49,31
+2026-02-01,Caballito,GOLD,50 - 54,26
+2026-02-01,Caballito,GOLD,55 - 59,12
+2026-02-01,Caballito,GOLD,60 - 64,17
+2026-02-01,Caballito,GOLD,65 - 69,16
+2026-02-01,Caballito,GOLD,70 y más,20
+2026-02-01,Caballito,GOLD,Sin clasificación,3
+2026-02-01,Caballito,MENOR_EDAD,13 - 17,4
+2026-02-01,Caballito,PLATINUM,18 - 24,3
+2026-02-01,Caballito,PLATINUM,25 - 29,11
+2026-02-01,Caballito,PLATINUM,30 - 34,33
+2026-02-01,Caballito,PLATINUM,35 - 39,55
+2026-02-01,Caballito,PLATINUM,40 - 44,67
+2026-02-01,Caballito,PLATINUM,45 - 49,59
+2026-02-01,Caballito,PLATINUM,50 - 54,50
+2026-02-01,Caballito,PLATINUM,55 - 59,33
+2026-02-01,Caballito,PLATINUM,60 - 64,24
+2026-02-01,Caballito,PLATINUM,65 - 69,11
+2026-02-01,Caballito,PLATINUM,70 y más,7
+2026-02-01,Caballito,SELLER,25 - 29,6
+2026-02-01,Caballito,SELLER,30 - 34,5
+2026-02-01,Caballito,SELLER,35 - 39,6
+2026-02-01,Caballito,SELLER,40 - 44,9
+2026-02-01,Caballito,SELLER,45 - 49,6
+2026-02-01,Caballito,SELLER,50 - 54,7
+2026-02-01,Caballito,SELLER,55 - 59,3
+2026-02-01,Caballito,SELLER,60 - 64,4
+2026-02-01,Caballito,SELLER,70 y más,2
+2026-02-01,Caballito,SELLER,Sin clasificación,26
+2026-02-01,Caballito,SILVER,18 - 24,5
+2026-02-01,Caballito,SILVER,25 - 29,13
+2026-02-01,Caballito,SILVER,30 - 34,20
+2026-02-01,Caballito,SILVER,35 - 39,14
+2026-02-01,Caballito,SILVER,40 - 44,14
+2026-02-01,Caballito,SILVER,45 - 49,13
+2026-02-01,Caballito,SILVER,50 - 54,3
+2026-02-01,Caballito,SILVER,55 - 59,3
+2026-02-01,Caballito,SILVER,60 - 64,7
+2026-02-01,Caballito,SILVER,65 - 69,12
+2026-02-01,Caballito,SILVER,70 y más,26
+2026-02-01,Caballito,SILVER,Sin clasificación,10
+2026-02-01,Scalabrini,BRONZE,18 - 24,25
+2026-02-01,Scalabrini,BRONZE,25 - 29,22
+2026-02-01,Scalabrini,BRONZE,30 - 34,16
+2026-02-01,Scalabrini,BRONZE,35 - 39,16
+2026-02-01,Scalabrini,BRONZE,40 - 44,11
+2026-02-01,Scalabrini,BRONZE,45 - 49,8
+2026-02-01,Scalabrini,BRONZE,50 - 54,8
+2026-02-01,Scalabrini,BRONZE,55 - 59,7
+2026-02-01,Scalabrini,BRONZE,60 - 64,3
+2026-02-01,Scalabrini,BRONZE,65 - 69,3
+2026-02-01,Scalabrini,BRONZE,70 y más,5
+2026-02-01,Scalabrini,BRONZE,Sin clasificación,4
+2026-02-01,Scalabrini,GOLD,18 - 24,7
+2026-02-01,Scalabrini,GOLD,25 - 29,18
+2026-02-01,Scalabrini,GOLD,30 - 34,27
+2026-02-01,Scalabrini,GOLD,35 - 39,28
+2026-02-01,Scalabrini,GOLD,40 - 44,19
+2026-02-01,Scalabrini,GOLD,45 - 49,35
+2026-02-01,Scalabrini,GOLD,50 - 54,16
+2026-02-01,Scalabrini,GOLD,55 - 59,19
+2026-02-01,Scalabrini,GOLD,60 - 64,12
+2026-02-01,Scalabrini,GOLD,65 - 69,11
+2026-02-01,Scalabrini,GOLD,70 y más,39
+2026-02-01,Scalabrini,GOLD,Sin clasificación,3
+2026-02-01,Scalabrini,PLATINUM,18 - 24,4
+2026-02-01,Scalabrini,PLATINUM,25 - 29,19
+2026-02-01,Scalabrini,PLATINUM,30 - 34,35
+2026-02-01,Scalabrini,PLATINUM,35 - 39,50
+2026-02-01,Scalabrini,PLATINUM,40 - 44,49
+2026-02-01,Scalabrini,PLATINUM,45 - 49,50
+2026-02-01,Scalabrini,PLATINUM,50 - 54,52
+2026-02-01,Scalabrini,PLATINUM,55 - 59,55
+2026-02-01,Scalabrini,PLATINUM,60 - 64,30
+2026-02-01,Scalabrini,PLATINUM,65 - 69,15
+2026-02-01,Scalabrini,PLATINUM,70 y más,27
+2026-02-01,Scalabrini,SELLER,18 - 24,2
+2026-02-01,Scalabrini,SELLER,25 - 29,8
+2026-02-01,Scalabrini,SELLER,30 - 34,6
+2026-02-01,Scalabrini,SELLER,35 - 39,8
+2026-02-01,Scalabrini,SELLER,40 - 44,8
+2026-02-01,Scalabrini,SELLER,45 - 49,8
+2026-02-01,Scalabrini,SELLER,50 - 54,3
+2026-02-01,Scalabrini,SELLER,55 - 59,9
+2026-02-01,Scalabrini,SELLER,60 - 64,4
+2026-02-01,Scalabrini,SELLER,65 - 69,2
+2026-02-01,Scalabrini,SELLER,70 y más,2
+2026-02-01,Scalabrini,SELLER,Sin clasificación,36
+2026-02-01,Scalabrini,SILVER,18 - 24,13
+2026-02-01,Scalabrini,SILVER,25 - 29,13
+2026-02-01,Scalabrini,SILVER,30 - 34,20
+2026-02-01,Scalabrini,SILVER,35 - 39,11
+2026-02-01,Scalabrini,SILVER,40 - 44,9
+2026-02-01,Scalabrini,SILVER,45 - 49,6
+2026-02-01,Scalabrini,SILVER,50 - 54,7
+2026-02-01,Scalabrini,SILVER,55 - 59,7
+2026-02-01,Scalabrini,SILVER,60 - 64,7
+2026-02-01,Scalabrini,SILVER,65 - 69,4
+2026-02-01,Scalabrini,SILVER,70 y más,28
+2026-02-01,Scalabrini,SILVER,Sin clasificación,29
+2026-02-01,Vicente Lopez,BRONZE,18 - 24,18
+2026-02-01,Vicente Lopez,BRONZE,25 - 29,13
+2026-02-01,Vicente Lopez,BRONZE,30 - 34,14
+2026-02-01,Vicente Lopez,BRONZE,35 - 39,10
+2026-02-01,Vicente Lopez,BRONZE,40 - 44,5
+2026-02-01,Vicente Lopez,BRONZE,45 - 49,6
+2026-02-01,Vicente Lopez,BRONZE,50 - 54,9
+2026-02-01,Vicente Lopez,BRONZE,55 - 59,2
+2026-02-01,Vicente Lopez,BRONZE,60 - 64,3
+2026-02-01,Vicente Lopez,BRONZE,65 - 69,2
+2026-02-01,Vicente Lopez,BRONZE,70 y más,5
+2026-02-01,Vicente Lopez,BRONZE,Outliers,1
+2026-02-01,Vicente Lopez,GOLD,18 - 24,6
+2026-02-01,Vicente Lopez,GOLD,25 - 29,19
+2026-02-01,Vicente Lopez,GOLD,30 - 34,26
+2026-02-01,Vicente Lopez,GOLD,35 - 39,37
+2026-02-01,Vicente Lopez,GOLD,40 - 44,36
+2026-02-01,Vicente Lopez,GOLD,45 - 49,32
+2026-02-01,Vicente Lopez,GOLD,50 - 54,21
+2026-02-01,Vicente Lopez,GOLD,55 - 59,19
+2026-02-01,Vicente Lopez,GOLD,60 - 64,15
+2026-02-01,Vicente Lopez,GOLD,65 - 69,8
+2026-02-01,Vicente Lopez,GOLD,70 y más,28
+2026-02-01,Vicente Lopez,GOLD,Sin clasificación,7
+2026-02-01,Vicente Lopez,MENOR_EDAD,13 - 17,1
+2026-02-01,Vicente Lopez,PLATINUM,18 - 24,3
+2026-02-01,Vicente Lopez,PLATINUM,25 - 29,22
+2026-02-01,Vicente Lopez,PLATINUM,30 - 34,39
+2026-02-01,Vicente Lopez,PLATINUM,35 - 39,51
+2026-02-01,Vicente Lopez,PLATINUM,40 - 44,91
+2026-02-01,Vicente Lopez,PLATINUM,45 - 49,69
+2026-02-01,Vicente Lopez,PLATINUM,50 - 54,56
+2026-02-01,Vicente Lopez,PLATINUM,55 - 59,37
+2026-02-01,Vicente Lopez,PLATINUM,60 - 64,30
+2026-02-01,Vicente Lopez,PLATINUM,65 - 69,15
+2026-02-01,Vicente Lopez,PLATINUM,70 y más,17
+2026-02-01,Vicente Lopez,SELLER,18 - 24,1
+2026-02-01,Vicente Lopez,SELLER,25 - 29,1
+2026-02-01,Vicente Lopez,SELLER,30 - 34,7
+2026-02-01,Vicente Lopez,SELLER,35 - 39,8
+2026-02-01,Vicente Lopez,SELLER,40 - 44,7
+2026-02-01,Vicente Lopez,SELLER,45 - 49,7
+2026-02-01,Vicente Lopez,SELLER,50 - 54,6
+2026-02-01,Vicente Lopez,SELLER,55 - 59,7
+2026-02-01,Vicente Lopez,SELLER,60 - 64,2
+2026-02-01,Vicente Lopez,SELLER,65 - 69,1
+2026-02-01,Vicente Lopez,SELLER,70 y más,3
+2026-02-01,Vicente Lopez,SELLER,Sin clasificación,37
+2026-02-01,Vicente Lopez,SILVER,18 - 24,6
+2026-02-01,Vicente Lopez,SILVER,25 - 29,8
+2026-02-01,Vicente Lopez,SILVER,30 - 34,13
+2026-02-01,Vicente Lopez,SILVER,35 - 39,10
+2026-02-01,Vicente Lopez,SILVER,40 - 44,10
+2026-02-01,Vicente Lopez,SILVER,45 - 49,9
+2026-02-01,Vicente Lopez,SILVER,50 - 54,9
+2026-02-01,Vicente Lopez,SILVER,55 - 59,8
+2026-02-01,Vicente Lopez,SILVER,60 - 64,4
+2026-02-01,Vicente Lopez,SILVER,65 - 69,10
+2026-02-01,Vicente Lopez,SILVER,70 y más,29
+2026-02-01,Vicente Lopez,SILVER,Sin clasificación,16
+2026-02-01,Villa Urquiza,BRONZE,18 - 24,7
+2026-02-01,Villa Urquiza,BRONZE,25 - 29,8
+2026-02-01,Villa Urquiza,BRONZE,30 - 34,9
+2026-02-01,Villa Urquiza,BRONZE,35 - 39,6
+2026-02-01,Villa Urquiza,BRONZE,40 - 44,8
+2026-02-01,Villa Urquiza,BRONZE,45 - 49,9
+2026-02-01,Villa Urquiza,BRONZE,50 - 54,5
+2026-02-01,Villa Urquiza,BRONZE,55 - 59,6
+2026-02-01,Villa Urquiza,BRONZE,60 - 64,4
+2026-02-01,Villa Urquiza,BRONZE,65 - 69,3
+2026-02-01,Villa Urquiza,BRONZE,70 y más,6
+2026-02-01,Villa Urquiza,BRONZE,Sin clasificación,1
+2026-02-01,Villa Urquiza,GOLD,18 - 24,5
+2026-02-01,Villa Urquiza,GOLD,25 - 29,12
+2026-02-01,Villa Urquiza,GOLD,30 - 34,18
+2026-02-01,Villa Urquiza,GOLD,35 - 39,32
+2026-02-01,Villa Urquiza,GOLD,40 - 44,33
+2026-02-01,Villa Urquiza,GOLD,45 - 49,23
+2026-02-01,Villa Urquiza,GOLD,50 - 54,19
+2026-02-01,Villa Urquiza,GOLD,55 - 59,11
+2026-02-01,Villa Urquiza,GOLD,60 - 64,14
+2026-02-01,Villa Urquiza,GOLD,65 - 69,12
+2026-02-01,Villa Urquiza,GOLD,70 y más,11
+2026-02-01,Villa Urquiza,GOLD,Sin clasificación,4
+2026-02-01,Villa Urquiza,PLATINUM,18 - 24,1
+2026-02-01,Villa Urquiza,PLATINUM,25 - 29,11
+2026-02-01,Villa Urquiza,PLATINUM,30 - 34,21
+2026-02-01,Villa Urquiza,PLATINUM,35 - 39,40
+2026-02-01,Villa Urquiza,PLATINUM,40 - 44,53
+2026-02-01,Villa Urquiza,PLATINUM,45 - 49,29
+2026-02-01,Villa Urquiza,PLATINUM,50 - 54,33
+2026-02-01,Villa Urquiza,PLATINUM,55 - 59,23
+2026-02-01,Villa Urquiza,PLATINUM,60 - 64,21
+2026-02-01,Villa Urquiza,PLATINUM,65 - 69,10
+2026-02-01,Villa Urquiza,PLATINUM,70 y más,9
+2026-02-01,Villa Urquiza,SELLER,18 - 24,2
+2026-02-01,Villa Urquiza,SELLER,25 - 29,2
+2026-02-01,Villa Urquiza,SELLER,30 - 34,8
+2026-02-01,Villa Urquiza,SELLER,35 - 39,8
+2026-02-01,Villa Urquiza,SELLER,40 - 44,3
+2026-02-01,Villa Urquiza,SELLER,45 - 49,3
+2026-02-01,Villa Urquiza,SELLER,50 - 54,2
+2026-02-01,Villa Urquiza,SELLER,55 - 59,3
+2026-02-01,Villa Urquiza,SELLER,60 - 64,1
+2026-02-01,Villa Urquiza,SELLER,65 - 69,2
+2026-02-01,Villa Urquiza,SELLER,70 y más,3
+2026-02-01,Villa Urquiza,SELLER,Sin clasificación,10
+2026-02-01,Villa Urquiza,SILVER,18 - 24,3
+2026-02-01,Villa Urquiza,SILVER,25 - 29,8
+2026-02-01,Villa Urquiza,SILVER,30 - 34,6
+2026-02-01,Villa Urquiza,SILVER,35 - 39,11
+2026-02-01,Villa Urquiza,SILVER,40 - 44,8
+2026-02-01,Villa Urquiza,SILVER,45 - 49,1
+2026-02-01,Villa Urquiza,SILVER,50 - 54,7
+2026-02-01,Villa Urquiza,SILVER,55 - 59,7
+2026-02-01,Villa Urquiza,SILVER,60 - 64,6
+2026-02-01,Villa Urquiza,SILVER,65 - 69,7
+2026-02-01,Villa Urquiza,SILVER,70 y más,23
+2026-02-01,Villa Urquiza,SILVER,Sin clasificación,7
+2026-03-01,Caballito,BRONZE,18 - 24,22
+2026-03-01,Caballito,BRONZE,25 - 29,8
+2026-03-01,Caballito,BRONZE,30 - 34,15
+2026-03-01,Caballito,BRONZE,35 - 39,15
+2026-03-01,Caballito,BRONZE,40 - 44,15
+2026-03-01,Caballito,BRONZE,45 - 49,12
+2026-03-01,Caballito,BRONZE,50 - 54,3
+2026-03-01,Caballito,BRONZE,55 - 59,9
+2026-03-01,Caballito,BRONZE,60 - 64,5
+2026-03-01,Caballito,BRONZE,65 - 69,9
+2026-03-01,Caballito,BRONZE,70 y más,6
+2026-03-01,Caballito,BRONZE,Sin clasificación,2
+2026-03-01,Caballito,GOLD,18 - 24,10
+2026-03-01,Caballito,GOLD,25 - 29,18
+2026-03-01,Caballito,GOLD,30 - 34,27
+2026-03-01,Caballito,GOLD,35 - 39,46
+2026-03-01,Caballito,GOLD,40 - 44,40
+2026-03-01,Caballito,GOLD,45 - 49,28
+2026-03-01,Caballito,GOLD,50 - 54,32
+2026-03-01,Caballito,GOLD,55 - 59,26
+2026-03-01,Caballito,GOLD,60 - 64,17
+2026-03-01,Caballito,GOLD,65 - 69,18
+2026-03-01,Caballito,GOLD,70 y más,25
+2026-03-01,Caballito,GOLD,Sin clasificación,3
+2026-03-01,Caballito,MENOR_EDAD,13 - 17,2
+2026-03-01,Caballito,NA,Sin clasificación,1
+2026-03-01,Caballito,PLATINUM,18 - 24,2
+2026-03-01,Caballito,PLATINUM,25 - 29,14
+2026-03-01,Caballito,PLATINUM,30 - 34,29
+2026-03-01,Caballito,PLATINUM,35 - 39,57
+2026-03-01,Caballito,PLATINUM,40 - 44,58
+2026-03-01,Caballito,PLATINUM,45 - 49,53
+2026-03-01,Caballito,PLATINUM,50 - 54,57
+2026-03-01,Caballito,PLATINUM,55 - 59,32
+2026-03-01,Caballito,PLATINUM,60 - 64,21
+2026-03-01,Caballito,PLATINUM,65 - 69,18
+2026-03-01,Caballito,PLATINUM,70 y más,17
+2026-03-01,Caballito,SELLER,18 - 24,1
+2026-03-01,Caballito,SELLER,25 - 29,8
+2026-03-01,Caballito,SELLER,30 - 34,5
+2026-03-01,Caballito,SELLER,35 - 39,17
+2026-03-01,Caballito,SELLER,40 - 44,6
+2026-03-01,Caballito,SELLER,45 - 49,11
+2026-03-01,Caballito,SELLER,50 - 54,8
+2026-03-01,Caballito,SELLER,55 - 59,4
+2026-03-01,Caballito,SELLER,60 - 64,5
+2026-03-01,Caballito,SELLER,65 - 69,1
+2026-03-01,Caballito,SELLER,70 y más,4
+2026-03-01,Caballito,SELLER,Sin clasificación,28
+2026-03-01,Caballito,SILVER,18 - 24,5
+2026-03-01,Caballito,SILVER,25 - 29,14
+2026-03-01,Caballito,SILVER,30 - 34,18
+2026-03-01,Caballito,SILVER,35 - 39,18
+2026-03-01,Caballito,SILVER,40 - 44,13
+2026-03-01,Caballito,SILVER,45 - 49,14
+2026-03-01,Caballito,SILVER,50 - 54,10
+2026-03-01,Caballito,SILVER,55 - 59,7
+2026-03-01,Caballito,SILVER,60 - 64,10
+2026-03-01,Caballito,SILVER,65 - 69,17
+2026-03-01,Caballito,SILVER,70 y más,42
+2026-03-01,Caballito,SILVER,Sin clasificación,20
+2026-03-01,Scalabrini,BRONZE,18 - 24,26
+2026-03-01,Scalabrini,BRONZE,25 - 29,22
+2026-03-01,Scalabrini,BRONZE,30 - 34,22
+2026-03-01,Scalabrini,BRONZE,35 - 39,21
+2026-03-01,Scalabrini,BRONZE,40 - 44,20
+2026-03-01,Scalabrini,BRONZE,45 - 49,8
+2026-03-01,Scalabrini,BRONZE,50 - 54,14
+2026-03-01,Scalabrini,BRONZE,55 - 59,16
+2026-03-01,Scalabrini,BRONZE,60 - 64,6
+2026-03-01,Scalabrini,BRONZE,65 - 69,4
+2026-03-01,Scalabrini,BRONZE,70 y más,7
+2026-03-01,Scalabrini,BRONZE,Sin clasificación,9
+2026-03-01,Scalabrini,GOLD,18 - 24,7
+2026-03-01,Scalabrini,GOLD,25 - 29,21
+2026-03-01,Scalabrini,GOLD,30 - 34,33
+2026-03-01,Scalabrini,GOLD,35 - 39,36
+2026-03-01,Scalabrini,GOLD,40 - 44,37
+2026-03-01,Scalabrini,GOLD,45 - 49,39
+2026-03-01,Scalabrini,GOLD,50 - 54,28
+2026-03-01,Scalabrini,GOLD,55 - 59,30
+2026-03-01,Scalabrini,GOLD,60 - 64,16
+2026-03-01,Scalabrini,GOLD,65 - 69,13
+2026-03-01,Scalabrini,GOLD,70 y más,34
+2026-03-01,Scalabrini,GOLD,Sin clasificación,4
+2026-03-01,Scalabrini,MENOR_EDAD,13 - 17,2
+2026-03-01,Scalabrini,NA,Sin clasificación,1
+2026-03-01,Scalabrini,PLATINUM,18 - 24,1
+2026-03-01,Scalabrini,PLATINUM,25 - 29,22
+2026-03-01,Scalabrini,PLATINUM,30 - 34,37
+2026-03-01,Scalabrini,PLATINUM,35 - 39,53
+2026-03-01,Scalabrini,PLATINUM,40 - 44,70
+2026-03-01,Scalabrini,PLATINUM,45 - 49,70
+2026-03-01,Scalabrini,PLATINUM,50 - 54,54
+2026-03-01,Scalabrini,PLATINUM,55 - 59,65
+2026-03-01,Scalabrini,PLATINUM,60 - 64,37
+2026-03-01,Scalabrini,PLATINUM,65 - 69,33
+2026-03-01,Scalabrini,PLATINUM,70 y más,40
+2026-03-01,Scalabrini,PLATINUM,Sin clasificación,2
+2026-03-01,Scalabrini,SELLER,18 - 24,6
+2026-03-01,Scalabrini,SELLER,25 - 29,5
+2026-03-01,Scalabrini,SELLER,30 - 34,14
+2026-03-01,Scalabrini,SELLER,35 - 39,7
+2026-03-01,Scalabrini,SELLER,40 - 44,13
+2026-03-01,Scalabrini,SELLER,45 - 49,6
+2026-03-01,Scalabrini,SELLER,50 - 54,4
+2026-03-01,Scalabrini,SELLER,55 - 59,10
+2026-03-01,Scalabrini,SELLER,60 - 64,3
+2026-03-01,Scalabrini,SELLER,65 - 69,2
+2026-03-01,Scalabrini,SELLER,70 y más,2
+2026-03-01,Scalabrini,SELLER,Sin clasificación,47
+2026-03-01,Scalabrini,SILVER,18 - 24,13
+2026-03-01,Scalabrini,SILVER,25 - 29,11
+2026-03-01,Scalabrini,SILVER,30 - 34,21
+2026-03-01,Scalabrini,SILVER,35 - 39,16
+2026-03-01,Scalabrini,SILVER,40 - 44,15
+2026-03-01,Scalabrini,SILVER,45 - 49,12
+2026-03-01,Scalabrini,SILVER,50 - 54,11
+2026-03-01,Scalabrini,SILVER,55 - 59,9
+2026-03-01,Scalabrini,SILVER,60 - 64,6
+2026-03-01,Scalabrini,SILVER,65 - 69,4
+2026-03-01,Scalabrini,SILVER,70 y más,31
+2026-03-01,Scalabrini,SILVER,Sin clasificación,43
+2026-03-01,Vicente Lopez,BRONZE,18 - 24,24
+2026-03-01,Vicente Lopez,BRONZE,25 - 29,10
+2026-03-01,Vicente Lopez,BRONZE,30 - 34,11
+2026-03-01,Vicente Lopez,BRONZE,35 - 39,12
+2026-03-01,Vicente Lopez,BRONZE,40 - 44,18
+2026-03-01,Vicente Lopez,BRONZE,45 - 49,9
+2026-03-01,Vicente Lopez,BRONZE,50 - 54,11
+2026-03-01,Vicente Lopez,BRONZE,55 - 59,4
+2026-03-01,Vicente Lopez,BRONZE,60 - 64,3
+2026-03-01,Vicente Lopez,BRONZE,65 - 69,4
+2026-03-01,Vicente Lopez,BRONZE,70 y más,7
+2026-03-01,Vicente Lopez,BRONZE,Sin clasificación,1
+2026-03-01,Vicente Lopez,GOLD,18 - 24,7
+2026-03-01,Vicente Lopez,GOLD,25 - 29,30
+2026-03-01,Vicente Lopez,GOLD,30 - 34,30
+2026-03-01,Vicente Lopez,GOLD,35 - 39,41
+2026-03-01,Vicente Lopez,GOLD,40 - 44,32
+2026-03-01,Vicente Lopez,GOLD,45 - 49,41
+2026-03-01,Vicente Lopez,GOLD,50 - 54,26
+2026-03-01,Vicente Lopez,GOLD,55 - 59,26
+2026-03-01,Vicente Lopez,GOLD,60 - 64,14
+2026-03-01,Vicente Lopez,GOLD,65 - 69,15
+2026-03-01,Vicente Lopez,GOLD,70 y más,36
+2026-03-01,Vicente Lopez,GOLD,Sin clasificación,8
+2026-03-01,Vicente Lopez,MENOR_EDAD,10 - 12,1
+2026-03-01,Vicente Lopez,MENOR_EDAD,13 - 17,2
+2026-03-01,Vicente Lopez,PLATINUM,18 - 24,5
+2026-03-01,Vicente Lopez,PLATINUM,25 - 29,20
+2026-03-01,Vicente Lopez,PLATINUM,30 - 34,45
+2026-03-01,Vicente Lopez,PLATINUM,35 - 39,64
+2026-03-01,Vicente Lopez,PLATINUM,40 - 44,93
+2026-03-01,Vicente Lopez,PLATINUM,45 - 49,83
+2026-03-01,Vicente Lopez,PLATINUM,50 - 54,75
+2026-03-01,Vicente Lopez,PLATINUM,55 - 59,49
+2026-03-01,Vicente Lopez,PLATINUM,60 - 64,19
+2026-03-01,Vicente Lopez,PLATINUM,65 - 69,26
+2026-03-01,Vicente Lopez,PLATINUM,70 y más,36
+2026-03-01,Vicente Lopez,PLATINUM,Sin clasificación,1
+2026-03-01,Vicente Lopez,SELLER,18 - 24,3
+2026-03-01,Vicente Lopez,SELLER,25 - 29,4
+2026-03-01,Vicente Lopez,SELLER,30 - 34,6
+2026-03-01,Vicente Lopez,SELLER,35 - 39,6
+2026-03-01,Vicente Lopez,SELLER,40 - 44,15
+2026-03-01,Vicente Lopez,SELLER,45 - 49,5
+2026-03-01,Vicente Lopez,SELLER,50 - 54,11
+2026-03-01,Vicente Lopez,SELLER,55 - 59,4
+2026-03-01,Vicente Lopez,SELLER,60 - 64,1
+2026-03-01,Vicente Lopez,SELLER,65 - 69,4
+2026-03-01,Vicente Lopez,SELLER,70 y más,6
+2026-03-01,Vicente Lopez,SELLER,Sin clasificación,41
+2026-03-01,Vicente Lopez,SILVER,18 - 24,7
+2026-03-01,Vicente Lopez,SILVER,25 - 29,19
+2026-03-01,Vicente Lopez,SILVER,30 - 34,18
+2026-03-01,Vicente Lopez,SILVER,35 - 39,13
+2026-03-01,Vicente Lopez,SILVER,40 - 44,8
+2026-03-01,Vicente Lopez,SILVER,45 - 49,10
+2026-03-01,Vicente Lopez,SILVER,50 - 54,10
+2026-03-01,Vicente Lopez,SILVER,55 - 59,5
+2026-03-01,Vicente Lopez,SILVER,60 - 64,8
+2026-03-01,Vicente Lopez,SILVER,65 - 69,8
+2026-03-01,Vicente Lopez,SILVER,70 y más,24
+2026-03-01,Vicente Lopez,SILVER,Sin clasificación,28
+2026-03-01,Villa Urquiza,BRONZE,18 - 24,12
+2026-03-01,Villa Urquiza,BRONZE,25 - 29,6
+2026-03-01,Villa Urquiza,BRONZE,30 - 34,10
+2026-03-01,Villa Urquiza,BRONZE,35 - 39,7
+2026-03-01,Villa Urquiza,BRONZE,40 - 44,7
+2026-03-01,Villa Urquiza,BRONZE,45 - 49,6
+2026-03-01,Villa Urquiza,BRONZE,50 - 54,11
+2026-03-01,Villa Urquiza,BRONZE,55 - 59,4
+2026-03-01,Villa Urquiza,BRONZE,60 - 64,2
+2026-03-01,Villa Urquiza,BRONZE,65 - 69,1
+2026-03-01,Villa Urquiza,BRONZE,70 y más,9
+2026-03-01,Villa Urquiza,BRONZE,Sin clasificación,2
+2026-03-01,Villa Urquiza,GOLD,18 - 24,5
+2026-03-01,Villa Urquiza,GOLD,25 - 29,10
+2026-03-01,Villa Urquiza,GOLD,30 - 34,27
+2026-03-01,Villa Urquiza,GOLD,35 - 39,28
+2026-03-01,Villa Urquiza,GOLD,40 - 44,31
+2026-03-01,Villa Urquiza,GOLD,45 - 49,31
+2026-03-01,Villa Urquiza,GOLD,50 - 54,15
+2026-03-01,Villa Urquiza,GOLD,55 - 59,13
+2026-03-01,Villa Urquiza,GOLD,60 - 64,19
+2026-03-01,Villa Urquiza,GOLD,65 - 69,8
+2026-03-01,Villa Urquiza,GOLD,70 y más,14
+2026-03-01,Villa Urquiza,GOLD,Sin clasificación,9
+2026-03-01,Villa Urquiza,NA,Sin clasificación,1
+2026-03-01,Villa Urquiza,PLATINUM,18 - 24,2
+2026-03-01,Villa Urquiza,PLATINUM,25 - 29,13
+2026-03-01,Villa Urquiza,PLATINUM,30 - 34,20
+2026-03-01,Villa Urquiza,PLATINUM,35 - 39,39
+2026-03-01,Villa Urquiza,PLATINUM,40 - 44,61
+2026-03-01,Villa Urquiza,PLATINUM,45 - 49,48
+2026-03-01,Villa Urquiza,PLATINUM,50 - 54,33
+2026-03-01,Villa Urquiza,PLATINUM,55 - 59,25
+2026-03-01,Villa Urquiza,PLATINUM,60 - 64,25
+2026-03-01,Villa Urquiza,PLATINUM,65 - 69,7
+2026-03-01,Villa Urquiza,PLATINUM,70 y más,12
+2026-03-01,Villa Urquiza,SELLER,18 - 24,1
+2026-03-01,Villa Urquiza,SELLER,25 - 29,5
+2026-03-01,Villa Urquiza,SELLER,30 - 34,7
+2026-03-01,Villa Urquiza,SELLER,35 - 39,3
+2026-03-01,Villa Urquiza,SELLER,40 - 44,8
+2026-03-01,Villa Urquiza,SELLER,45 - 49,10
+2026-03-01,Villa Urquiza,SELLER,50 - 54,7
+2026-03-01,Villa Urquiza,SELLER,55 - 59,4
+2026-03-01,Villa Urquiza,SELLER,60 - 64,5
+2026-03-01,Villa Urquiza,SELLER,70 y más,6
+2026-03-01,Villa Urquiza,SELLER,Sin clasificación,19
+2026-03-01,Villa Urquiza,SILVER,18 - 24,3
+2026-03-01,Villa Urquiza,SILVER,25 - 29,12
+2026-03-01,Villa Urquiza,SILVER,30 - 34,14
+2026-03-01,Villa Urquiza,SILVER,35 - 39,7
+2026-03-01,Villa Urquiza,SILVER,40 - 44,13
+2026-03-01,Villa Urquiza,SILVER,45 - 49,10
+2026-03-01,Villa Urquiza,SILVER,50 - 54,8
+2026-03-01,Villa Urquiza,SILVER,55 - 59,3
+2026-03-01,Villa Urquiza,SILVER,60 - 64,9
+2026-03-01,Villa Urquiza,SILVER,65 - 69,9
+2026-03-01,Villa Urquiza,SILVER,70 y más,21
+2026-03-01,Villa Urquiza,SILVER,Sin clasificación,13
+2026-04-01,Caballito,BRONZE,18 - 24,4
+2026-04-01,Caballito,BRONZE,25 - 29,3
+2026-04-01,Caballito,BRONZE,35 - 39,6
+2026-04-01,Caballito,BRONZE,40 - 44,3
+2026-04-01,Caballito,BRONZE,45 - 49,5
+2026-04-01,Caballito,BRONZE,50 - 54,3
+2026-04-01,Caballito,BRONZE,55 - 59,3
+2026-04-01,Caballito,BRONZE,60 - 64,2
+2026-04-01,Caballito,BRONZE,65 - 69,2
+2026-04-01,Caballito,BRONZE,70 y más,3
+2026-04-01,Caballito,GOLD,18 - 24,3
+2026-04-01,Caballito,GOLD,25 - 29,3
+2026-04-01,Caballito,GOLD,30 - 34,8
+2026-04-01,Caballito,GOLD,35 - 39,12
+2026-04-01,Caballito,GOLD,40 - 44,10
+2026-04-01,Caballito,GOLD,45 - 49,11
+2026-04-01,Caballito,GOLD,50 - 54,19
+2026-04-01,Caballito,GOLD,55 - 59,16
+2026-04-01,Caballito,GOLD,60 - 64,6
+2026-04-01,Caballito,GOLD,65 - 69,10
+2026-04-01,Caballito,GOLD,70 y más,9
+2026-04-01,Caballito,MENOR_EDAD,13 - 17,1
+2026-04-01,Caballito,NA,Sin clasificación,1
+2026-04-01,Caballito,PLATINUM,18 - 24,1
+2026-04-01,Caballito,PLATINUM,25 - 29,1
+2026-04-01,Caballito,PLATINUM,30 - 34,10
+2026-04-01,Caballito,PLATINUM,35 - 39,18
+2026-04-01,Caballito,PLATINUM,40 - 44,18
+2026-04-01,Caballito,PLATINUM,45 - 49,22
+2026-04-01,Caballito,PLATINUM,50 - 54,21
+2026-04-01,Caballito,PLATINUM,55 - 59,13
+2026-04-01,Caballito,PLATINUM,60 - 64,9
+2026-04-01,Caballito,PLATINUM,65 - 69,4
+2026-04-01,Caballito,PLATINUM,70 y más,3
+2026-04-01,Caballito,SELLER,25 - 29,2
+2026-04-01,Caballito,SELLER,30 - 34,4
+2026-04-01,Caballito,SELLER,35 - 39,2
+2026-04-01,Caballito,SELLER,40 - 44,3
+2026-04-01,Caballito,SELLER,45 - 49,6
+2026-04-01,Caballito,SELLER,50 - 54,5
+2026-04-01,Caballito,SELLER,55 - 59,2
+2026-04-01,Caballito,SELLER,60 - 64,2
+2026-04-01,Caballito,SELLER,65 - 69,2
+2026-04-01,Caballito,SELLER,Sin clasificación,8
+2026-04-01,Caballito,SILVER,18 - 24,3
+2026-04-01,Caballito,SILVER,25 - 29,4
+2026-04-01,Caballito,SILVER,30 - 34,6
+2026-04-01,Caballito,SILVER,35 - 39,10
+2026-04-01,Caballito,SILVER,40 - 44,8
+2026-04-01,Caballito,SILVER,45 - 49,5
+2026-04-01,Caballito,SILVER,50 - 54,5
+2026-04-01,Caballito,SILVER,55 - 59,2
+2026-04-01,Caballito,SILVER,60 - 64,1
+2026-04-01,Caballito,SILVER,65 - 69,7
+2026-04-01,Caballito,SILVER,70 y más,17
+2026-04-01,Caballito,SILVER,Sin clasificación,4
+2026-04-01,Scalabrini,BRONZE,18 - 24,9
+2026-04-01,Scalabrini,BRONZE,25 - 29,8
+2026-04-01,Scalabrini,BRONZE,30 - 34,8
+2026-04-01,Scalabrini,BRONZE,35 - 39,10
+2026-04-01,Scalabrini,BRONZE,40 - 44,5
+2026-04-01,Scalabrini,BRONZE,45 - 49,3
+2026-04-01,Scalabrini,BRONZE,50 - 54,1
+2026-04-01,Scalabrini,BRONZE,55 - 59,1
+2026-04-01,Scalabrini,BRONZE,60 - 64,2
+2026-04-01,Scalabrini,BRONZE,65 - 69,3
+2026-04-01,Scalabrini,BRONZE,70 y más,2
+2026-04-01,Scalabrini,BRONZE,Sin clasificación,5
+2026-04-01,Scalabrini,GOLD,18 - 24,3
+2026-04-01,Scalabrini,GOLD,25 - 29,6
+2026-04-01,Scalabrini,GOLD,30 - 34,14
+2026-04-01,Scalabrini,GOLD,35 - 39,7
+2026-04-01,Scalabrini,GOLD,40 - 44,18
+2026-04-01,Scalabrini,GOLD,45 - 49,12
+2026-04-01,Scalabrini,GOLD,50 - 54,16
+2026-04-01,Scalabrini,GOLD,55 - 59,10
+2026-04-01,Scalabrini,GOLD,60 - 64,7
+2026-04-01,Scalabrini,GOLD,65 - 69,3
+2026-04-01,Scalabrini,GOLD,70 y más,18
+2026-04-01,Scalabrini,MENOR_EDAD,13 - 17,2
+2026-04-01,Scalabrini,NA,Sin clasificación,1
+2026-04-01,Scalabrini,PLATINUM,25 - 29,3
+2026-04-01,Scalabrini,PLATINUM,30 - 34,8
+2026-04-01,Scalabrini,PLATINUM,35 - 39,19
+2026-04-01,Scalabrini,PLATINUM,40 - 44,12
+2026-04-01,Scalabrini,PLATINUM,45 - 49,26
+2026-04-01,Scalabrini,PLATINUM,50 - 54,17
+2026-04-01,Scalabrini,PLATINUM,55 - 59,22
+2026-04-01,Scalabrini,PLATINUM,60 - 64,10
+2026-04-01,Scalabrini,PLATINUM,65 - 69,10
+2026-04-01,Scalabrini,PLATINUM,70 y más,14
+2026-04-01,Scalabrini,SELLER,25 - 29,2
+2026-04-01,Scalabrini,SELLER,30 - 34,6
+2026-04-01,Scalabrini,SELLER,35 - 39,2
+2026-04-01,Scalabrini,SELLER,40 - 44,3
+2026-04-01,Scalabrini,SELLER,45 - 49,2
+2026-04-01,Scalabrini,SELLER,50 - 54,2
+2026-04-01,Scalabrini,SELLER,55 - 59,1
+2026-04-01,Scalabrini,SELLER,60 - 64,2
+2026-04-01,Scalabrini,SELLER,Sin clasificación,20
+2026-04-01,Scalabrini,SILVER,18 - 24,4
+2026-04-01,Scalabrini,SILVER,25 - 29,7
+2026-04-01,Scalabrini,SILVER,30 - 34,6
+2026-04-01,Scalabrini,SILVER,35 - 39,4
+2026-04-01,Scalabrini,SILVER,40 - 44,5
+2026-04-01,Scalabrini,SILVER,45 - 49,5
+2026-04-01,Scalabrini,SILVER,55 - 59,5
+2026-04-01,Scalabrini,SILVER,60 - 64,1
+2026-04-01,Scalabrini,SILVER,65 - 69,4
+2026-04-01,Scalabrini,SILVER,70 y más,11
+2026-04-01,Scalabrini,SILVER,Sin clasificación,15
+2026-04-01,Vicente Lopez,BRONZE,18 - 24,6
+2026-04-01,Vicente Lopez,BRONZE,25 - 29,6
+2026-04-01,Vicente Lopez,BRONZE,30 - 34,5
+2026-04-01,Vicente Lopez,BRONZE,35 - 39,5
+2026-04-01,Vicente Lopez,BRONZE,40 - 44,4
+2026-04-01,Vicente Lopez,BRONZE,45 - 49,4
+2026-04-01,Vicente Lopez,BRONZE,50 - 54,7
+2026-04-01,Vicente Lopez,BRONZE,55 - 59,3
+2026-04-01,Vicente Lopez,BRONZE,65 - 69,4
+2026-04-01,Vicente Lopez,BRONZE,70 y más,3
+2026-04-01,Vicente Lopez,BRONZE,Sin clasificación,1
+2026-04-01,Vicente Lopez,GOLD,25 - 29,9
+2026-04-01,Vicente Lopez,GOLD,30 - 34,13
+2026-04-01,Vicente Lopez,GOLD,35 - 39,16
+2026-04-01,Vicente Lopez,GOLD,40 - 44,18
+2026-04-01,Vicente Lopez,GOLD,45 - 49,21
+2026-04-01,Vicente Lopez,GOLD,50 - 54,12
+2026-04-01,Vicente Lopez,GOLD,55 - 59,12
+2026-04-01,Vicente Lopez,GOLD,60 - 64,5
+2026-04-01,Vicente Lopez,GOLD,65 - 69,7
+2026-04-01,Vicente Lopez,GOLD,70 y más,11
+2026-04-01,Vicente Lopez,GOLD,Sin clasificación,3
+2026-04-01,Vicente Lopez,MENOR_EDAD,13 - 17,1
+2026-04-01,Vicente Lopez,PLATINUM,25 - 29,6
+2026-04-01,Vicente Lopez,PLATINUM,30 - 34,12
+2026-04-01,Vicente Lopez,PLATINUM,35 - 39,16
+2026-04-01,Vicente Lopez,PLATINUM,40 - 44,39
+2026-04-01,Vicente Lopez,PLATINUM,45 - 49,32
+2026-04-01,Vicente Lopez,PLATINUM,50 - 54,25
+2026-04-01,Vicente Lopez,PLATINUM,55 - 59,21
+2026-04-01,Vicente Lopez,PLATINUM,60 - 64,20
+2026-04-01,Vicente Lopez,PLATINUM,65 - 69,18
+2026-04-01,Vicente Lopez,PLATINUM,70 y más,12
+2026-04-01,Vicente Lopez,SELLER,18 - 24,1
+2026-04-01,Vicente Lopez,SELLER,25 - 29,1
+2026-04-01,Vicente Lopez,SELLER,30 - 34,3
+2026-04-01,Vicente Lopez,SELLER,35 - 39,2
+2026-04-01,Vicente Lopez,SELLER,40 - 44,1
+2026-04-01,Vicente Lopez,SELLER,50 - 54,3
+2026-04-01,Vicente Lopez,SELLER,55 - 59,1
+2026-04-01,Vicente Lopez,SELLER,60 - 64,1
+2026-04-01,Vicente Lopez,SELLER,70 y más,1
+2026-04-01,Vicente Lopez,SELLER,Sin clasificación,14
+2026-04-01,Vicente Lopez,SILVER,25 - 29,3
+2026-04-01,Vicente Lopez,SILVER,30 - 34,6
+2026-04-01,Vicente Lopez,SILVER,35 - 39,7
+2026-04-01,Vicente Lopez,SILVER,40 - 44,3
+2026-04-01,Vicente Lopez,SILVER,45 - 49,2
+2026-04-01,Vicente Lopez,SILVER,50 - 54,6
+2026-04-01,Vicente Lopez,SILVER,55 - 59,6
+2026-04-01,Vicente Lopez,SILVER,60 - 64,1
+2026-04-01,Vicente Lopez,SILVER,65 - 69,3
+2026-04-01,Vicente Lopez,SILVER,70 y más,16
+2026-04-01,Vicente Lopez,SILVER,Sin clasificación,13
+2026-04-01,Villa Urquiza,BRONZE,18 - 24,3
+2026-04-01,Villa Urquiza,BRONZE,25 - 29,4
+2026-04-01,Villa Urquiza,BRONZE,30 - 34,4
+2026-04-01,Villa Urquiza,BRONZE,35 - 39,3
+2026-04-01,Villa Urquiza,BRONZE,40 - 44,3
+2026-04-01,Villa Urquiza,BRONZE,45 - 49,1
+2026-04-01,Villa Urquiza,BRONZE,50 - 54,5
+2026-04-01,Villa Urquiza,BRONZE,55 - 59,1
+2026-04-01,Villa Urquiza,BRONZE,60 - 64,1
+2026-04-01,Villa Urquiza,BRONZE,65 - 69,2
+2026-04-01,Villa Urquiza,BRONZE,70 y más,8
+2026-04-01,Villa Urquiza,BRONZE,Sin clasificación,1
+2026-04-01,Villa Urquiza,GOLD,18 - 24,2
+2026-04-01,Villa Urquiza,GOLD,25 - 29,1
+2026-04-01,Villa Urquiza,GOLD,30 - 34,4
+2026-04-01,Villa Urquiza,GOLD,35 - 39,12
+2026-04-01,Villa Urquiza,GOLD,40 - 44,11
+2026-04-01,Villa Urquiza,GOLD,45 - 49,9
+2026-04-01,Villa Urquiza,GOLD,50 - 54,16
+2026-04-01,Villa Urquiza,GOLD,55 - 59,6
+2026-04-01,Villa Urquiza,GOLD,60 - 64,7
+2026-04-01,Villa Urquiza,GOLD,65 - 69,7
+2026-04-01,Villa Urquiza,GOLD,70 y más,5
+2026-04-01,Villa Urquiza,GOLD,Sin clasificación,2
+2026-04-01,Villa Urquiza,PLATINUM,25 - 29,2
+2026-04-01,Villa Urquiza,PLATINUM,30 - 34,5
+2026-04-01,Villa Urquiza,PLATINUM,35 - 39,17
+2026-04-01,Villa Urquiza,PLATINUM,40 - 44,13
+2026-04-01,Villa Urquiza,PLATINUM,45 - 49,17
+2026-04-01,Villa Urquiza,PLATINUM,50 - 54,15
+2026-04-01,Villa Urquiza,PLATINUM,55 - 59,7
+2026-04-01,Villa Urquiza,PLATINUM,60 - 64,16
+2026-04-01,Villa Urquiza,PLATINUM,65 - 69,5
+2026-04-01,Villa Urquiza,PLATINUM,70 y más,8
+2026-04-01,Villa Urquiza,SELLER,18 - 24,1
+2026-04-01,Villa Urquiza,SELLER,25 - 29,1
+2026-04-01,Villa Urquiza,SELLER,30 - 34,2
+2026-04-01,Villa Urquiza,SELLER,40 - 44,2
+2026-04-01,Villa Urquiza,SELLER,45 - 49,3
+2026-04-01,Villa Urquiza,SELLER,50 - 54,2
+2026-04-01,Villa Urquiza,SELLER,55 - 59,6
+2026-04-01,Villa Urquiza,SELLER,60 - 64,1
+2026-04-01,Villa Urquiza,SELLER,70 y más,1
+2026-04-01,Villa Urquiza,SELLER,Sin clasificación,6
+2026-04-01,Villa Urquiza,SILVER,18 - 24,1
+2026-04-01,Villa Urquiza,SILVER,25 - 29,3
+2026-04-01,Villa Urquiza,SILVER,30 - 34,2
+2026-04-01,Villa Urquiza,SILVER,35 - 39,3
+2026-04-01,Villa Urquiza,SILVER,40 - 44,2
+2026-04-01,Villa Urquiza,SILVER,45 - 49,4
+2026-04-01,Villa Urquiza,SILVER,50 - 54,2
+2026-04-01,Villa Urquiza,SILVER,55 - 59,4
+2026-04-01,Villa Urquiza,SILVER,60 - 64,7
+2026-04-01,Villa Urquiza,SILVER,65 - 69,2
+2026-04-01,Villa Urquiza,SILVER,70 y más,14
+2026-04-01,Villa Urquiza,SILVER,Sin clasificación,5
