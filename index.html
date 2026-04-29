@@ -1,968 +1,412 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Proximity Groceries Scorecard</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;padding:24px;color:#1e293b}
-.card{background:#ffffff;border-radius:14px;padding:24px 28px;box-shadow:0 2px 12px rgba(0,0,0,0.06);max-width:1300px;margin:0 auto;border:1px solid #e2e8f0}
-.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.1rem}
-.title{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:3px}
-.subtitle{font-size:12px;color:#64748b}
-.upd{font-size:11px;color:#94a3b8;text-align:right;padding-top:2px}
-.tabs{display:flex;gap:2px;border-bottom:1.5px solid #e2e8f0;margin-bottom:1.2rem;flex-wrap:wrap}
-.tab{padding:8px 22px;font-size:13px;cursor:pointer;border-bottom:2.5px solid transparent;color:#64748b;font-weight:500;transition:all .15s;margin-bottom:-1.5px}
-.tab.active{color:#2563eb;border-bottom-color:#2563eb;font-weight:700}
-.tab:hover{color:#334155}
-.subtabs{display:flex;gap:6px;margin-bottom:1rem}
-.subtab{padding:4px 14px;font-size:12px;cursor:pointer;border-radius:20px;color:#64748b;border:1px solid #e2e8f0;font-weight:500;background:#f8fafc}
-.subtab.active{background:rgba(37,99,235,0.08);color:#2563eb;border-color:#2563eb;font-weight:600}
-.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px}
-.filter-lbl{font-size:11px;color:#64748b;font-weight:500}
-.fsel{background:#ffffff;color:#334155;border:1px solid #e2e8f0;border-radius:7px;padding:5px 28px 5px 10px;font-size:12px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;font-family:inherit;transition:border-color .15s}
-.fsel:hover,.fsel:focus{border-color:#2563eb;color:#0f172a}
-.fsel option{background:#ffffff;color:#334155}
-.tbl{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:12px;min-width:920px}
-th{background:#f8fafc;color:#64748b;font-weight:600;padding:0 10px;text-align:right;white-space:nowrap;font-size:11px;letter-spacing:.02em;line-height:1.3}
-th .rel{font-size:9px;color:#94a3b8;font-weight:400;display:block;margin-bottom:2px;letter-spacing:.04em}
-th .dt{display:block;padding:6px 0}
-th.left{text-align:left}
-th.hl{background:#eff6ff}
-th.last{background:#dbeafe;color:#1d4ed8}
-td{padding:6px 10px;text-align:right;border-bottom:1px solid #f1f5f9;color:#334155;white-space:nowrap}
-td.left{text-align:left}
-td.metric{font-weight:700;color:#0f172a}
-td.apert{font-size:11px;color:#94a3b8}
-td.apert-total{font-size:11px;color:#2563eb;font-weight:600}
-td.store{color:#94a3b8;padding-left:26px;font-size:11px}
-td.hl{background:rgba(59,130,246,0.04);font-weight:500}
-td.last{background:rgba(59,130,246,0.10);font-weight:600;color:#1e40af}
-td.store.hl{background:rgba(59,130,246,0.02)}
-td.store.last{background:rgba(59,130,246,0.05)}
-td.main{font-weight:700;background:#f8fafc;color:#0f172a}
-td.main.hl{background:rgba(59,130,246,0.05)}
-td.main.last{background:rgba(59,130,246,0.12);color:#1e40af}
-td.child{color:#94a3b8;background:#fafafa}
-td.child.hl{background:rgba(59,130,246,0.02)}
-td.child.last{background:rgba(59,130,246,0.04)}
-td.pos{color:#16a34a;font-weight:700}
-td.neg{color:#dc2626;font-weight:700}
-td.neu{color:#94a3b8}
-tr:hover td{background:#f0f9ff!important}
-tr:hover td.last{background:#dbeafe!important}
-.tog{font-size:9px;cursor:pointer;color:#cbd5e1;margin-right:4px;user-select:none}
-.tog:hover{color:#2563eb}
-.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:800px){.charts-grid{grid-template-columns:1fr}}
-.chart-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px}
-.chart-title{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
-.plan-hdr{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px}
-.plan-sub{font-size:12px;color:#64748b;margin-bottom:18px}
-.plan-badge{display:inline-block;background:rgba(37,99,235,0.10);color:#2563eb;border-radius:5px;padding:2px 9px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}
-.kpi-strip{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-.kpi-box{background:#f0f9ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 20px;min-width:190px}
-.kpi-box-lbl{font-size:10px;font-weight:600;color:#2563eb;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-.kpi-box-val{font-size:24px;font-weight:700;color:#0f172a;line-height:1}
-.kpi-box-sub{font-size:10px;color:#94a3b8;margin-top:3px}
-#tt{position:fixed;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:7px 12px;font-size:12px;color:#f8fafc;pointer-events:none;display:none;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,0.25);white-space:nowrap}
-#tt .tt-lbl{font-size:10px;color:#60a5fa;font-weight:600;margin-bottom:2px}
-#tt .tt-val{font-size:13px;font-weight:700;color:#f8fafc}
-.mode-toggle{display:flex;gap:4px;margin-bottom:16px}
-.mode-btn{padding:6px 20px;font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;border:1.5px solid #e2e8f0;background:#f8fafc;color:#64748b;transition:all .15s}
-.mode-btn.active{background:#2563eb;color:#ffffff;border-color:#2563eb}
-.fm-section{margin-bottom:24px}
-.fm-title{font-size:13px;font-weight:700;color:#0f172a;margin:18px 0 8px;padding-bottom:6px;border-bottom:1.5px solid #e2e8f0}
-.fm-title:first-child{margin-top:0}
-.fm-period{font-size:11px;color:#64748b;font-weight:500}
+:root {
+  --bg:        #0d0f14;
+  --surface:   #161b26;
+  --surface2:  #1e2535;
+  --border:    #2a3347;
+  --text:      #e2e8f0;
+  --muted:     #64748b;
+  --accent:    #f59e0b;
+  --positive:  #22c55e;
+  --negative:  #ef4444;
+  --neutral:   #94a3b8;
+  --blue:      #3b82f6;
+  --purple:    #a855f7;
+  --emerald:   #10b981;
+  --radius:    8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; padding: 0 0 40px;
+}
+/* ── Header ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.header h1 { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: .3px; }
+.header h1 span { color: var(--accent); }
+.updated { font-size: 11px; color: var(--muted); }
+/* ── Controls bar ── */
+.controls {
+  display: flex; align-items: center; gap: 24px;
+  padding: 12px 24px; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.tab-group { display: flex; gap: 2px; background: var(--bg); border-radius: 6px; padding: 3px; }
+.tab {
+  padding: 5px 14px; font-size: 12px; font-weight: 500; cursor: pointer;
+  border-radius: 5px; border: none; background: transparent;
+  color: var(--muted); transition: all .15s;
+}
+.tab.active { background: var(--surface2); color: var(--text); }
+.tab:hover:not(.active) { color: var(--text); }
+/* ── Section nav ── */
+.section-nav {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  padding: 0 24px; background: var(--surface);
+}
+.sec-tab {
+  padding: 11px 18px; font-size: 13px; font-weight: 500; cursor: pointer;
+  border: none; background: transparent; color: var(--muted);
+  border-bottom: 2px solid transparent; transition: all .15s; margin-bottom: -1px;
+}
+.sec-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.sec-tab:hover:not(.active) { color: var(--text); }
+/* ── Hero cards ── */
+.hero-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px; padding: 20px 24px 0;
+}
+.hero-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; position: relative; overflow: hidden;
+}
+.hero-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent);
+}
+.hero-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 8px; }
+.hero-value { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.1; }
+.hero-delta { margin-top: 6px; }
+/* ── Data table ── */
+.section-body { padding: 20px 24px; }
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+}
+thead tr { background: var(--surface2); }
+th {
+  padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .5px; color: var(--muted);
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+td { padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+.total-row td { font-weight: 600; background: var(--surface2); cursor: pointer; }
+.total-row td:first-child::before {
+  content: attr(data-arrow); margin-right: 6px; font-size: 10px; color: var(--accent);
+  transition: transform .2s;
+}
+.store-row td { color: var(--muted); }
+.store-row td:first-child { padding-left: 36px; color: var(--text); }
+.store-row { display: none; }
+.store-row.visible { display: table-row; }
+.store-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  margin-right: 8px; vertical-align: middle;
+}
+/* ── Deltas ── */
+.delta { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+.delta.positive { color: var(--positive); background: rgba(34,197,94,.1); }
+.delta.negative { color: var(--negative); background: rgba(239,68,68,.1); }
+.delta.neutral  { color: var(--muted); }
+/* ── Sections ── */
+.section { display: none; }
+.section.active { display: block; }
+/* ── Period label ── */
+.period-label {
+  font-size: 11px; color: var(--muted); padding: 6px 24px 0;
+}
+/* ── Loading / empty ── */
+.empty-row td { color: var(--muted); text-align: center; padding: 32px; font-style: italic; }
+/* ── Sub-table for details ── */
+.sub-label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
+             color: var(--muted); margin: 20px 0 8px; }
+.metric-group { margin-bottom: 28px; }
+.metric-group h3 { font-size: 11px; font-weight: 600; text-transform: uppercase;
+                   letter-spacing: .7px; color: var(--accent); margin-bottom: 12px;
+                   padding-bottom: 6px; border-bottom: 1px solid var(--border); }
 </style>
 </head>
 <body>
-<div id="tt"><div class="tt-lbl" id="tt-lbl"></div><div class="tt-val" id="tt-val"></div></div>
-<div class="card">
-  <div class="hdr">
-    <div>
-      <div class="title">Proximity Groceries Scorecard</div>
-      <div class="subtitle">Meses cerrados &nbsp;·&nbsp; Oct'25 → Mar'26 &nbsp;·&nbsp; Caballito · Scalabrini · Vicente Lopez · Villa Urquiza</div>
-    </div>
-    <div class="upd">Actualizado: 29/04/2026</div>
-  </div>
-  <div class="mode-toggle">
-    <button id="btn-monthly" class="mode-btn active" onclick="setMode('monthly')">Mensual</button>
-    <button id="btn-weekly" class="mode-btn" onclick="setMode('weekly')">Semanal</button>
-  </div>
 
-  <div id="monthly-section">
-    <div class="tabs" id="monthly-tabs">
-      <div class="tab active" onclick="switchTab('growth')">Growth</div>
-      <div class="tab" onclick="switchTab('ops')">Ops</div>
-      <div class="tab" onclick="switchTab('buyers')">Buyers</div>
-      <div class="tab" onclick="switchTab('demog')">Datos Demográficos</div>
-      <div class="tab" onclick="switchTab('nps')">NPS</div>
-      <div class="tab" onclick="switchTab('pl')">P&amp;L</div>
-      <div class="tab" onclick="switchTab('charts')">Gráficos</div>
-      <div class="tab" onclick="switchTab('plan')">Plan</div>
-      <div class="tab" onclick="switchTab('fechasmoviles')">Fechas Móviles</div>
-    </div>
-  <div class="tbl" id="monthly-tbl">
-    <div id="t-growth">
-      <div class="filter-bar">
-        <span class="filter-lbl">Apertura:</span>
-        <select class="fsel" id="store-filter" onchange="setStore(this.value)">
-          <option value="Todas">Todas las tiendas</option>
-          <option value="Caballito">Caballito</option>
-          <option value="Scalabrini">Scalabrini</option>
-          <option value="Vicente Lopez">Vicente Lopez</option>
-          <option value="Villa Urquiza">Villa Urquiza</option>
-        </select>
-      </div>
-      <table><thead id="hg"></thead><tbody id="bg"></tbody></table>
-    </div>
-    <div id="t-ops" style="display:none"><table><thead id="ho"></thead><tbody id="bo"></tbody></table></div>
-    <div id="t-buyers" style="display:none">
-      <div class="kpi-strip">
-        <div class="kpi-box">
-          <div class="kpi-box-lbl">Buyers Únicos YTD 2026</div>
-          <div class="kpi-box-val" id="kpi-ytd-val">—</div>
-          <div class="kpi-box-sub">Ene–Mar acumulado</div>
-        </div>
-      </div>
-      <table><thead id="hbu"></thead><tbody id="bbu"></tbody></table>
-    </div>
-    <div id="t-demog" style="display:none">
-      <div class="charts-grid" style="grid-template-columns:1fr 1fr">
-        <div class="chart-card">
-          <div class="chart-title">Buyers por Género</div>
-          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">Femenino vs Masculino · % por mes</div>
-          <svg id="c-gen" width="100%" style="overflow:visible"></svg>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">Buyers por Rango Etario</div>
-          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% por mes</div>
-          <svg id="c-edad" width="100%" style="overflow:visible"></svg>
-        </div>
-      </div>
-      <div class="charts-grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
-        <div class="chart-card">
-          <div class="chart-title">NSE por Mes</div>
-          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% del total · todas las tiendas</div>
-          <svg id="c-nse-mes" width="100%" style="overflow:visible"></svg>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">NSE por Tienda</div>
-          <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">% acumulado Oct-Mar</div>
-          <svg id="c-nse-tienda" width="100%" style="overflow:visible"></svg>
-        </div>
-      </div>
-    </div>
-    <div id="t-nps" style="display:none"><table><thead id="hn"></thead><tbody id="bn"></tbody></table></div>
-    <div id="t-pl" style="display:none">
-      <div class="subtabs">
-        <div class="subtab active" onclick="switchSub('s-total')">Total</div>
-        <div class="subtab" onclick="switchSub('s-tiendas')">Tiendas</div>
-        <div class="subtab" onclick="switchSub('s-vert')">Verticales</div>
-      </div>
-      <div id="s-total"><table><thead id="hpt"></thead><tbody id="bpt"></tbody></table></div>
-      <div id="s-tiendas" style="display:none"><table><thead id="hpti"></thead><tbody id="bpti"></tbody></table></div>
-      <div id="s-vert" style="display:none"><table><thead id="hpv"></thead><tbody id="bpv"></tbody></table></div>
-    </div>
-    <div id="t-charts" style="display:none">
-      <div class="charts-grid">
-        <div class="chart-card"><div class="chart-title">NMV Mensual</div><svg id="c-nmv" width="100%" style="overflow:visible"></svg></div>
-        <div class="chart-card"><div class="chart-title">Compras Mensual</div><svg id="c-ord" width="100%" style="overflow:visible"></svg></div>
-        <div class="chart-card"><div class="chart-title">Fill Rate Items</div><svg id="c-fr" width="100%" style="overflow:visible"></svg></div>
-        <div class="chart-card"><div class="chart-title">Visitas Mensuales</div><svg id="c-vis" width="100%" style="overflow:visible"></svg></div>
-      </div>
-    </div>
-    <div id="t-plan" style="display:none">
-      <div class="plan-hdr">Plan V2 <span class="plan-badge">Forecast 2+10 2026</span></div>
-      <div class="plan-sub">Proximity Groceries MLA · Plan V2 vs Real &nbsp;·&nbsp; Plan disponible desde Ene'26</div>
-      <div class="tbl"><table><thead id="h-plan"></thead><tbody id="b-plan"></tbody></table></div>
-    </div>
-    <div id="t-fechasmoviles" style="display:none">
-      <div class="fm-section" id="fm28-cont"></div>
-    </div>
-  </div>
-  </div>
+<header class="header">
+  <h1>Proximity <span>Groceries</span> Scorecard</h1>
+  <span class="updated">Updated: unknown</span>
+</header>
 
-  <div id="weekly-section" style="display:none">
-    <div class="tabs" id="weekly-tabs">
-      <div class="tab active" onclick="switchWeeklyTab('wgrowth')">Growth</div>
-      <div class="tab" onclick="switchWeeklyTab('wops')">Ops</div>
-      <div class="tab" onclick="switchWeeklyTab('wbuyers')">Buyers</div>
-      <div class="tab" onclick="switchWeeklyTab('wcharts')">Gráficos</div>
-      <div class="tab" onclick="switchWeeklyTab('wplan')">Plan</div>
-      <div class="tab" onclick="switchWeeklyTab('wfechas')">Fechas Móviles</div>
-    </div>
-    <div class="tbl" id="weekly-tbl">
-      <div id="t-wgrowth">
-        <div class="filter-bar">
-          <span class="filter-lbl">Apertura:</span>
-          <select class="fsel" id="wstore-filter" onchange="setWStore(this.value)">
-            <option value="Todas">Todas las tiendas</option>
-            <option value="Scalabrini">Scalabrini</option>
-            <option value="Caballito">Caballito</option>
-            <option value="Vicente Lopez">Vicente Lopez</option>
-            <option value="Villa Urquiza">Villa Urquiza</option>
-          </select>
-        </div>
-        <table><thead id="hwg"></thead><tbody id="bwg"></tbody></table>
-      </div>
-      <div id="t-wops" style="display:none"><table><thead id="hwo"></thead><tbody id="bwo"></tbody></table></div>
-      <div id="t-wbuyers" style="display:none"><table><thead id="hwbu"></thead><tbody id="bwbu"></tbody></table></div>
-      <div id="t-wcharts" style="display:none">
-        <div class="charts-grid">
-          <div class="chart-card"><div class="chart-title">NMV Semanal</div><svg id="cw-nmv" width="100%" style="overflow:visible"></svg></div>
-          <div class="chart-card"><div class="chart-title">Compras Semanales</div><svg id="cw-ord" width="100%" style="overflow:visible"></svg></div>
-          <div class="chart-card"><div class="chart-title">Fill Rate Items</div><svg id="cw-fr" width="100%" style="overflow:visible"></svg></div>
-          <div class="chart-card"><div class="chart-title">Visitas Semanales</div><svg id="cw-vis" width="100%" style="overflow:visible"></svg></div>
-        </div>
-      </div>
-      <div id="t-wplan" style="display:none">
-        <div class="plan-hdr">Plan Semanal <span class="plan-badge">NMV vs Real</span></div>
-        <div class="plan-sub">Plan distribuido proporcionalmente desde targets mensuales</div>
-        <table><thead id="hwpl"></thead><tbody id="bwpl"></tbody></table>
-      </div>
-      <div id="t-wfechas" style="display:none">
-        <div class="fm-section" id="fm7-cont"></div>
-      </div>
-    </div>
+<div class="controls">
+  <div class="tab-group">
+    <button class="tab period-tab active" id="ptab-daily"   onclick="setPeriod('daily')">Daily</button>
+    <button class="tab period-tab active" id="ptab-weekly"  onclick="setPeriod('weekly')">Weekly</button>
+    <button class="tab period-tab"        id="ptab-monthly" onclick="setPeriod('monthly')">Monthly</button>
   </div>
 </div>
 
+<nav class="section-nav">
+  <button class="sec-tab active" id="stab-growth" onclick="setSection('growth')">📈 Growth</button>
+  <button class="sec-tab"        id="stab-ops"    onclick="setSection('ops')">⚙️  Ops</button>
+  <button class="sec-tab"        id="stab-cx"     onclick="setSection('cx')">💬 CX</button>
+  <button class="sec-tab"        id="stab-pnl"    onclick="setSection('pnl')">💰 P&amp;L</button>
+</nav>
+
+<div id="sec-growth" class="section active">
+<div class="hero-grid" id="hero-growth"><p class="empty-row">No data available</p></div>
+<div class="section-body">
+  <p class="period-label" id="period-lbl-growth"></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Store</th>
+        <th>Orders</th><th>vs LP</th>
+        <th>Buyers</th>
+        <th>GMV</th><th>vs LP</th>
+        <th>Fresh Orders</th><th>Fresh Rate</th><th>vs LP</th>
+        <th>Trend</th>
+      </tr></thead>
+      <tbody id="tbody-growth"><tr class="empty-row"><td colspan="10">No data</td></tr><tbody id="growth-store-rows"></tbody></tbody>
+    </table>
+  </div>
+</div></div>
+<div id="sec-ops"    class="section">
+<div class="hero-grid" id="hero-ops"><p class="empty-row">No data</p></div>
+<div class="section-body">
+  <p class="period-label" id="period-lbl-ops"></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Store</th>
+        <th>Cancel Rate</th><th>vs LP</th>
+        <th>⚠ Seller</th><th>⚠ Buyer</th><th>⚠ Stockout</th>
+        <th>Fill Rate</th><th>vs LP</th>
+        <th>On-Time</th><th>Early%</th><th>Delay%</th>
+        <th>Perfect Purch.</th><th>vs LP</th>
+        <th>Cancel Trend</th>
+      </tr></thead>
+      <tbody id="tbody-ops"><tbody id="ops-store-rows"></tbody></tbody>
+    </table>
+  </div>
+</div></div>
+<div id="sec-cx"     class="section">
+<div class="hero-grid" id="hero-cx"><p class="empty-row">No data</p></div>
+<div class="section-body">
+  <p class="period-label" id="period-lbl-cx"></p>
+  <div class="metric-group">
+    <h3>Claims</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Store</th><th>Total Claims</th><th>vs LP</th>
+          <th>By Type →</th>
+        </tr></thead>
+        <tbody id="tbody-cx"><tbody id="cx-store-rows"></tbody></tbody>
+      </table>
+    </div>
+  </div>
+  
+</div></div>
+<div id="sec-pnl"    class="section">
+<div class="hero-grid" id="hero-pnl"><p class="empty-row">No data</p></div>
+<div class="section-body">
+  <p class="period-label" id="period-lbl-pnl"></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Store</th>
+        <th>GMV</th><th>vs LP</th><th>vs LY</th>
+        <th>NMV</th><th>vs LP</th>
+        <th>Take Rate</th><th>vs LP</th>
+        <th>Delivery Fee</th>
+        <th>Service Fee</th>
+        <th>Contribution</th>
+        <th>GMV Trend</th>
+      </tr></thead>
+      <tbody id="tbody-pnl"><tbody id="pnl-store-rows"></tbody></tbody>
+    </table>
+  </div>
+</div></div>
+
 <script>
-const MONTHS=["Oct'25", "Nov'25", "Dic'25", "Ene'26", "Feb'26", "Mar'26"];
-const MONTHS_NPS=["Dic'25", "Ene'26", "Feb'26", "Mar'26"];
-const growthData=[{"metric": "NMV", "fmt": "money", "rows": [{"s": "Total", "v": [10451118, 56806992, 170234400, 175439531, 242175980, 306868637]}, {"s": "Caballito", "v": [null, null, 34055079, 44895424, 57731083, 68029249]}, {"s": "Scalabrini", "v": [10451118, 34150904, 56456356, 50747817, 69074828, 90765907]}, {"s": "Vicente Lopez", "v": [null, 22656087, 51330633, 46035027, 69560421, 91646470]}, {"s": "Villa Urquiza", "v": [null, null, 28392332, 33761265, 45809648, 56480628]}]}, {"metric": "NSI", "fmt": "num", "rows": [{"s": "Total", "v": [3075, 16231, 43115, 46662, 63266, 78175]}, {"s": "Caballito", "v": [null, null, 9054, 12562, 16804, 19118]}, {"s": "Scalabrini", "v": [3075, 9912, 14894, 13275, 17661, 23740]}, {"s": "Vicente Lopez", "v": [null, 6319, 12180, 11289, 16385, 20329]}, {"s": "Villa Urquiza", "v": [null, null, 6988, 9537, 12416, 15033]}]}, {"metric": "Compras", "fmt": "num", "rows": [{"s": "Total", "v": [202, 987, 2927, 3098, 4244, 5262]}, {"s": "Caballito", "v": [null, null, 656, 837, 1122, 1309]}, {"s": "Scalabrini", "v": [202, 593, 946, 885, 1186, 1556]}, {"s": "Vicente Lopez", "v": [null, 394, 843, 794, 1151, 1438]}, {"s": "Villa Urquiza", "v": [null, null, 482, 582, 785, 961]}]}, {"metric": "Órdenes", "fmt": "num", "rows": [{"s": "Total", "v": [1449, 6836, 17261, 19825, 26254, 33162]}, {"s": "Caballito", "v": [null, null, 3652, 5241, 7075, 7866]}, {"s": "Scalabrini", "v": [1449, 4144, 5688, 5588, 7063, 9899]}, {"s": "Vicente Lopez", "v": [null, 2692, 4968, 4858, 6839, 8649]}, {"s": "Villa Urquiza", "v": [null, null, 2955, 4138, 5277, 6776]}]}, {"metric": "APV LC", "fmt": "dollar", "rows": [{"s": "Total", "v": [51738, 57555, 58160, 56630, 57063, 58318]}, {"s": "Caballito", "v": [null, null, 51913, 53638, 51454, 52059]}, {"s": "Scalabrini", "v": [51738, 57590, 59679, 57342, 58242, 58391]}, {"s": "Vicente Lopez", "v": [null, 57503, 60890, 57979, 60435, 63732]}, {"s": "Villa Urquiza", "v": [null, null, 58905, 58009, 58356, 58773]}]}, {"metric": "NASP LC", "fmt": "dollar", "rows": [{"s": "Total", "v": [3399, 3500, 3948, 3760, 3828, 3925]}, {"s": "Caballito", "v": [null, null, 3761, 3574, 3436, 3564]}, {"s": "Scalabrini", "v": [3399, 3445, 3791, 3823, 3911, 3827]}, {"s": "Vicente Lopez", "v": [null, 3585, 4214, 4078, 4245, 4508]}, {"s": "Villa Urquiza", "v": [null, null, 4063, 3540, 3690, 3757]}]}, {"metric": "CVR", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [null, 0.0273, 0.0279, 0.0275, 0.0273, 0.0201]}]}, {"metric": "NSI/Cart", "fmt": "dec", "rows": [{"s": "Total", "v": [15.22, 16.44, 14.73, 15.06, 14.91, 14.86]}, {"s": "Caballito", "v": [null, null, 14.0, 15.0, 15.0, 15.0]}, {"s": "Scalabrini", "v": [15.0, 17.0, 16.0, 15.0, 15.0, 15.0]}, {"s": "Vicente Lopez", "v": [null, 16.0, 14.0, 14.0, 14.0, 15.0]}, {"s": "Villa Urquiza", "v": [null, null, 14.0, 16.0, 16.0, 16.0]}]}, {"metric": "Stores", "fmt": "num", "rows": [{"s": "Total", "v": [1, 2, 4, 4, 4, 4]}]}, {"metric": "Orders/Purchase", "fmt": "dec", "rows": [{"s": "Total", "v": [7.17, 6.93, 5.9, 6.4, 6.19, 6.3]}]}];
-const opsData=[{"metric": "Fill Rate Items", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.8958, 0.9191, 0.9051, 0.9172, 0.9123, 0.8898]}]}, {"metric": "Fill Rate Items c/reemplazos", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.9135, 0.9246, 0.9138, 0.9289, 0.9225, 0.9013]}]}, {"metric": "Fill Rate Compras", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.6215, 0.7217, 0.657, 0.6436, 0.6469, 0.593]}]}, {"metric": "Fill Rate Compras c/reemplazos", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.6776, 0.7549, 0.6876, 0.6882, 0.6795, 0.6254]}]}, {"metric": "On Time", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.9645, 0.9287, 0.7897, 0.8923, 0.8082, 0.8558]}]}, {"metric": "Cancelaciones", "fmt": "pct", "isPP": true, "isNegGood": true, "rows": [{"s": "Total", "v": [0.0789, 0.0519, 0.0878, 0.051, 0.0523, 0.0668]}]}];
-const demandaData=[{"metric": "Visitas", "fmt": "num", "rows": [{"s": "Total", "v": [5858, 23194, 72015, 87194, 107601, 153449]}]}, {"metric": "Buyers", "fmt": "num", "rows": [{"s": "Total", "v": [188, 878, 2537, 2597, 3599, 4293]}]}, {"metric": "Frecuencia", "sub": "Compras / Buyers", "fmt": "dec", "rows": [{"s": "Total", "v": [1.07, 1.12, 1.15, 1.19, 1.18, 1.23]}]}];
-const visitasVals=[5858, 23194, 72015, 87194, 107601, 153449];
-const buyersGenero=[{"name": "Femenino", "vals": [107, 492, 1447, 1445, 2045, 2465]}, {"name": "Masculino", "vals": [67, 326, 962, 1013, 1385, 1595]}, {"name": "Otro", "vals": [14, 60, 128, 139, 169, 233]}];
-const buyersEdad=[{"name": "30-44", "vals": [63, 304, 876, 895, 1326, 1487]}, {"name": "45-59", "vals": [61, 269, 767, 762, 1029, 1277]}, {"name": "60+", "vals": [31, 147, 498, 529, 660, 810]}, {"name": "18-29", "vals": [17, 89, 235, 242, 386, 434]}, {"name": "Sin clasif.", "vals": [16, 69, 161, 169, 198, 285]}];
-const buyersNseTienda=[{"tienda": "Caballito", "PLATINUM": 1168, "GOLD": 962, "SILVER": 529, "BRONZE": 361}, {"tienda": "Scalabrini", "PLATINUM": 1717, "GOLD": 1073, "SILVER": 670, "BRONZE": 587}, {"tienda": "Vic. Lopez", "PLATINUM": 1745, "GOLD": 1002, "SILVER": 525, "BRONZE": 363}, {"tienda": "Villa Urquiza", "PLATINUM": 870, "GOLD": 662, "SILVER": 352, "BRONZE": 235}];
-const buyersNseMes=[{"mes": "Oct'25", "PLATINUM": 74, "GOLD": 44, "SILVER": 20, "BRONZE": 26, "SinClasif": 24}, {"mes": "Nov'25", "PLATINUM": 371, "GOLD": 207, "SILVER": 108, "BRONZE": 100, "SinClasif": 92}, {"mes": "Dic'25", "PLATINUM": 983, "GOLD": 676, "SILVER": 392, "BRONZE": 267, "SinClasif": 221}, {"mes": "Ene'26", "PLATINUM": 1009, "GOLD": 709, "SILVER": 376, "BRONZE": 272, "SinClasif": 232}, {"mes": "Feb'26", "PLATINUM": 1420, "GOLD": 959, "SILVER": 520, "BRONZE": 394, "SinClasif": 309}, {"mes": "Mar'26", "PLATINUM": 1643, "GOLD": 1104, "SILVER": 660, "BRONZE": 487, "SinClasif": 408}];
-const buyersYtd=10344;
-const npsData=[{"metric": "NPS", "fmt": "nps", "isPP": true, "rows": [{"s": "Total", "v": [0.26, 0.39, 0.2, 0.15]}, {"s": "Scalabrini", "v": [0.14, 0.48, 0.25, 0.09]}, {"s": "Vicente Lopez", "v": [0.21, 0.19, -0.05, 0.27]}, {"s": "Caballito", "v": [0.16, 0.45, 0.2, 0.06]}, {"s": "Villa Urquiza", "v": [0.27, 0.44, 0.37, 0.17]}]}];
-const nmvVals=[10451118, 56806992, 170234400, 175439531, 242175980, 306868637];
-const plLines=[{"metric": "NMV", "isNmv": true, "children": []}, {"metric": "Net Variable Fee", "v": [0.083, 0.0831, 0.0856, 0.0825, 0.0838, 0.0845], "children": [{"metric": "Net Fix Fees", "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"metric": "Promotions", "v": [0.0, -0.0002, 0.0, -0.0003, -0.0001, -0.0001]}]}, {"metric": "Product Monetization", "v": [0.083, 0.0829, 0.0856, 0.0822, 0.0838, 0.0844], "children": [{"metric": "Financing gross", "v": [0.012, 0.0057, 0.0124, 0.0096, 0.0081, 0.0077]}, {"metric": "Financing Cost", "v": [-0.0159, -0.0143, -0.015, -0.0128, -0.011, -0.0124]}, {"metric": "Buyer Real Revenue", "v": [0.034, 0.0288, 0.0282, 0.0285, 0.0293, 0.0279]}, {"metric": "Seller Real Revenue", "v": [0.0012, 0.0001, 0.0004, 0.0001, 0.0001, 0.0001]}, {"metric": "Advertising", "v": [0.0008, 0.0031, 0.0034, 0.0017, 0.0015, 0.0034]}, {"metric": "Sales Taxes", "v": [-0.0054, -0.006, -0.0062, -0.0067, -0.0061, -0.0048]}]}, {"metric": "Net Monetization", "v": [0.1097, 0.1003, 0.1089, 0.1027, 0.1058, 0.1064], "children": [{"metric": "Shipping Distribution Cost", "v": [-0.0626, -0.0534, -0.0529, -0.0542, -0.0571, -0.0569]}, {"metric": "Shipping Ops Variable", "v": [-0.0001, 0.0, 0.0, 0.0, 0.0, 0.0]}, {"metric": "Collection Fees", "v": [-0.0097, -0.0108, -0.0119, -0.0098, -0.0091, -0.009]}, {"metric": "Chargebacks", "v": [0.0, 0.0, -0.0015, -0.0001, -0.0061, -0.0003]}, {"metric": "Bad Debt", "v": [0.0001, -0.0007, 0.0005, -0.0003, -0.0012, -0.0002]}, {"metric": "BPP", "v": [-0.0231, -0.0056, -0.0066, -0.0033, -0.0034, -0.0058]}, {"metric": "Marketing Performance", "v": [-0.0032, -0.0033, -0.0031, -0.0032, -0.0031, -0.0036]}, {"metric": "Coupons Mkt", "v": [0.0, -0.0016, -0.0013, -0.0016, -0.003, -0.0026]}, {"metric": "CX + Hosting + Fraud Prev Variable", "v": [-0.0138, -0.01, -0.01, -0.0107, -0.011, -0.0161]}]}, {"metric": "Variable Contribution", "v": [-0.003, 0.0146, 0.0217, 0.0191, 0.0113, 0.0116], "children": [{"metric": "CX + Hosting + Fraud Prev Fix", "v": [-0.0039, -0.0033, -0.004, -0.0035, -0.0037, -0.0038]}]}, {"metric": "Direct Contribution", "v": [-0.0103, 0.0081, 0.0129, 0.0137, 0.0054, 0.0056], "children": []}];
-const tiendasNames=["Caballito", "Palermo\n(Scalabrini)", "Vicente Lopez", "Villa Urquiza"];
-const tiendasNmv=[69362977, 93016605, 92558674, 57180812];
-const plTiendas=[{"metric": "NMV", "isNmv": true, "children": []}, {"metric": "Net Variable Fee", "v": [0.0868, 0.0849, 0.0851, 0.0795], "children": [{"metric": "Net Fix Fees", "v": [0, 0, 0, 0]}, {"metric": "Promotions", "v": [-0.000124, -9.48e-05, -3.42e-05, -6.87e-05]}]}, {"metric": "Product Monetization", "v": [0.0867, 0.0848, 0.0851, 0.0794], "children": [{"metric": "Financing gross", "v": [0.00629, 0.00745, 0.00694, 0.01105]}, {"metric": "Financing Cost", "v": [-0.0097, -0.01337, -0.01342, -0.01119]}, {"metric": "Buyer Real Revenue", "v": [0.03408, 0.02707, 0.02502, 0.02644]}, {"metric": "Seller Real Revenue", "v": [0.000191, 7.11e-05, 0, 0.000116]}, {"metric": "Advertising", "v": [0.003701, 0.003304, 0.003341, 0.003243]}, {"metric": "Sales Taxes", "v": [-0.004887, -0.00483, -0.004818, -0.004738]}]}, {"metric": "Net Monetization", "v": [0.1165, 0.1046, 0.1023, 0.1045], "children": [{"metric": "Shipping Distribution Cost", "v": [-0.0643, -0.0559, -0.0528, -0.0563]}, {"metric": "Collection Fees", "v": [-0.00796, -0.00947, -0.00984, -0.00808]}, {"metric": "Chargebacks", "v": [0.00432, -0.000135, 0, -0.00632]}, {"metric": "Bad Debt", "v": [-0.000246, -0.000245, -0.000246, -0.000245]}, {"metric": "BPP", "v": [-0.00586, -0.00432, -0.00725, -0.0054]}, {"metric": "Marketing Performance", "v": [-0.0035, -0.00357, -0.00371, -0.00347]}, {"metric": "Coupons Mkt", "v": [-0.00358, -0.00214, -0.00233, -0.00248]}, {"metric": "CX + Hosting + Fraud Prev Variable", "v": [-0.01931, -0.01363, -0.01211, -0.02072]}]}, {"metric": "Variable Contribution", "v": [0.0159, 0.01489, 0.01369, 0.0014], "children": [{"metric": "CX + Hosting + Fraud Prev Fix", "v": [-0.003698, -0.004157, -0.0038, -0.003586]}]}, {"metric": "Direct Contribution", "v": [0.00977, 0.00895, 0.00795, -0.00487], "children": []}];
-const verticals=[{"v": "CPG", "nmv": 300826500, "pm_pct": 0.0838, "vc_pct": 0.0109, "dc_pct": 0.0049}, {"v": "Beauty", "nmv": 8830423, "pm_pct": 0.1001, "vc_pct": 0.0664, "dc_pct": 0.0607}, {"v": "Health", "nmv": 775434, "pm_pct": 0.0999, "vc_pct": 0.0479, "dc_pct": 0.041}, {"v": "Furnishing & Houseware", "nmv": 816013, "pm_pct": 0.1122, "vc_pct": -0.3225, "dc_pct": -0.3287}, {"v": "Construction & Industry", "nmv": 587929, "pm_pct": 0.0993, "vc_pct": 0.0026, "dc_pct": 0.004}, {"v": "T & B", "nmv": 143979, "pm_pct": 0.1, "vc_pct": 0.0456, "dc_pct": 0.0431}, {"v": "Sports", "nmv": 97193, "pm_pct": 0.1, "vc_pct": -0.0177, "dc_pct": -0.0261}, {"v": "Entertainment", "nmv": 41596, "pm_pct": 0.1, "vc_pct": -0.1472, "dc_pct": -0.1556}];
-const weekLabels=["18 ene", "25 ene", "1 feb", "8 feb", "15 feb", "22 feb", "1 mar", "8 mar", "15 mar", "22 mar", "29 mar", "5 abr", "12 abr", "19 abr"];
-const weeklyGrowthStores=[{"metric": "NMV", "fmt": "money", "rows": [{"s": "Total", "v": [44561242, 50066152, 60035275, 56766257, 54479046, 70895402, 66363405, 62758241, 70441382, 68418485, 69515352, 53652727, 52799865, 57895142]}, {"s": "Scalabrini", "v": [12918138, 13999021, 20189988, 14956173, 13921082, 20007585, 20359873, 21527282, 18702904, 18844141, 17732381, 14960356, 14478030, 17448419]}, {"s": "Vicente Lopez", "v": [11641175, 13543006, 15806716, 17253188, 17089003, 19411514, 18865251, 18272420, 20843080, 21515420, 21738569, 16521897, 14144864, 17564647]}, {"s": "Caballito", "v": [11451103, 12973613, 13514919, 14027017, 14055584, 16133563, 15890699, 12026498, 15792725, 15716688, 16834193, 12389012, 13173652, 12767726]}, {"s": "Villa Urquiza", "v": [8550827, 9550512, 10523652, 10529879, 9413378, 15342739, 11247582, 10932042, 15102674, 12342237, 13210210, 9781461, 11060167, 10223154]}]}, {"metric": "Compras", "fmt": "num", "rows": [{"s": "Total", "v": [745, 869, 1012, 1008, 978, 1248, 1165, 1048, 1209, 1192, 1230, 949, 949, 977]}, {"s": "Scalabrini", "v": [215, 250, 320, 272, 241, 354, 354, 346, 327, 330, 341, 258, 285, 295]}, {"s": "Vicente Lopez", "v": [194, 229, 244, 281, 305, 321, 318, 271, 341, 335, 336, 293, 244, 273]}, {"s": "Caballito", "v": [193, 232, 279, 265, 262, 317, 288, 244, 301, 309, 324, 224, 247, 236]}, {"s": "Villa Urquiza", "v": [143, 158, 169, 190, 170, 256, 205, 187, 240, 218, 229, 174, 173, 175]}]}, {"metric": "Órdenes", "fmt": "num", "rows": [{"s": "Total", "v": [4746, 5876, 6136, 6035, 6186, 7897, 7367, 6724, 7846, 7277, 7561, 5973, 5861, 6680]}, {"s": "Scalabrini", "v": [1395, 1659, 1901, 1533, 1380, 2249, 2218, 2354, 2156, 1959, 2078, 1662, 1437, 2046]}, {"s": "Vicente Lopez", "v": [1097, 1452, 1559, 1674, 1715, 1891, 1879, 1803, 1959, 1963, 1890, 1677, 1358, 1700]}, {"s": "Caballito", "v": [1234, 1612, 1569, 1625, 1843, 2038, 1970, 1306, 1876, 1814, 1881, 1494, 1645, 1646]}, {"s": "Villa Urquiza", "v": [1020, 1153, 1107, 1203, 1248, 1719, 1300, 1261, 1855, 1541, 1712, 1140, 1421, 1295]}]}, {"metric": "NSI", "fmt": "num", "rows": [{"s": "Total", "v": [11001, 13919, 15009, 14918, 14019, 19320, 18274, 15596, 17726, 16960, 17297, 13250, 13819, 14975]}, {"s": "Scalabrini", "v": [3129, 3963, 4558, 3852, 3505, 5747, 5376, 5743, 4852, 4831, 4732, 3963, 3709, 4668]}, {"s": "Vicente Lopez", "v": [2773, 3402, 3857, 4205, 3884, 4438, 4792, 3905, 4468, 4572, 4430, 3540, 3179, 3939]}, {"s": "Caballito", "v": [2925, 3666, 3819, 3995, 4015, 4976, 4968, 3178, 4510, 4279, 4460, 3155, 3814, 3740]}, {"s": "Villa Urquiza", "v": [2173, 2888, 2776, 2866, 2614, 4160, 3137, 2770, 3897, 3277, 3675, 2592, 3116, 2640]}]}, {"metric": "APV LC", "fmt": "dollar", "rows": [{"s": "Total", "v": [59814, 57614, 59323, 56316, 55705, 56807, 56964, 59884, 58264, 57398, 56517, 56536, 55637, 59258]}]}, {"metric": "NASP LC", "fmt": "dollar", "rows": [{"s": "Total", "v": [4051, 3597, 4000, 3805, 3886, 3670, 3632, 4024, 3974, 4034, 4019, 4049, 3821, 3866]}]}, {"metric": "Fill Rate Items", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.993, 0.9923, 0.9923, 0.9919, 0.9875, 0.9913, 0.9929, 0.9902, 0.9896, 0.987, 0.9876, 0.9909, 0.9946, 0.995]}]}, {"metric": "NSI/Cart", "fmt": "dec", "rows": [{"s": "Total", "v": [14.77, 16.02, 14.83, 14.8, 14.33, 15.48, 15.69, 14.88, 14.66, 14.23, 14.06, 13.96, 14.56, 15.33]}]}, {"metric": "Orders/Purchase", "fmt": "dec", "rows": [{"s": "Total", "v": [6.37, 6.76, 6.06, 5.99, 6.33, 6.33, 6.32, 6.42, 6.49, 6.1, 6.15, 6.29, 6.18, 6.84]}]}, {"metric": "Visitas", "fmt": "num", "rows": [{"s": "Total", "v": [21638, 23515, 25496, 24474, 27556, 30075, 30497, 31292, 36004, 37930, 39590, 28608, 27420, 28329]}]}, {"metric": "CVR", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.0269, 0.0288, 0.0344, 0.0337, 0.0171, 0.033, 0.0191, 0.0163, 0.0207, 0.0178, 0.0171, 0.017, 0.0182, 0.0354]}]}];
-const weeklyBuyersW=[{"metric": "Visitas", "fmt": "num", "rows": [{"s": "Total", "v": [21638, 23515, 25496, 24474, 27556, 30075, 30497, 31292, 36004, 37930, 39590, 28608, 27420, 28329]}]}, {"metric": "CVR", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.0269, 0.0288, 0.0344, 0.0337, 0.0171, 0.033, 0.0191, 0.0163, 0.0207, 0.0178, 0.0171, 0.017, 0.0182, 0.0354]}]}];
-const weeklyOpsW=[{"metric": "Fill Rate Items", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.9147, 0.9304, 0.9262, 0.9143, 0.9084, 0.9029, 0.9096, 0.8963, 0.8748, 0.8717, 0.8886, 0.9133, 0.9505, 0.9609]}]}, {"metric": "Fill Rate Items c/reemplazos", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.928, 0.9428, 0.9325, 0.925, 0.9206, 0.9141, 0.9185, 0.9058, 0.8884, 0.8868, 0.9021, 0.9218, 0.9572, 0.9655]}]}, {"metric": "Fill Rate Compras", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.6173, 0.6562, 0.666, 0.657, 0.6529, 0.6181, 0.6361, 0.6256, 0.571, 0.544, 0.5508, 0.6355, 0.7492, 0.7902]}]}, {"metric": "Fill Rate Compras c/reemplazos", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.6723, 0.7011, 0.6944, 0.6888, 0.6861, 0.6545, 0.6613, 0.6546, 0.6065, 0.586, 0.5925, 0.6673, 0.7781, 0.8238]}]}, {"metric": "On Time", "fmt": "pct", "isPP": true, "rows": [{"s": "Total", "v": [0.9224, 0.8245, 0.7436, 0.9087, 0.8772, 0.7254, 0.8079, 0.8322, 0.8278, 0.9205, 0.9252, 0.9235, 0.9644, 0.9855]}]}, {"metric": "Cancelaciones", "fmt": "pct", "isPP": true, "isNegGood": true, "rows": [{"s": "Total", "v": [0.0484, 0.035, 0.0574, 0.0619, 0.0447, 0.0462, 0.0501, 0.0755, 0.0751, 0.0717, 0.0711, 0.0654, 0.0338, 0.0292]}]}];
-const weeklyPlanDataW=[{"metric": "NMV", "fmt": "money", "isNegGood": false, "plan": [38245818, 38070378, 50979600, 49450800, 46236400, 49333200, 75877678, 75877678, 75877678, 71775839, 72324522, 80738627, 83160786, 85655610], "real": [44561242, 50066152, 60035275, 56766257, 54479046, 70895402, 66363405, 62758241, 70441382, 68418485, 69515352, 53652727, 52799865, 57895142]}, {"metric": "NSI", "fmt": "num", "isNegGood": false, "plan": [10354, 10331, 13452, 12868, 12207, 13137, 19530, 19530, 19530, 18474, 18457, 20454, 21068, 21700], "real": [11001, 13919, 15009, 14918, 14019, 19320, 18274, 15596, 17726, 16960, 17297, 13250, 13819, 14975]}, {"metric": "Compras", "fmt": "num", "isNegGood": false, "plan": [null, null, null, null, null, null, null, null, null, null, null, null, null, null], "real": [745, 869, 1012, 1008, 978, 1248, 1165, 1048, 1209, 1192, 1230, 949, 949, 977]}];
-const rolling7T=[{"metric": "NMV", "fmt": "money", "rows": [{"s": "Total", "v": [48605832, 56876433, 55906555, 50623872, 66514338, 70394664, 65805548, 63421615, 64296062, 84113908, 53114218, 50751186, 58040580, 62636789]}]}, {"metric": "Compras", "fmt": "num", "rows": [{"s": "Total", "v": [826, 977, 986, 919, 1193, 1259, 1140, 1103, 1126, 1462, 985, 930, 1015, 1062]}]}, {"metric": "Órdenes", "fmt": "num", "rows": [{"s": "Total", "v": [5544, 6252, 5804, 5562, 7427, 7847, 7201, 6788, 7279, 8674, 6080, 5667, 6358, 7272]}]}, {"metric": "APV LC", "fmt": "dollar", "rows": [{"s": "Total", "v": [58845, 58215, 56700, 55086, 55754, 55913, 57724, 57499, 57101, 57533, 53923, 54571, 57183, 58980]}]}, {"metric": "NSI", "fmt": "num", "rows": [{"s": "Total", "v": [12924, 15056, 14037, 13574, 17311, 19157, 17617, 15514, 16025, 21095, 13271, 12720, 15109, 15957]}]}, {"metric": "Fill Rate Items", "fmt": "pct", "rows": [{"s": "Total", "v": [0.9923, 0.9933, 0.9917, 0.9895, 0.9908, 0.9915, 0.9914, 0.9912, 0.9868, 0.9889, 0.9859, 0.9936, 0.9951, 0.9931]}]}, {"metric": "Visitas", "fmt": "num", "rows": [{"s": "Total", "v": [22787, 25006, 24469, 23893, 30623, 28943, 31610, 32032, 36262, 42110, 33174, 27575, 28299, 29549]}]}, {"metric": "CVR", "fmt": "pct", "rows": [{"s": "Total", "v": [0.0288, 0.0317, 0.033, 0.0303, 0.0201, 0.0364, 0.0184, 0.0167, 0.019, 0.0205, 0.0145, 0.0172, 0.0192, 0.0306]}]}];
-const rolling7TLabels=["21/1-27/1", "28/1-3/2", "4/2-10/2", "11/2-17/2", "18/2-24/2", "25/2-3/3", "4/3-10/3", "11/3-17/3", "18/3-24/3", "25/3-31/3", "1/4-7/4", "8/4-14/4", "15/4-21/4", "22/4-28/4"];
-const rolling28T=[{"metric": "NMV", "fmt": "money", "rows": [{"s": "Total", "v": [80244353, 154450539, 179358894, 243439429, 277637133, 224542773]}]}, {"metric": "Compras", "fmt": "num", "rows": [{"s": "Total", "v": [1330, 2741, 3177, 4357, 4831, 3992]}]}, {"metric": "Órdenes", "fmt": "num", "rows": [{"s": "Total", "v": [9130, 15676, 19878, 26640, 29942, 25377]}]}, {"metric": "APV LC", "fmt": "dollar", "rows": [{"s": "Total", "v": [60334, 56348, 56455, 55873, 57470, 56248]}]}, {"metric": "NSI", "fmt": "num", "rows": [{"s": "Total", "v": [21919, 38904, 47176, 64079, 70251, 57057]}]}, {"metric": "Fill Rate Items", "fmt": "pct", "rows": [{"s": "Total", "v": [0.9945, 0.9914, 0.9923, 0.9909, 0.9896, 0.992]}]}, {"metric": "Visitas", "fmt": "num", "rows": [{"s": "Total", "v": [30927, 68561, 86926, 107928, 142014, 118597]}]}, {"metric": "CVR", "fmt": "pct", "rows": [{"s": "Total", "v": [0.0341, 0.0285, 0.028, 0.0282, 0.0187, 0.0184]}]}];
-const rolling28TLabels=["12/11-9/12", "10/12-6/1", "7/1-3/2", "4/2-3/3", "4/3-31/3", "1/4-28/4"];
+window.DATA = {"growth": {"daily": {"total": {}, "stores": {}}, "weekly": {"total": {}, "stores": {}}, "monthly": {"total": {}, "stores": {}}}, "ops": {"daily": {"total": {}, "stores": {}}, "weekly": {"total": {}, "stores": {}}, "monthly": {"total": {}, "stores": {}}}, "cx": {"daily": {"total": {}, "stores": {}, "bpp": {}}, "weekly": {"total": {}, "stores": {}, "bpp": {}}, "monthly": {"total": {}, "stores": {}, "bpp": {}}}, "pnl": {"daily": {"total": {}, "stores": {}}, "weekly": {"total": {}, "stores": {}}, "monthly": {"total": {}, "stores": {}}}};
 
-let activeStore='Todas';
-
-function relLabel(months,i){
-  const offset=months.length-1-i;
-  if(offset===0)return'Ult. mes';
-  return'M-'+offset;
-}
-function relLabelS(labels,i){
-  const offset=labels.length-1-i;
-  if(offset===0)return'Ult. sem.';
-  return'S-'+offset;
-}
-function relLabelP(labels,i){
-  const offset=labels.length-1-i;
-  if(offset===0)return'P';
-  return'P-'+offset;
-}
-
-window.setStore=function(s){activeStore=s;buildBody('bg',growthData,MONTHS,4,5);};
-
-function fv(v,fmt){
-  if(v===null||v===undefined)return'-';
-  if(fmt==='money'){if(v>=1e9)return'$'+(v/1e9).toFixed(1)+'B';if(v>=1e6)return'$'+(v/1e6).toFixed(1)+'M';if(v>=1e3)return'$'+(v/1e3).toFixed(0)+'K';return'$'+v;}
-  if(fmt==='dollar')return'$'+Math.round(v).toLocaleString();
-  if(fmt==='pct')return(v*100).toFixed(1)+'%';
-  if(fmt==='pp')return(v>=0?'+':'')+Math.round(v*100)+'pp';
-  if(fmt==='nps')return Math.round(v*100)+'%';
-  if(fmt==='dec')return v.toFixed(1);
-  if(v>=1e6)return(v/1e6).toFixed(1)+'M';
-  if(v>=1e3)return(v/1e3).toFixed(1)+'K';
-  return v.toLocaleString();
-}
-
-function fpl(v,isNmv){
-  if(v===null||v===undefined)return'-';
-  if(isNmv)return fv(v,'money');
-  return(v>=0?'':'')+( v*100).toFixed(2)+'%';
-}
-
-function vsLP(vals,isPP,isNegGood,idx){
-  const c=vals[idx],p=vals[idx-1];
-  if(c==null||p==null)return null;
-  if(isPP)return{val:(c-p)*100,isPP:true,isNegGood};
-  return{val:(c-p)/p*100,isPP:false,isNegGood};
-}
-
-function fmtVs(obj){
-  if(!obj)return{txt:'-',cls:'last neu'};
-  const{val,isPP,isNegGood}=obj;
-  const s=val>=0?'+':'';
-  const txt=isPP?s+val.toFixed(2)+'pp':s+val.toFixed(1)+'%';
-  const good=isNegGood?val<=0:val>=0;
-  return{txt,cls:good?'last pos':'last neg'};
-}
-
-function spark(vals){
-  const pts=vals.map((v,i)=>{return{v,i}}).filter(p=>p.v!=null);
-  if(pts.length<2)return'<td></td>';
-  const xs=pts.map(p=>p.i),ys=pts.map(p=>p.v);
-  const mnX=Math.min(...xs),mxX=Math.max(...xs),mnY=Math.min(...ys),mxY=Math.max(...ys);
-  const W=64,H=22,pd=2;
-  const sx=x=>mxX===mnX?W/2:pd+(x-mnX)/(mxX-mnX)*(W-2*pd);
-  const sy=y=>mxY===mnY?H/2:H-pd-(y-mnY)/(mxY-mnY)*(H-2*pd);
-  const d=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
-  const l=pts[pts.length-1],p2=pts[pts.length-2];
-  const col=l.v>=p2.v?'#16a34a':'#dc2626';
-  return`<td style="text-align:center;padding:4px 8px"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><path d="${d}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${sx(l.i).toFixed(1)}" cy="${sy(l.v).toFixed(1)}" r="2.5" fill="${col}"/></svg></td>`;
-}
-
-const EXP={};
-
-function buildHead(hid,months,hlIdx,relFn){
-  relFn=relFn||relLabel;
-  const lastIdx=months.length-1;
-  document.getElementById(hid).innerHTML=`<tr>
-    <th class="left" style="min-width:180px"><span class="dt">Métrica</span></th>
-    <th class="left" style="min-width:72px"><span class="rel">&nbsp;</span><span class="dt">Apertura</span></th>
-    ${months.map((m,i)=>{
-      const isLast=i===lastIdx;
-      const cls=isLast?'last':(i>=hlIdx?'hl':'');
-      const rel=relFn(months,i);
-      return`<th class="${cls}"><span class="rel">${rel}</span><span class="dt">${m}</span></th>`;
-    }).join('')}
-    <th class="last"><span class="rel">cambio</span><span class="dt">vs LP</span></th>
-    <th style="min-width:80px"><span class="dt">Tendencia</span></th></tr>`;
-}
-
-function buildBody(bid,data,months,hlIdx,lpIdx){
-  const tb=document.getElementById(bid);tb.innerHTML='';
-  const isGrowth=bid==='bg';
-  const lastIdx=months.length-1;
-  data.forEach((m,mi)=>{
-    if(isGrowth&&activeStore!=='Todas'){
-      const sRow=m.rows.find(r=>r.s===activeStore)||m.rows[0];
-      const tr=document.createElement('tr');
-      let h=`<td class="metric left"><span class="tog"></span>${m.metric}</td>`;
-      h+=`<td class="apert-total left">${sRow.s}</td>`;
-      sRow.v.forEach((v,i)=>{
-        const cls=i===lastIdx?'last':(i>=hlIdx?'hl':'');
-        h+=`<td class="${cls}">${fv(v,m.fmt)}</td>`;
-      });
-      const vl=vsLP(sRow.v,m.isPP,m.isNegGood,lpIdx);
-      const{txt,cls}=fmtVs(vl);
-      h+=`<td class="${cls}">${txt}</td>`;
-      h+=spark(sRow.v);
-      tr.innerHTML=h;tb.appendChild(tr);
-      return;
-    }
-    const isExp=EXP[bid+'_'+mi],hasC=m.rows.length>1;
-    m.rows.forEach((row,ri)=>{
-      if(ri>0&&!isExp)return;
-      const isT=ri===0,tr=document.createElement('tr');
-      let h='';
-      if(isT){
-        h+=`<td class="metric left"><span class="tog" onclick="tog('${bid}',${mi})">${hasC?(isExp?'▼':'▶'):''}</span>${m.metric}</td>`;
-        const subHtml=m.sub?`<div style="font-size:9px;color:#94a3b8;font-weight:400;margin-top:1px">${m.sub}</div>`:'';
-        h=`<td class="metric left"><span class="tog" onclick="tog('${bid}',${mi})">${hasC?(isExp?'▼':'▶'):''}</span>${m.metric}${subHtml}</td>`;
-        h+=`<td class="apert-total left">● Total</td>`;
-      } else {
-        h+=`<td></td><td class="store left">${row.s}</td>`;
-      }
-      row.v.forEach((v,i)=>{
-        const isLast=i===lastIdx;
-        const cls=isT?(isLast?'last':(i>=hlIdx?'hl':'')):(isLast?'store last':(i>=hlIdx?'store hl':'store'));
-        h+=`<td class="${cls}">${fv(v,m.fmt)}</td>`;
-      });
-      const vl=vsLP(row.v,m.isPP,m.isNegGood,lpIdx);
-      const{txt,cls}=fmtVs(vl);
-      h+=`<td class="${isT?cls:cls+' store'}">${txt}</td>`;
-      h+=spark(row.v);
-      tr.innerHTML=h;tb.appendChild(tr);
-    });
-  });
-}
-
-function buildPLHead(hid,cols,isTienda){
-  const w=isTienda?240:220;
-  const lastIdx=cols.length-1;
-  let ths='';
-  if(!isTienda){
-    ths=cols.map((c,i)=>{
-      const isLast=i===lastIdx;
-      const cls=isLast?'last':(i>=lastIdx-1?'hl':'');
-      const rel=relLabel(cols,i);
-      return`<th class="${cls}"><span class="rel">${rel}</span><span class="dt">${c}</span></th>`;
-    }).join('');
-  } else {
-    ths=cols.map((c,i)=>`<th class="${i===lastIdx?'last':'hl'}"><span class="rel">Tienda</span><span class="dt">${c}</span></th>`).join('');
+window.heroBuilders = {
+  growth: function(sec) {
+    const t = sec.total || {};
+    return card('Orders', t.orders, t.orders_dlp)
+      + card('Buyers', t.buyers, t.buyers_dlp)
+      + card('GMV', t.gmv, t.gmv_dlp)
+      + card('Fresh Orders', t.fresh_orders, t.fresh_dlp)
+      + card('Fresh Rate', t.fresh_rate, '');
+  },
+  ops: function(sec) {
+    const t = sec.total || {};
+    return card('Cancel Rate', t.cancel_rate, t.cancel_rate_dlp)
+      + card('Fill Rate', t.fill_rate, t.fill_rate_dlp)
+      + card('On-Time', t.ot_rate, t.ot_rate_dlp)
+      + card('Perfect Purch.', t.perfect_rate, t.perfect_rate_dlp);
+  },
+  cx: function(sec) {
+    const t = sec.total || {}; const b = sec.bpp || {};
+    let h = card('Claims Total', t.claims_total, t.claims_total_dlp);
+    if (t.by_type) Object.entries(t.by_type).forEach(([k,v]) => h += card('Claims '+k, v, ''));
+    if (b.total) h += card('BPP Total', b.total, b.total_dlp);
+    return h;
+  },
+  pnl: function(sec) {
+    const t = sec.total || {};
+    return card('GMV', t.gmv, t.gmv_dlp)
+      + card('NMV', t.nmv, t.nmv_dlp)
+      + card('Take Rate', t.take_rate, t.take_rate_dlp)
+      + card('Delivery Fee', t.delivery_fee, '')
+      + card('Service Fee', t.service_fee, '')
+      + card('Contribution', t.contribution, '');
   }
-  document.getElementById(hid).innerHTML=`<tr>
-    <th class="left" style="min-width:${w}px"><span class="dt">Línea P&L</span></th>
-    ${ths}
-    ${!isTienda?'<th class="last"><span class="rel">cambio</span><span class="dt">vs LP</span></th><th><span class="dt">Tendencia</span></th>':''}</tr>`;
-}
-
-function buildPLBody(bid,lines,nmvArr,cols,isTienda){
-  const tb=document.getElementById(bid);tb.innerHTML='';
-  const lastIdx=cols.length-1;
-  lines.forEach((line,li)=>{
-    const isExp=EXP[bid+'_'+li],hasC=line.children&&line.children.length>0;
-    const isNmv=line.isNmv;
-    const vals=isNmv?nmvArr:(line.v||[]);
-    const tr=document.createElement('tr');
-    let h=`<td class="main left"><span class="tog" onclick="togPL('${bid}',${li})">${hasC?(isExp?'▼':'▶'):''}</span>${line.metric}</td>`;
-    vals.forEach((v,i)=>{
-      const cls=i===lastIdx?'main last':'main'+(i>=lastIdx-1?' hl':'');
-      h+=`<td class="${cls}">${fpl(v,isNmv)}</td>`;
-    });
-    if(!isTienda){
-      if(isNmv){
-        const d=vals[4]&&vals[5]?(vals[5]-vals[4])/vals[4]*100:null;
-        h+=d!=null?`<td class="main last ${d>=0?'pos':'neg'}">${d>=0?'+':''}${d.toFixed(1)}%</td>`:`<td class="main last neu">-</td>`;
-      } else if(vals.length>=6){
-        const d=(vals[5]-vals[4])*100;
-        h+=`<td class="main last ${d>=0?'pos':'neg'}">${d>=0?'+':''}${d.toFixed(2)}pp</td>`;
-      } else h+=`<td class="main last neu">-</td>`;
-      h+=spark(vals);
-    }
-    tr.innerHTML=h;tb.appendChild(tr);
-    if(isExp&&hasC){
-      line.children.forEach(child=>{
-        const cr=document.createElement('tr');
-        let ch=`<td class="child left" style="padding-left:28px">${child.metric}</td>`;
-        child.v.forEach((v,i)=>{
-          const cls=i===lastIdx?'child last':'child'+(i>=lastIdx-1?' hl':'');
-          ch+=`<td class="${cls}">${fpl(v,false)}</td>`;
-        });
-        if(!isTienda){
-          const d=(child.v[5]-child.v[4])*100;
-          ch+=`<td class="child last ${d>=0?'pos':'neg'}">${d>=0?'+':''}${d.toFixed(2)}pp</td>`;
-          ch+=spark(child.v);
-        }
-        cr.innerHTML=ch;tb.appendChild(cr);
-      });
-    }
-  });
-}
-
-function buildVertBody(){
-  const tb=document.getElementById('bpv');tb.innerHTML='';
-  document.getElementById('hpv').innerHTML=`<tr>
-    <th class="left" style="min-width:220px"><span class="dt">Vertical</span></th>
-    <th><span class="dt">NMV</span></th>
-    <th><span class="dt">Prod. Monetization</span></th>
-    <th><span class="dt">Variable Contribution</span></th>
-    <th class="last"><span class="dt">Direct Contribution</span></th></tr>`;
-  verticals.forEach(vt=>{
-    const tr=document.createElement('tr');
-    const dc_cls=vt.dc_pct>=0?'pos':'neg';
-    const vc_cls=vt.vc_pct>=0?'pos':'neg';
-    tr.innerHTML=`
-      <td class="left metric">${vt.v}</td>
-      <td>${fv(vt.nmv,'money')}</td>
-      <td>${(vt.pm_pct*100).toFixed(2)}%</td>
-      <td class="${vc_cls}">${(vt.vc_pct*100).toFixed(2)}%</td>
-      <td class="last ${dc_cls}">${(vt.dc_pct*100).toFixed(2)}%</td>`;
-    tb.appendChild(tr);
-  });
-}
-
-window.tog=function(bid,mi){EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildBody(bid,bid==='bg'?growthData:bid==='bo'?opsData:bid==='bbu'?demandaData:npsData,bid==='bn'?MONTHS_NPS:MONTHS,bid==='bn'?3:5,bid==='bn'?3:5);};
-window.togPL=function(bid,li){EXP[bid+'_'+li]=!EXP[bid+'_'+li];if(bid==='bpt')buildPLBody('bpt',plLines,nmvVals,MONTHS,false);else buildPLBody('bpti',plTiendas,tiendasNmv,tiendasNames,true);};
-
-window.switchTab=function(tab){
-  ['growth','ops','buyers','demog','nps','pl','charts','plan','fechasmoviles'].forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
-  document.querySelectorAll('#monthly-tabs .tab').forEach((el,i)=>el.classList.toggle('active',['growth','ops','buyers','demog','nps','pl','charts','plan','fechasmoviles'][i]===tab));
-  if(tab==='charts')buildCharts();
-  if(tab==='demog')buildBuyersCharts();
-  if(tab==='plan')buildPlan();
-  if(tab==='fechasmoviles')buildFechasMoviles();
 };
 
-window.switchSub=function(sub){
-  ['s-total','s-tiendas','s-vert'].forEach(s=>document.getElementById(s).style.display=s===sub?'':'none');
-  document.querySelectorAll('.subtab').forEach((el,i)=>el.classList.toggle('active',['s-total','s-tiendas','s-vert'][i]===sub));
+window.tableBuilders = {
+  growth: function(sec) {
+    const t = sec.total || {}; const s = sec.stores || {};
+    let rows = rowTotal('growth', [t.orders,'',t.orders_dlp, t.buyers, t.gmv,'',t.gmv_dlp,
+                                    t.fresh_orders, t.fresh_rate,'',t.fresh_dlp, t.sparkline||'']);
+    rows += '<tbody id="growth-store-rows">';
+    storeOrder.forEach(name => {
+      const d = s[name] || {};
+      rows += rowStore(name, [d.orders,'',d.orders_dlp, d.buyers, d.gmv,'',d.gmv_dlp,
+                               d.fresh_orders, d.fresh_rate,'',d.fresh_dlp, d.sparkline||'']);
+    });
+    return rows + '</tbody>';
+  },
+  ops: function(sec) {
+    const t = sec.total || {}; const s = sec.stores || {};
+    let rows = rowTotal('ops', [t.cancel_rate,'',t.cancel_rate_dlp,
+                                 t.cancels_seller, t.cancels_buyer, t.cancels_stockout,
+                                 t.fill_rate,'',t.fill_rate_dlp,
+                                 t.ot_rate, t.ot_early, t.ot_delay,
+                                 t.perfect_rate,'',t.perfect_rate_dlp,
+                                 t.cancel_sparkline||'']);
+    rows += '<tbody id="ops-store-rows">';
+    storeOrder.forEach(name => {
+      const d = s[name] || {};
+      rows += rowStore(name, [d.cancel_rate,'',d.cancel_rate_dlp,
+                               d.cancels_seller, d.cancels_buyer, d.cancels_stockout,
+                               d.fill_rate,'',d.fill_rate_dlp,
+                               d.ot_rate, d.ot_early, d.ot_delay,
+                               d.perfect_rate,'',d.perfect_rate_dlp,
+                               d.cancel_sparkline||'']);
+    });
+    return rows + '</tbody>';
+  },
+  cx: function(sec) {
+    const t = sec.total || {}; const s = sec.stores || {};
+    let rows = rowTotal('cx', [t.claims_total,'',t.claims_total_dlp]);
+    rows += '<tbody id="cx-store-rows">';
+    storeOrder.forEach(name => {
+      const d = s[name] || {};
+      rows += rowStore(name, [d.claims_total,'',d.claims_total_dlp]);
+    });
+    return rows + '</tbody>';
+  },
+  pnl: function(sec) {
+    const t = sec.total || {}; const s = sec.stores || {};
+    let rows = rowTotal('pnl', [t.gmv,'',t.gmv_dlp,t.gmv_dly,
+                                  t.nmv,'',t.nmv_dlp,
+                                  t.take_rate,'',t.take_rate_dlp,
+                                  t.delivery_fee, t.service_fee, t.contribution,
+                                  t.sparkline||'']);
+    rows += '<tbody id="pnl-store-rows">';
+    storeOrder.forEach(name => {
+      const d = s[name] || {};
+      rows += rowStore(name, [d.gmv,'',d.gmv_dlp,d.gmv_dly,
+                               d.nmv,'',d.nmv_dlp,
+                               d.take_rate,'',d.take_rate_dlp,
+                               d.delivery_fee, d.service_fee, d.contribution,
+                               d.sparkline||'']);
+    });
+    return rows + '</tbody>';
+  }
 };
 
-let activeWStore='Todas';
-
-window.setMode=function(mode){
-  const isW=mode==='weekly';
-  ['monthly-section','monthly-tbl'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.style.display=isW?'none':'';
-  });
-  document.getElementById('weekly-section').style.display=isW?'':'none';
-  document.getElementById('btn-monthly').classList.toggle('active',!isW);
-  document.getElementById('btn-weekly').classList.toggle('active',isW);
-  if(isW)buildWeeklyGrowth();
+const storeOrder = ['Scalabrini','Caballito','Villa Urquiza','Vicente Lopez'];
+const storeColors = {
+  'Scalabrini':'#3b82f6','Caballito':'#f59e0b',
+  'Villa Urquiza':'#10b981','Vicente Lopez':'#a855f7'
 };
 
-const _wTabs=['wgrowth','wops','wbuyers','wcharts','wplan','wfechas'];
-window.switchWeeklyTab=function(tab){
-  _wTabs.forEach(t=>document.getElementById('t-'+t).style.display=t===tab?'':'none');
-  document.querySelectorAll('#weekly-tabs .tab').forEach((el,i)=>el.classList.toggle('active',_wTabs[i]===tab));
-  if(tab==='wfechas')buildFechasMov7();
-  if(tab==='wcharts')buildWeeklyCharts();
-  if(tab==='wops')buildWeeklyOps();
-  if(tab==='wbuyers')buildWeeklyBuyers();
-  if(tab==='wplan')buildWeeklyPlan();
-};
-
-window.setWStore=function(s){
-  activeWStore=s;
-  buildWeeklyGrowth();
-};
-
-// ── BUILD HEAD for weekly (with relLabelS) ────────────────────────────────────
-function buildHeadW(hid,labels,hlIdx){
-  buildHead(hid,labels,hlIdx,relLabelS);
+function card(label, value, delta) {
+  return '<div class="hero-card"><div class="hero-label">'+label+'</div>'
+       + '<div class="hero-value">'+(value||'—')+'</div>'
+       + '<div class="hero-delta">'+(delta||'')+'</div></div>';
 }
-function buildHeadP(hid,labels,hlIdx){
-  buildHead(hid,labels,hlIdx,relLabelP);
+function rowTotal(sec, cells) {
+  return '<tr class="total-row" onclick="toggleStores(''+sec+'')">'
+       + '<td data-arrow="▶">Todas las tiendas</td>'
+       + cells.map(c => '<td>'+(c===''?'':c||'—')+'</td>').join('') + '</tr>';
+}
+function rowStore(name, cells) {
+  const dot = '<span class="store-dot" style="background:'+(storeColors[name]||'#94a3b8')+'"></span>';
+  return '<tr class="store-row">'
+       + '<td>'+dot+name+'</td>'
+       + cells.map(c => '<td>'+(c===''?'':c||'—')+'</td>').join('') + '</tr>';
 }
 
-// ── BODY weekly (same pattern as buildBody but for weekly) ────────────────────
-function buildBodyW(bid,data,labels,hlIdx,lpIdx){
-  const tb=document.getElementById(bid);tb.innerHTML='';
-  const isGrowth=bid==='bwg';
-  const lastIdx=labels.length-1;
-  data.forEach((m,mi)=>{
-    if(isGrowth&&activeWStore!=='Todas'){
-      const sRow=m.rows.find(r=>r.s===activeWStore)||m.rows[0];
-      const tr=document.createElement('tr');
-      let h=`<td class="metric left"><span class="tog"></span>${m.metric}</td>`;
-      h+=`<td class="apert-total left">${sRow.s}</td>`;
-      sRow.v.forEach((v,i)=>{
-        const cls=i===lastIdx?'last':(i>=hlIdx?'hl':'');
-        h+=`<td class="${cls}">${fv(v,m.fmt)}</td>`;
-      });
-      const vl=vsLP(sRow.v,m.isPP,m.isNegGood,lpIdx);
-      const{txt,cls}=fmtVs(vl);
-      h+=`<td class="${cls}">${txt}</td>`;
-      h+=spark(sRow.v);
-      tr.innerHTML=h;tb.appendChild(tr);
-      return;
-    }
-    const isExp=EXP[bid+'_'+mi],hasC=m.rows.length>1;
-    m.rows.forEach((row,ri)=>{
-      if(ri>0&&!isExp)return;
-      const isT=ri===0,tr=document.createElement('tr');
-      let h='';
-      if(isT){
-        h+=`<td class="metric left"><span class="tog" onclick="togW('${bid}',${mi})">${hasC?(isExp?'▼':'▶'):''}</span>${m.metric}</td>`;
-        h+=`<td class="apert-total left">● Total</td>`;
-      } else {
-        h+=`<td></td><td class="store left">${row.s}</td>`;
-      }
-      row.v.forEach((v,i)=>{
-        const isLast=i===lastIdx;
-        const cls=isT?(isLast?'last':(i>=hlIdx?'hl':'')):(isLast?'store last':(i>=hlIdx?'store hl':'store'));
-        h+=`<td class="${cls}">${fv(v,m.fmt)}</td>`;
-      });
-      const vl=vsLP(row.v,m.isPP,m.isNegGood,lpIdx);
-      const{txt,cls}=fmtVs(vl);
-      h+=`<td class="${isT?cls:cls+' store'}">${txt}</td>`;
-      h+=spark(row.v);
-      tr.innerHTML=h;tb.appendChild(tr);
-    });
-  });
-}
-window.togW=function(bid,mi){EXP[bid+'_'+mi]=!EXP[bid+'_'+mi];buildWeeklyGrowth();};
 
-function buildWeeklyGrowth(){
-  const N=weekLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
-  buildHeadW('hwg',weekLabels,hlIdx);
-  buildBodyW('bwg',weeklyGrowthStores,weekLabels,hlIdx,lpIdx);
+const periodLabels = {daily:'Day', weekly:'Week', monthly:'Month'};
+let currentPeriod = 'weekly';
+let currentSection = 'growth';
+
+function setPeriod(p) {
+  currentPeriod = p;
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('ptab-' + p).classList.add('active');
+  refreshView();
 }
 
-function buildWeeklyOps(){
-  const N=weekLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
-  buildHeadW('hwo',weekLabels,hlIdx);
-  buildBodyW('bwo',weeklyOpsW,weekLabels,hlIdx,lpIdx);
+function setSection(s) {
+  currentSection = s;
+  document.querySelectorAll('.sec-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('stab-' + s).classList.add('active');
+  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+  document.getElementById('sec-' + s).classList.add('active');
+  refreshView();
 }
 
-function buildWeeklyBuyers(){
-  const N=weekLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
-  buildHeadW('hwbu',weekLabels,hlIdx);
-  buildBodyW('bwbu',weeklyBuyersW,weekLabels,hlIdx,lpIdx);
+function toggleStores(sectionKey) {
+  const rows = document.querySelectorAll('#' + sectionKey + '-store-rows .store-row');
+  const arrow = document.getElementById(sectionKey + '-total-row');
+  const isOpen = rows[0] && rows[0].classList.contains('visible');
+  rows.forEach(r => r.classList.toggle('visible', !isOpen));
+  if (arrow) arrow.setAttribute('data-arrow', isOpen ? '▶' : '▼');
 }
 
-function buildWeeklyCharts(){
-  const nmvV=weeklyGrowthStores.find(m=>m.metric==='NMV').rows[0].v;
-  const cmpV=weeklyGrowthStores.find(m=>m.metric==='Compras').rows[0].v;
-  const frV=weeklyGrowthStores.find(m=>m.metric==='Fill Rate Items').rows[0].v;
-  const visV=weeklyGrowthStores.find(m=>m.metric==='Visitas').rows[0].v;
-  drawLineArea('cw-nmv',nmvV,weekLabels,'#2563eb','money');
-  drawBars('cw-ord',cmpV,weekLabels,'#16a34a','num');
-  drawLineArea('cw-fr',frV,weekLabels,'#d97706','pct');
-  drawBars('cw-vis',visV,weekLabels,'#7c3aed','num');
-}
-
-function buildWeeklyPlan(){
-  const lastIdx=weekLabels.length-1;
-  document.getElementById('hwpl').innerHTML='<tr>'+
-    '<th class="left" style="min-width:150px"><span class="dt">Métrica</span></th>'+
-    '<th class="left" style="min-width:60px"><span class="dt">Apertura</span></th>'+
-    weekLabels.map((m,i)=>{
-      const cls=i===lastIdx?'last':(i>=weekLabels.length-4?'hl':'');
-      return'<th class="'+cls+'"><span class="rel">'+relLabelS(weekLabels,i)+'</span><span class="dt">'+m+'</span></th>';
-    }).join('')+
-    '<th class="last"><span class="rel">vs plan</span><span class="dt">Ult.&nbsp;sem.</span></th></tr>';
-  const tb=document.getElementById('bwpl');tb.innerHTML='';
-  weeklyPlanDataW.forEach(row=>{
-    const trP=document.createElement('tr');
-    let hP='<td class="metric left">'+row.metric+'</td>';
-    hP+='<td class="apert left" style="color:#94a3b8;font-size:11px">◌ Plan</td>';
-    row.plan.forEach((v,i)=>{
-      const cls=i===lastIdx?'last':(i>=weekLabels.length-4?'hl':'');
-      hP+='<td class="'+cls+'" style="opacity:0.55;font-style:italic">'+fv(v,row.fmt)+'</td>';
-    });
-    hP+='<td class="last neu">—</td>';
-    trP.innerHTML=hP;tb.appendChild(trP);
-    const trR=document.createElement('tr');
-    let hR='<td></td><td class="apert-total left" style="font-size:11px">● Real</td>';
-    row.real.forEach((v,i)=>{
-      const cls=i===lastIdx?'last':(i>=weekLabels.length-4?'hl':'');
-      hR+='<td class="'+cls+'">'+fv(v,row.fmt)+'</td>';
-    });
-    const pm=row.plan[lastIdx],rm=row.real[lastIdx];
-    let vs='<td class="last neu">—</td>';
-    if(pm&&rm){const d=(rm-pm)/pm*100;vs='<td class="last '+(d>=0?'pos':'neg')+'">'+(d>=0?'+':'')+d.toFixed(1)+'%</td>';}
-    hR+=vs;trR.innerHTML=hR;tb.appendChild(trR);
-  });
-}
-
-// ── FECHAS MÓVILES — transposed (KPIs=rows, períodos=columns) ─────────────────
-function buildFMTransposed(containerId,tData,tLabels,titleText){
-  const c=document.getElementById(containerId);
-  if(!c||c.dataset.built)return;
-  c.dataset.built='1';
-  const N=tLabels.length,hlIdx=Math.max(0,N-4),lpIdx=N-1;
-  const titleEl=document.createElement('div');
-  titleEl.className='fm-title';titleEl.textContent=titleText;
-  c.appendChild(titleEl);
-  // Build head manually
-  const hid='fm-h-'+containerId, bid='fm-b-'+containerId;
-  const tbl=document.createElement('div');
-  tbl.className='tbl';
-  tbl.innerHTML='<table><thead id="'+hid+'"></thead><tbody id="'+bid+'"></tbody></table>';
-  c.appendChild(tbl);
-  buildHeadP(hid,tLabels,hlIdx);
-  buildBodyW(bid,tData,tLabels,hlIdx,lpIdx);
-}
-
-function buildFechasMoviles(){
-  buildFMTransposed('fm28-cont',rolling28T,rolling28TLabels,'Rolling 28 días · KPIs como filas · períodos como columnas (P = más reciente)');
-}
-function buildFechasMov7(){
-  buildFMTransposed('fm7-cont',rolling7T,rolling7TLabels,'Rolling 7 días · KPIs como filas · períodos como columnas (P = más reciente)');
-}
-
-// ── KPI YTD ───────────────────────────────────────────────────────────────────
-if(buyersYtd!=null){
-  document.getElementById('kpi-ytd-val').textContent=buyersYtd.toLocaleString('es-AR');
-}
-
-// ── CHARTS ────────────────────────────────────────────────────────────────────
-function getW(id){const r=document.getElementById(id).getBoundingClientRect();return Math.max(r.width,300)||380;}
-
-const tt=document.getElementById('tt');
-const ttLbl=document.getElementById('tt-lbl');
-const ttVal=document.getElementById('tt-val');
-function showTT(e,lbl,val){tt.style.display='block';ttLbl.textContent=lbl;ttVal.textContent=val;moveTT(e);}
-function moveTT(e){tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-36)+'px';}
-function hideTT(){tt.style.display='none';}
-
-function fmtChart(v,fmt){
-  if(v==null)return'-';
-  if(fmt==='pct')return(v*100).toFixed(1)+'%';
-  if(fmt==='money')return v>=1e9?'$'+(v/1e9).toFixed(2)+'B':v>=1e6?'$'+(v/1e6).toFixed(2)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v;
-  return v>=1e6?(v/1e6).toFixed(2)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v.toLocaleString();
-}
-
-function drawLineArea(svgId,vals,labels,color,fmt){
-  const W=getW(svgId),H=200,PL=52,PR=14,PT=28,PB=32;
-  const cW=W-PL-PR,cH=H-PT-PB;
-  const pts=vals.map((v,i)=>{return{v,i,lbl:labels[i]}}).filter(p=>p.v!=null);
-  if(pts.length<2)return;
-  const ys=pts.map(p=>p.v),mnY=Math.min(...ys)*0.92,mxY=Math.max(...ys)*1.04,rng=mxY-mnY||mxY||1;
-  const N=vals.length;
-  const sx=i=>PL+i/(N-1)*cW;
-  const sy=v=>PT+cH-(v-mnY)/rng*cH;
-  let svg=`<defs><linearGradient id="ag${svgId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.2"/><stop offset="100%" stop-color="${color}" stop-opacity="0.02"/></linearGradient></defs>`;
-  for(let g=0;g<=3;g++){
-    const yg=PT+cH*g/3;
-    const val=mxY-(rng*g/3);
-    const lbl=fmtChart(val,fmt);
-    svg+=`<line x1="${PL}" y1="${yg.toFixed(1)}" x2="${W-PR}" y2="${yg.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
-    svg+=`<text x="${PL-5}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${lbl}</text>`;
+function refreshView() {
+  const d = window.DATA;
+  if (!d) return;
+  const sec = d[currentSection] && d[currentSection][currentPeriod];
+  if (!sec) return;
+  // update hero cards
+  const hero = document.getElementById('hero-' + currentSection);
+  if (hero && window.heroBuilders && window.heroBuilders[currentSection]) {
+    hero.innerHTML = window.heroBuilders[currentSection](sec);
   }
-  const path=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
-  const lastP=pts[pts.length-1],firstP=pts[0];
-  svg+=`<path d="${path} L${sx(lastP.i).toFixed(1)},${(PT+cH).toFixed(1)} L${sx(firstP.i).toFixed(1)},${(PT+cH).toFixed(1)} Z" fill="url(#ag${svgId})"/>`;
-  svg+=`<path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-  pts.forEach((p,pi)=>{
-    const isLast=pi===pts.length-1;
-    const cx=sx(p.i).toFixed(1),cy=sy(p.v).toFixed(1);
-    const valLbl=fmtChart(p.v,fmt);
-    const above=pi%2===0;
-    const ly=(sy(p.v)+(above?-9:14)).toFixed(1);
-    svg+=`<text x="${cx}" y="${ly}" text-anchor="middle" font-size="9" font-weight="${isLast?700:500}" fill="${isLast?color:'#94a3b8'}">${valLbl}</text>`;
-    svg+=`<circle class="hp" cx="${cx}" cy="${cy}" r="${isLast?4.5:3}" fill="${isLast?color:'#ffffff'}" stroke="${color}" stroke-width="1.8"
-      onmousemove="showTT(event,'${p.lbl}','${valLbl}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
-  });
-  labels.forEach((lbl,i)=>{
-    svg+=`<text x="${sx(i).toFixed(1)}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#94a3b8">${lbl}</text>`;
-  });
-  const el=document.getElementById(svgId);
-  el.setAttribute('height',H);el.innerHTML=svg;
-}
-
-function drawBars(svgId,vals,labels,color,fmt){
-  const W=getW(svgId),H=200,PL=52,PR=14,PT=28,PB=32;
-  const cW=W-PL-PR,cH=H-PT-PB;
-  const N=vals.length,gap=5,bW=(cW-gap*(N-1))/N;
-  const clean=vals.filter(v=>v!=null),mxY=Math.max(...clean)*1.12||1;
-  let svg='';
-  for(let g=0;g<=3;g++){
-    const yg=PT+cH*g/3;
-    const val=mxY*(1-g/3);
-    svg+=`<line x1="${PL}" y1="${yg.toFixed(1)}" x2="${W-PR}" y2="${yg.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
-    svg+=`<text x="${PL-5}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${fmtChart(val,fmt)}</text>`;
+  // update tables
+  const tbody = document.getElementById('tbody-' + currentSection);
+  if (tbody && window.tableBuilders && window.tableBuilders[currentSection]) {
+    tbody.innerHTML = window.tableBuilders[currentSection](sec);
   }
-  vals.forEach((v,i)=>{
-    if(v==null)return;
-    const x=PL+i*(bW+gap);
-    const bH=v/mxY*cH;
-    const isLast=i===N-1;
-    const col=isLast?color:color+'88';
-    const cx=(x+bW/2).toFixed(1);
-    const valLbl=fmtChart(v,fmt);
-    svg+=`<rect class="hp" x="${x.toFixed(1)}" y="${(PT+cH-bH).toFixed(1)}" width="${bW.toFixed(1)}" height="${bH.toFixed(1)}" rx="3" fill="${col}"
-      onmousemove="showTT(event,'${labels[i]}','${valLbl}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
-    svg+=`<text x="${cx}" y="${(PT+cH-bH-5).toFixed(1)}" text-anchor="middle" font-size="${isLast?10:9}" font-weight="${isLast?700:400}" fill="${isLast?color:'#94a3b8'}">${valLbl}</text>`;
-    svg+=`<text x="${cx}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#94a3b8">${labels[i]}</text>`;
-  });
-  const el=document.getElementById(svgId);
-  el.setAttribute('height',H);el.innerHTML=svg;
+  // update period label
+  const lbl = document.getElementById('period-lbl-' + currentSection);
+  if (lbl) lbl.textContent = 'Showing: ' + periodLabels[currentPeriod] + ' view  |  vs LP = vs last ' + periodLabels[currentPeriod];
 }
 
-function drawMultiLine(svgId,seriesList,labels){
-  const W=getW(svgId),H=200,PL=52,PR=64,PT=28,PB=32;
-  const cW=W-PL-PR,cH=H-PT-PB;
-  const N=labels.length;
-  const allV=seriesList.flatMap(s=>s.vals.filter(v=>v!=null));
-  const mnY=Math.min(...allV)*0.95,mxY=Math.max(...allV)*1.05,rng=mxY-mnY||0.01;
-  const sx=i=>PL+i/(N-1)*cW;
-  const sy=v=>PT+cH-(v-mnY)/rng*cH;
-  let svg='';
-  for(let g=0;g<=3;g++){
-    const yg=PT+cH*g/3;
-    const val=mxY-(rng*g/3);
-    svg+=`<line x1="${PL}" y1="${yg.toFixed(1)}" x2="${W-PR}" y2="${yg.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
-    svg+=`<text x="${PL-5}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${(val*100).toFixed(0)}%</text>`;
-  }
-  seriesList.forEach((s)=>{
-    const pts=s.vals.map((v,i)=>{return{v,i}}).filter(p=>p.v!=null);
-    if(pts.length<2)return;
-    const path=pts.map((p,i)=>(i===0?'M':'L')+sx(p.i).toFixed(1)+','+sy(p.v).toFixed(1)).join(' ');
-    svg+=`<path d="${path}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-    pts.forEach((p,pi)=>{
-      const cx=sx(p.i).toFixed(1),cy=sy(p.v).toFixed(1);
-      const valLbl=(p.v*100).toFixed(1)+'%';
-      const above=pi%2===0;
-      const ly=(sy(p.v)+(above?-8:13)).toFixed(1);
-      svg+=`<text x="${cx}" y="${ly}" text-anchor="middle" font-size="9" fill="${s.color}" opacity="0.85">${valLbl}</text>`;
-      svg+=`<circle class="hp" cx="${cx}" cy="${cy}" r="3" fill="${s.color}"
-        onmousemove="showTT(event,'${labels[p.i]} · ${s.label}','${valLbl}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
-    });
-    const last=pts[pts.length-1];
-    svg+=`<text x="${(W-PR+6).toFixed(1)}" y="${(sy(last.v)+4).toFixed(1)}" font-size="10" fill="${s.color}" font-weight="700">${s.label}</text>`;
-  });
-  labels.forEach((lbl,i)=>{
-    svg+=`<text x="${sx(i).toFixed(1)}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#94a3b8">${lbl}</text>`;
-  });
-  const el=document.getElementById(svgId);
-  el.setAttribute('height',H);el.innerHTML=svg;
-}
+document.addEventListener('DOMContentLoaded', function() {
+  setSection('growth');
+  setPeriod('weekly');
+});
 
-function buildCharts(){
-  const nmvValsGrowth=growthData.find(m=>m.metric==='NMV').rows[0].v;
-  const comprasVals=growthData.find(m=>m.metric==='Compras').rows[0].v;
-  const visVals=visitasVals;
-  const frItems=opsData.find(m=>m.metric==='Fill Rate Items').rows[0].v;
-  const frCompras=opsData.find(m=>m.metric==='Fill Rate Compras').rows[0].v;
-  drawLineArea('c-nmv',nmvValsGrowth,MONTHS,'#2563eb','money');
-  drawBars('c-ord',comprasVals,MONTHS,'#16a34a','num');
-  drawMultiLine('c-fr',[
-    {vals:frItems,color:'#2563eb',label:'Items'},
-    {vals:frCompras,color:'#d97706',label:'Compras'}
-  ],MONTHS);
-  drawBars('c-vis',visVals,MONTHS,'#7c3aed','num');
-}
-
-// ── STACKED BAR ───────────────────────────────────────────────────────────────
-function drawStacked100(svgId,series,labels,colors){
-  const W=getW(svgId),H=230,PL=40,PR=90,PT=24,PB=32;
-  const cW=W-PL-PR,cH=H-PT-PB;
-  const N=labels.length,gap=8,bW=(cW-gap*(N-1))/N;
-  const totals=labels.map((_,i)=>series.reduce((s,ser)=>s+(ser.vals[i]||0),0));
-  let svg='';
-  for(let g=0;g<=4;g++){
-    const yg=PT+cH*g/4;
-    const pctLbl=(100-g*25)+'%';
-    svg+=`<line x1="${PL}" y1="${yg.toFixed(1)}" x2="${W-PR}" y2="${yg.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
-    svg+=`<text x="${PL-4}" y="${(yg+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${pctLbl}</text>`;
-  }
-  labels.forEach((lbl,i)=>{
-    const x=PL+i*(bW+gap);
-    const total=totals[i];if(!total)return;
-    let yOff=PT+cH;
-    series.forEach((ser,si)=>{
-      const v=ser.vals[i]||0;if(!v)return;
-      const ratio=v/total;
-      const bH=ratio*cH;
-      yOff-=bH;
-      const col=colors[si];
-      const pct=Math.round(ratio*100)+'%';
-      const vfmt=fmtChart(v,'num');
-      svg+=`<rect class="hp" x="${x.toFixed(1)}" y="${yOff.toFixed(1)}" width="${bW.toFixed(1)}" height="${bH.toFixed(1)}" fill="${col}"
-        onmousemove="showTT(event,'${ser.name} (${lbl})','${pct} / ${vfmt}')" onmouseleave="hideTT()" style="cursor:pointer"/>`;
-      if(bH>=14){
-        svg+=`<text x="${(x+bW/2).toFixed(1)}" y="${(yOff+bH/2+4).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.9)">${pct}</text>`;
-      }
-    });
-    svg+=`<text x="${(x+bW/2).toFixed(1)}" y="${(PT+cH+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#94a3b8">${lbl}</text>`;
-  });
-  const rev=[...series].reverse();
-  const revc=[...colors].reverse();
-  rev.forEach((ser,si)=>{
-    const ly=PT+si*15;
-    svg+=`<rect x="${W-PR+8}" y="${(ly-7).toFixed(1)}" width="9" height="9" rx="2" fill="${revc[si]}"/>`;
-    svg+=`<text x="${W-PR+21}" y="${(ly+2).toFixed(1)}" font-size="9" fill="#64748b">${ser.name}</text>`;
-  });
-  const el=document.getElementById(svgId);el.setAttribute('height',H);el.innerHTML=svg;
-}
-
-function buildBuyersCharts(){
-  const genFM=buyersGenero.filter(g=>g.name!=='Otro');
-  drawStacked100('c-gen',genFM,MONTHS,['#3b82f6','#ec4899']);
-  const edadOrder=['Sin clasif.','18-29','60+','45-59','30-44'];
-  const edadSorted=edadOrder.map(n=>buyersEdad.find(e=>e.name===n)).filter(Boolean);
-  drawStacked100('c-edad',edadSorted,MONTHS,['#e2e8f0','#f59e0b','#dc2626','#16a34a','#2563eb']);
-  const nseKeys=['SinClasif','BRONZE','SILVER','GOLD','PLATINUM'];
-  const nseLabels=['Sin clasif.','BRONZE','SILVER','GOLD','PLATINUM'];
-  const nseColors=['#e2e8f0','#b45309','#06b6d4','#f59e0b','#0f766e'];
-  const nseMesSer=nseKeys.map((k,i)=>{return{name:nseLabels[i],vals:buyersNseMes.map(m=>m[k]||0)}});
-  drawStacked100('c-nse-mes',nseMesSer,MONTHS,nseColors);
-  const tiendas=buyersNseTienda.map(d=>d.tienda);
-  const nseT4=['BRONZE','SILVER','GOLD','PLATINUM'];
-  const nseTSer=nseT4.map(k=>{return{name:k,vals:buyersNseTienda.map(d=>d[k]||0)}});
-  drawStacked100('c-nse-tienda',nseTSer,tiendas,['#b45309','#06b6d4','#f59e0b','#0f766e']);
-}
-
-// ── PLAN V2 ───────────────────────────────────────────────────────────────────
-const planData=[
-  {metric:'NMV',fmt:'money',isNegGood:false,
-    plan:[null,null,null,175799372,196000000,332708333],
-    real:[10451118,56806992,170234400,175439531,242175980,306868637]},
-  {metric:'Compras',fmt:'num',isNegGood:false,
-    plan:[null,null,null,3103,3229,5709],
-    real:[202,987,2927,3098,4244,5262]},
-  {metric:'APV LC',fmt:'dollar',isNegGood:false,
-    plan:[null,null,null,56655,60700,58278],
-    real:[51738,57555,58160,56630,57063,58318]},
-  {metric:'Fill Rate Items',sub:'sin reemplazos',fmt:'pct',isNegGood:false,
-    plan:[null,null,null,0.92,0.92,0.92],
-    real:[0.8958,0.9191,0.9051,0.9172,0.9123,0.8898]},
-  {metric:'Fill Rate Compras',sub:'sin reemplazos',fmt:'pct',isNegGood:false,
-    plan:[null,null,null,0.65,0.65,0.65],
-    real:[0.6215,0.7217,0.6570,0.6436,0.6469,0.5930]},
-  {metric:'On Time',fmt:'pct',isNegGood:false,
-    plan:[null,null,null,0.96,0.96,0.96],
-    real:[0.9645,0.9287,0.7897,0.8923,0.8082,0.8558]},
-  {metric:'Cancelaciones',fmt:'pct',isNegGood:true,
-    plan:[null,null,null,0.05,0.05,0.05],
-    real:[0.0789,0.0519,0.0878,0.0510,0.0523,0.0668]},
-];
-
-function buildPlan(){
-  const lastIdx=MONTHS.length-1;
-  document.getElementById('h-plan').innerHTML=`<tr>
-    <th class="left" style="min-width:180px"><span class="dt">Métrica</span></th>
-    <th class="left" style="min-width:60px"><span class="dt">Apertura</span></th>
-    ${MONTHS.map((m,i)=>{
-      const isLast=i===lastIdx;
-      const cls=isLast?'last':(i>=4?'hl':'');
-      return`<th class="${cls}"><span class="rel">${relLabel(MONTHS,i)}</span><span class="dt">${m}</span></th>`;
-    }).join('')}
-    <th class="last"><span class="rel">vs plan</span><span class="dt">Mar'26</span></th></tr>`;
-  const tb=document.getElementById('b-plan');tb.innerHTML='';
-  planData.forEach(row=>{
-    const trP=document.createElement('tr');
-    const subLbl=row.sub?`<div style="font-size:9px;color:#94a3b8;font-weight:400;margin-top:1px">${row.sub}</div>`:'';
-    let hP=`<td class="metric left">${row.metric}${subLbl}</td>`;
-    hP+=`<td class="apert left" style="color:#94a3b8;font-size:11px">◌ Plan V2</td>`;
-    row.plan.forEach((v,i)=>{
-      const isLast=i===lastIdx;
-      const cls=isLast?'last':(i>=4?'hl':'');
-      hP+=`<td class="${cls}" style="opacity:0.55;font-style:italic">${fv(v,row.fmt)}</td>`;
-    });
-    hP+=`<td class="last neu">—</td>`;
-    trP.innerHTML=hP;tb.appendChild(trP);
-    const trR=document.createElement('tr');
-    let hR=`<td></td>`;
-    hR+=`<td class="apert-total left" style="font-size:11px">● Real</td>`;
-    row.real.forEach((v,i)=>{
-      const isLast=i===lastIdx;
-      const cls=isLast?'last':(i>=4?'hl':'');
-      hR+=`<td class="${cls}">${fv(v,row.fmt)}</td>`;
-    });
-    const pm=row.plan[lastIdx],rm=row.real[lastIdx];
-    let vs='<td class="last neu">—</td>';
-    if(pm!=null&&rm!=null){
-      const isPct=row.fmt==='pct'||row.fmt==='pp';
-      const d=isPct?(rm-pm)*100:(rm-pm)/pm*100;
-      const txt=(d>=0?'+':'')+d.toFixed(isPct?2:1)+(isPct?'pp':'%');
-      const good=row.isNegGood?d<=0:d>=0;
-      vs=`<td class="last ${good?'pos':'neg'}">${txt}</td>`;
-    }
-    hR+=vs;
-    trR.innerHTML=hR;tb.appendChild(trR);
-  });
-}
-
-function rebuildAll(){
-  buildHead('hg',MONTHS,4);
-  buildBody('bg',growthData,MONTHS,4,5);
-  buildHead('ho',MONTHS,4);
-  buildBody('bo',opsData,MONTHS,4,5);
-  buildHead('hbu',MONTHS,4);
-  buildBody('bbu',demandaData,MONTHS,4,5);
-  buildHead('hn',MONTHS_NPS,2);
-  buildBody('bn',npsData,MONTHS_NPS,2,3);
-  buildPLHead('hpt',MONTHS,false);
-  buildPLBody('bpt',plLines,nmvVals,MONTHS,false);
-  buildPLHead('hpti',tiendasNames,true);
-  buildPLBody('bpti',plTiendas,tiendasNmv,tiendasNames,true);
-  buildVertBody();
-}
-
-rebuildAll();
 </script>
 </body>
 </html>
