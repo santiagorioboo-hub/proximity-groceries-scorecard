@@ -746,7 +746,7 @@ const WEEKLY_PLAN = {
 
 const TABS_SEMANAL = [
   {id:'growth',   label:'Growth'},
-  {id:'ops',      label:'Ops'},
+  {id:'ops',      label:'Ops + NPS'},
   {id:'buyers',   label:'Buyers'},
   {id:'graficos', label:'Gráficos'},
   {id:'plan',     label:'Plan'},
@@ -754,14 +754,13 @@ const TABS_SEMANAL = [
 ];
 const TABS_MENSUAL = [
   {id:'growth',     label:'Growth'},
-  {id:'ops',        label:'Ops'},
+  {id:'ops',        label:'Ops + NPS'},
   {id:'buyers',     label:'Buyers'},
   {id:'graficos',   label:'Gráficos'},
   {id:'cx',         label:'CX'},
   {id:'pl',         label:'P&L'},
   {id:'assortment', label:'Assortment'},
   {id:'demo',       label:'Demográficos'},
-  {id:'nps',        label:'NPS'},
   {id:'plan',       label:'Plan'},
   {id:'rolling',    label:'Fechas Móviles'},
 ];
@@ -965,7 +964,9 @@ const OPS_ROWS = [
 ];
 
 function renderOps(periods, labelMap, dataMap) {
-  return buildTable(periods, labelMap, OPS_ROWS, dataMap);
+  let h = buildTable(periods, labelMap, OPS_ROWS, dataMap);
+  h += renderNPS();
+  return h;
 }
 
 // ── BUYERS TAB ────────────────────────────────────────────────────────────────
@@ -1298,339 +1299,151 @@ function renderPlan() {
   for (const p of periods) {
     const v = (growthMap[p]||{}).NMV || null;
     if (v) tReal += v;
-    h += `<td style="font-weight:600">${fmtNMV(v)}</td>`;
+    h += `<td${v==null?' style="color:#94a3b8"':''}>${fmtNMV(v)}</td>`;
   }
-  h += `<td style="font-weight:700">${fmtNMV(tReal||null)}</td></tr>`;
+  h += `<td style="font-weight:600">${fmtNMV(tReal||null)}</td></tr>`;
 
-  // Fila % vs Plan
-  h += '<tr><td style="color:#667eea;font-weight:500">% vs Plan</td>';
+  // Fila vs Plan %
+  h += '<tr><td style="font-weight:600;color:#64748b">vs Plan</td>';
   for (const p of periods) {
-    const pv = (plan[p]||{}).NMV; const rv = (growthMap[p]||{}).NMV;
+    const pv = (plan[p]||{}).NMV || null;
+    const rv = (growthMap[p]||{}).NMV || null;
     if (pv && rv) {
       const pct = (rv - pv) / pv;
       h += `<td class="${pct>=0?'good':'bad'}">${pct>=0?'+':''}${(pct*100).toFixed(1)}%</td>`;
-    } else if (pv && !rv) {
-      h += `<td style="color:#cbd5e1">pendiente</td>`;
-    } else { h += '<td>—</td>'; }
+    } else {
+      h += '<td>—</td>';
+    }
   }
-  if (tPlan > 0) {
-    const p = (tReal - tPlan) / tPlan;
-    h += `<td class="${p>=0?'good':'bad'}" style="font-weight:700">${p>=0?'+':''}${(p*100).toFixed(1)}%</td>`;
+  if (tPlan > 0 && tReal > 0) {
+    const pTot = (tReal - tPlan) / tPlan;
+    h += `<td class="${pTot>=0?'good':'bad'}">${pTot>=0?'+':''}${(pTot*100).toFixed(1)}%</td>`;
   } else { h += '<td>—</td>'; }
   h += '</tr>';
 
-  // Filas NSI (solo semanal)
+  // NSI rows (semanal only)
   if (isWeekly) {
     h += '<tr><td style="font-style:italic;color:#94a3b8">NSI Plan</td>';
+    let tNSIPlan = 0;
     for (const p of periods) {
       const v = (plan[p]||{}).NSI || null;
+      if (v) tNSIPlan += v;
       h += `<td style="font-style:italic;color:#94a3b8">${fmtCnt(v)}</td>`;
     }
-    h += '<td>—</td></tr>';
-
+    h += `<td style="font-style:italic;color:#94a3b8">${fmtCnt(tNSIPlan||null)}</td></tr>`;
     h += '<tr><td style="font-weight:600">NSI Real</td>';
+    let tNSIReal = 0;
     for (const p of periods) {
       const v = (growthMap[p]||{}).NSI || null;
-      h += `<td style="font-weight:600">${fmtCnt(v)}</td>`;
+      if (v) tNSIReal += v;
+      h += `<td>${fmtCnt(v)}</td>`;
     }
-    h += '<td>—</td></tr>';
-
-    // % vs Plan NSI
-    h += '<tr><td style="color:#667eea">% NSI vs Plan</td>';
-    for (const p of periods) {
-      const pv = (plan[p]||{}).NSI; const rv = (growthMap[p]||{}).NSI;
-      if (pv && rv) {
-        const pct = (rv - pv) / pv;
-        h += `<td class="${pct>=0?'good':'bad'}">${pct>=0?'+':''}${(pct*100).toFixed(1)}%</td>`;
-      } else if (pv && !rv) {
-        h += `<td style="color:#cbd5e1">pendiente</td>`;
-      } else { h += '<td>—</td>'; }
-    }
-    h += '<td>—</td></tr>';
+    h += `<td style="font-weight:600">${fmtCnt(tNSIReal||null)}</td></tr>`;
   }
 
   h += '</tbody></table></div>';
   return h;
 }
 
-// ── DEMOGRÁFICOS TAB ──────────────────────────────────────────────────────────
+// ── NPS ────────────────────────────────────────────────────────────────────────
 
-function renderDemo() {
-  const demo = D.demo || {};
-  if (!demo.nse_by_month && !demo.age_by_month) {
-    return renderPlaceholder('Datos Demográficos', 'Sin datos demográficos — verificar q1_clean.csv y q2_clean.csv.');
+const NPS_HARDCODED = {
+  months: ["Dic'25","Ene'26","Feb'26","Mar'26","Abr'26"],
+  'Total':         [26, 39, 20, 15, 29],
+  'Scalabrini':    [14, 48, 25,  9, 31],
+  'Caballito':     [16, 45, 20,  6, 20],
+  'Vicente Lopez': [29, 19, -5, 27, 34],
+  'Villa Urquiza': [27, 44, 37, 17, 20],
+};
+
+function npsColor(v) {
+  if (v == null) return '#94a3b8';
+  if (v >= 50)  return '#15803d';
+  if (v >= 30)  return '#16a34a';
+  if (v >= 0)   return '#f59e0b';
+  return '#dc2626';
+}
+
+function renderNPS(standalone) {
+  const nd     = NPS_HARDCODED;
+  const months = nd.months;
+  const storeKeys = ['Total', ...D.stores];
+  const lastIdx   = months.length - 1;
+
+  let h = '<div class="section-title" style="margin-top:24px">NPS por Tienda</div>';
+  h += '<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Net Promoter Score mensual — datos del reporte CX</p>';
+
+  // KPI cards — último mes
+  h += '<div class="kpi-row">';
+  for (const s of storeKeys) {
+    const v = nd[s] ? nd[s][lastIdx] : null;
+    h += `<div class="kpi-card"><div class="kpi-label">${s}</div><div class="kpi-value" style="color:${npsColor(v)}">${v!=null?v:'—'}</div></div>`;
   }
-
-  const months    = D.months;
-  const labels    = months.map(mk => ((D.mlabels[mk]||mk)).replace(' MTD',''));
-  const nseOrder  = demo.nse_order || ['PLATINUM','GOLD','SILVER','BRONZE','Sin clasif.'];
-  const ageOrder  = demo.age_order || ['18-29','30-44','45-59','60+'];
-  const NSE_C     = {PLATINUM:'#7c3aed',GOLD:'#f59e0b',SILVER:'#94a3b8',BRONZE:'#d97706','Sin clasif.':'#e2e8f0'};
-  const AGE_C     = {'18-29':'#3b82f6','30-44':'#10b981','45-59':'#f59e0b','60+':'#a855f7'};
-  const GEN_C     = {female:'#ec4899',male:'#3b82f6'};
-
-  function pctStacked(byKey, order, keys) {
-    return order.map(seg => ({
-      label: seg,
-      data: keys.map(k => {
-        const row = byKey[k] || {};
-        const total = Object.values(row).reduce((s,v) => s+(v||0), 0);
-        return total > 0 ? Math.round((row[seg]||0) / total * 1000) / 10 : null;
-      })
-    }));
-  }
-
-  let ytdHtml = '';
-  if (demo.buyers_ytd_total) {
-    ytdHtml = `<div class="kpi-row">
-      <div class="kpi-card"><div class="kpi-label">Buyers Únicos YTD 2026</div><div class="kpi-value">${fmtCnt(demo.buyers_ytd_total)}</div></div>
-    </div>`;
-  }
-
-  let h = ytdHtml + '<div class="charts-grid">';
-  if (demo.gender_by_month) h += '<div class="chart-card"><h3>Buyers por Género</h3><canvas id="dch-gen"></canvas></div>';
-  if (demo.age_by_month)    h += '<div class="chart-card"><h3>Buyers por Rango Etario</h3><canvas id="dch-age"></canvas></div>';
-  if (demo.nse_by_month)    h += '<div class="chart-card"><h3>NSE por Mes</h3><canvas id="dch-nse"></canvas></div>';
-  if (demo.nse_by_store)    h += '<div class="chart-card"><h3>NSE por Tienda</h3><canvas id="dch-store"></canvas></div>';
   h += '</div>';
 
-  setTimeout(() => {
-    const stackOpts = {
-      responsive:true, maintainAspectRatio:true,
-      plugins:{legend:{position:'bottom',labels:{font:{size:9},boxWidth:10,padding:5}}},
-      scales:{
-        x:{stacked:true, ticks:{font:{size:9},maxRotation:45}},
-        y:{stacked:true, min:0, max:100, ticks:{font:{size:9}, callback: v => v+'%'}}
-      }
-    };
-    function mkChart(id, xLabels, dsData, colorMap) {
-      const el = document.getElementById(id); if (!el) return;
-      const c = new Chart(el, {
-        type:'bar',
-        data:{labels:xLabels, datasets: dsData.map(d => ({
-          label:d.label, data:d.data,
-          backgroundColor: colorMap[d.label] || '#94a3b8', borderWidth:0
-        }))},
-        options: stackOpts
-      });
-      chartInstances.push(c);
-    }
-    if (demo.gender_by_month)
-      mkChart('dch-gen',   labels,    pctStacked(demo.gender_by_month, ['female','male'], months), GEN_C);
-    if (demo.age_by_month)
-      mkChart('dch-age',   labels,    pctStacked(demo.age_by_month,    ageOrder,          months), AGE_C);
-    if (demo.nse_by_month)
-      mkChart('dch-nse',   labels,    pctStacked(demo.nse_by_month,    nseOrder,          months), NSE_C);
-    if (demo.nse_by_store) {
-      const storeData = nseOrder.map(seg => ({
-        label: seg,
-        data: D.stores.map(s => {
-          const row = (demo.nse_by_store[s]||{});
-          const tot = Object.values(row).reduce((a,v) => a+(v||0), 0);
-          return tot > 0 ? Math.round((row[seg]||0)/tot*1000)/10 : null;
-        })
-      }));
-      mkChart('dch-store', D.stores, storeData, NSE_C);
-    }
-  }, 50);
+  // Tabla
+  h += '<div class="table-wrap"><table class="sc-table"><thead><tr><th style="text-align:left">Tienda</th>';
+  for (const m of months) h += `<th>${m}</th>`;
+  h += '</tr></thead><tbody>';
 
+  for (const s of storeKeys) {
+    const isBold = s === 'Total';
+    h += `<tr><td style="${isBold?'font-weight:700':'font-weight:500'};text-align:left;padding-left:12px">${s}</td>`;
+    const vals = nd[s] || [];
+    for (let i = 0; i < months.length; i++) {
+      const v  = vals[i] != null ? vals[i] : null;
+      const bg = v != null ? (v >= 50 ? '#dcfce7' : v >= 30 ? '#d1fae5' : v >= 0 ? '#fef3c7' : '#fee2e2') : '';
+      h += `<td style="background:${bg};color:${npsColor(v)};font-weight:600">${v!=null?v:'—'}</td>`;
+    }
+    h += '</tr>';
+  }
+  h += '</tbody></table></div>';
   return h;
 }
 
-// ── DAILY RENDER FUNCTIONS ────────────────────────────────────────────────────
+// ── DAILY VIEWS ───────────────────────────────────────────────────────────────
 
 function renderDailyGrowth() {
-  if (!D.daily_dates || D.daily_dates.length === 0) {
-    return renderPlaceholder('Growth Diario', 'Requiere daily_growth_full.csv.');
-  }
-  const periods  = D.daily_dates;
-  const labelMap = D.dlabels;
-  const lastP    = periods[periods.length-1];
-  const rec      = D.dg[lastP] || {};
-
-  let h = `<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Últimos <strong>${periods.length} días</strong> — último día: <strong>${labelMap[lastP]}</strong></p>`;
-
-  // KPI cards — último día
-  h += '<div class="kpi-row">';
-  [{key:'NMV',label:'NMV',type:'nmv'},{key:'Compras',label:'Compras',type:'cnt'},
-   {key:'Buyers',label:'Buyers',type:'cnt'},{key:'CVR',label:'CVR',type:'pct'},
-   {key:'FR_Items',label:'Fill Rate',type:'pct'}].forEach(k => {
-    h += `<div class="kpi-card"><div class="kpi-label">${k.label}</div><div class="kpi-value">${fmt(rec[k.key],k.type)}</div></div>`;
-  });
-  h += '</div>';
-
-  h += buildTable(periods, labelMap, GROWTH_ROWS, D.dg, {showSparkline:false});
-  return h;
+  if (!D.daily_dates || D.daily_dates.length === 0)
+    return renderPlaceholder('Growth Diario', 'Sin datos diarios disponibles.');
+  return renderGrowth(D.daily_dates, D.dlabels||{}, D.dg||{}, {});
 }
 
 function renderDailyOps() {
-  if (!D.do || Object.keys(D.do).length === 0) {
-    return renderPlaceholder('Ops Diario', 'Requiere daily_ops.csv — se genera desde fetch_ops_cvr.py.');
-  }
-  const periods  = D.daily_dates;
-  const labelMap = D.dlabels;
-  let h = `<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Últimos <strong>${periods.length} días</strong></p>`;
-  h += buildTable(periods, labelMap, OPS_ROWS, D.do, {showSparkline:false});
-  return h;
+  if (!D.daily_dates || D.daily_dates.length === 0)
+    return renderPlaceholder('Ops Diario', 'Sin datos diarios disponibles.');
+  return renderOps(D.daily_dates, D.dlabels||{}, D.do||{});
 }
 
 function renderDailyBuyers() {
-  if (!D.daily_dates || D.daily_dates.length === 0) {
-    return renderPlaceholder('Buyers Diario', 'Requiere daily_cvr.csv.');
-  }
-  const periods  = D.daily_dates;
-  const labelMap = D.dlabels;
-
-  // Buyers desde dcvr_day
-  const buyerGrowthMap = {};
-  for (const p of periods) {
-    const g = D.dg[p] || {};
-    const c = D.dcvr_day[p] || {};
-    buyerGrowthMap[p] = {
-      Buyers:   c.Buyers   || g.Buyers || null,
-      Visitors: c.Visitors || null,
-      CVR:      c.CVR      || g.CVR    || null,
-      Visitas:  g.Visitas  || null,
-    };
-  }
-
-  const buyerRows = [
-    {key:'Buyers',   name:'Buyers',   type:'cnt', hb:true,  color:'#a855f7'},
-    {key:'Visitors', name:'Visitantes', type:'cnt', hb:true, color:'#f59e0b'},
-    {key:'CVR',      name:'CVR',      type:'pct', hb:true,  color:'#a855f7'},
-    {key:'Visitas',  name:'Visitas',  type:'cnt', hb:true,  color:'#f59e0b'},
-  ];
-
-  let h = `<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Últimos <strong>${periods.length} días</strong></p>`;
-  h += buildTable(periods, labelMap, buyerRows, buyerGrowthMap, {showSparkline:false});
-  return h;
-}
-
-// ── NPS TAB ───────────────────────────────────────────────────────────────────
-
-const NPS_DATA = {{
-  months: ["Dic'25", "Ene'26", "Feb'26", "Mar'26"],
-  rows: [
-    {{store:'Total',         vals:[0.26, 0.39, 0.20, 0.15]}},
-    {{store:'Scalabrini',    vals:[0.14, 0.48, 0.25, 0.09]}},
-    {{store:'Vicente Lopez', vals:[0.21, 0.19,-0.05, 0.27]}},
-    {{store:'Caballito',     vals:[0.16, 0.45, 0.20, 0.06]}},
-    {{store:'Villa Urquiza', vals:[0.27, 0.44, 0.37, 0.17]}},
-  ]
-}};
-
-function renderNPS() {{
-  const {{months, rows}} = NPS_DATA;
-  const lastTotal = rows[0].vals[rows[0].vals.length - 1];
-  const prevTotal = rows[0].vals[rows[0].vals.length - 2];
-  const delta     = lastTotal - prevTotal;
-
-  let h = '<div class="kpi-row">';
-  h += '<div class="kpi-card"><div class="kpi-label">NPS Total — ' + months[months.length-1] + '</div>'
-     + '<div class="kpi-value" style="color:' + (lastTotal>=0.3?'#16a34a':lastTotal>=0.1?'#ca8a04':'#dc2626') + '">'
-     + Math.round(lastTotal*100) + ' pp</div></div>';
-  h += '<div class="kpi-card"><div class="kpi-label">Var. vs mes anterior</div>'
-     + '<div class="kpi-value" style="color:' + (delta>=0?'#16a34a':'#dc2626') + '">'
-     + (delta>=0?'+':'') + Math.round(delta*100) + ' pp</div></div>';
-  h += '</div>';
-
-  h += '<div class="table-wrap"><table class="sc-table"><thead><tr><th>Tienda</th>';
-  for (const m of months) h += '<th>' + m + '</th>';
-  h += '</tr></thead><tbody>';
-
-  for (const row of rows) {{
-    const isBold = row.store === 'Total';
-    h += '<tr><td style="' + (isBold?'font-weight:700':'') + '">' + row.store + '</td>';
-    for (const v of row.vals) {{
-      const pct   = Math.round(v * 100);
-      const color = v >= 0.3 ? '#16a34a' : v >= 0.1 ? '#ca8a04' : '#dc2626';
-      h += '<td style="color:' + color + ';' + (isBold?'font-weight:700':'') + '">'
-         + (pct >= 0 ? '+' : '') + pct + ' pp</td>';
-    }}
-    h += '</tr>';
-  }}
-
-  h += '</tbody></table></div>';
-  h += '<p style="margin-top:12px;font-size:11px;color:#94a3b8">Datos: Dic\'25 → Mar\'26. NPS en puntos porcentuales (pp = % promotores − % detractores).</p>';
-  return h;
-}}
-
-// ── DAILY GRÁFICOS ────────────────────────────────────────────────────────────
-
-function renderDailyGraficos() {
   if (!D.daily_dates || D.daily_dates.length === 0)
-    return renderPlaceholder('Gráficos Diarios', 'Requiere daily_growth_full.csv.');
-  chartInstances.forEach(c => c.destroy()); chartInstances = [];
-
-  const periods = D.daily_dates;
-  const labels  = periods.map(p => D.dlabels[p] || p);
-  const nmvVals = periods.map(p => { const r=D.dg[p]; return r&&r.NMV ? r.NMV/1e6 : null; });
-  const cmpVals = periods.map(p => { const r=D.dg[p]; return r ? r.Compras : null; });
-  const frVals  = periods.map(p => { const r=D.do[p]; return r&&r.FR_Items ? r.FR_Items*100 : null; });
-  const visVals = periods.map(p => { const r=D.dg[p]; return r ? r.Visitas : null; });
-  const cvrVals = periods.map(p => { const c=D.dcvr_day[p]||D.dg[p]; return c&&c.CVR ? c.CVR*100 : null; });
-
-  const lastP = periods[periods.length-1];
-  const lastG = D.dg[lastP]||{}, lastO = D.do[lastP]||{}, lastCV = D.dcvr_day[lastP]||{};
-
-  let h = '<div class="kpi-row">';
-  [{v:lastG.NMV,label:'NMV (ayer)',f:fmtNMV},{v:lastG.Compras,label:'Compras',f:fmtCnt},
-   {v:lastO.FR_Items,label:'Fill Rate',f:fmtPct},{v:lastCV.CVR,label:'CVR',f:fmtPct},
-   {v:lastG.Visitas,label:'Visitas',f:fmtCnt}
-  ].forEach(k => {
-    h += '<div class="kpi-card"><div class="kpi-label">'+k.label+'</div><div class="kpi-value">'+k.f(k.v)+'</div></div>';
-  });
-  h += '</div>';
-
-  h += '<div class="charts-grid">';
-  h += '<div class="chart-card"><h3>NMV Diario (ARS M)</h3><canvas id="dly-nmv"></canvas></div>';
-  h += '<div class="chart-card"><h3>Compras Diarias</h3><canvas id="dly-cmp"></canvas></div>';
-  h += '<div class="chart-card"><h3>Fill Rate Items (%)</h3><canvas id="dly-fr"></canvas></div>';
-  h += '<div class="chart-card"><h3>Visitas Diarias</h3><canvas id="dly-vis"></canvas></div>';
-  h += '<div class="chart-card"><h3>CVR Diario (%)</h3><canvas id="dly-cvr"></canvas></div>';
-  h += '</div>';
-
-  setTimeout(() => {
-    const common = {
-      responsive:true, maintainAspectRatio:true,
-      plugins:{legend:{display:false}},
-      scales:{x:{ticks:{font:{size:8.5},maxRotation:60}},y:{ticks:{font:{size:9}}}}
-    };
-    const lDs = (d,c) => [{data:d,borderColor:c,backgroundColor:c+'1a',fill:true,tension:0.3,pointRadius:1.5,borderWidth:2}];
-    const bDs = (d,c) => [{data:d,backgroundColor:c+'dd',borderRadius:3,borderSkipped:false}];
-    chartInstances.push(
-      new Chart(document.getElementById('dly-nmv'), {type:'bar',  data:{labels,datasets:bDs(nmvVals,'#1d4ed8')}, options:common}),
-      new Chart(document.getElementById('dly-cmp'), {type:'bar',  data:{labels,datasets:bDs(cmpVals,'#3b82f6')}, options:common}),
-      new Chart(document.getElementById('dly-fr'),  {type:'line', data:{labels,datasets:lDs(frVals,'#059669')},  options:{...common,scales:{...common.scales,y:{...common.scales.y,min:60,max:100}}}}),
-      new Chart(document.getElementById('dly-vis'), {type:'bar',  data:{labels,datasets:bDs(visVals,'#f59e0b')}, options:common}),
-      new Chart(document.getElementById('dly-cvr'), {type:'line', data:{labels,datasets:lDs(cvrVals,'#a855f7')}, options:common})
-    );
-  }, 50);
-  return h;
+    return renderPlaceholder('Buyers Diario', 'Sin datos diarios disponibles.');
+  return renderBuyers(D.daily_dates, D.dlabels||{}, D.dcvr_day||{}, D.dg||{});
 }
 
-// ── PLACEHOLDER ───────────────────────────────────────────────────────────────
+// ── UTILS ─────────────────────────────────────────────────────────────────────
 
 function renderPlaceholder(title, subtitle) {
-  return '<div class="placeholder"><h3>' + title + '</h3><p>' + (subtitle || '') + '</p></div>';
+  return `<div class="placeholder"><h3 style="color:#475569">${title}</h3><p style="margin-top:6px;color:#94a3b8;font-size:12px">${subtitle||''}</p></div>`;
 }
 
-// ── MAIN RENDER ───────────────────────────────────────────────────────────────
-
 function toggleStore(id) {
-  const body = document.getElementById(id);
-  const ico  = document.getElementById(id.replace('body', 'ico'));
-  if (!body) return;
-  const open = body.classList.toggle('open');
-  if (ico) ico.textContent = open ? '▲' : '▼';
+  const el  = document.getElementById(id);
+  const ico = document.getElementById(id.replace('store-body-','store-ico-'));
+  if (!el) return;
+  const open = el.style.display !== 'none';
+  el.style.display = open ? 'none' : '';
+  if (ico) ico.textContent = open ? '▶' : '▼';
 }
 
 function setView(view) {
   VIEW = view;
-  document.getElementById('btn-semanal').classList.toggle('active', view === 'semanal');
-  document.getElementById('btn-mensual').classList.toggle('active', view === 'mensual');
-  document.getElementById('btn-diario').classList.toggle('active',  view === 'diario');
-  CUR_TAB = 'growth';
+  ['semanal','mensual','diario'].forEach(v => {
+    const btn = document.getElementById('btn-' + v);
+    if (btn) btn.classList.toggle('active', v === view);
+  });
+  const tabs = view === 'semanal' ? TABS_SEMANAL : view === 'mensual' ? TABS_MENSUAL : TABS_DIARIO;
+  if (!tabs.find(t => t.id === CUR_TAB)) CUR_TAB = tabs[0].id;
   renderAll();
 }
 
@@ -1639,112 +1452,90 @@ function setTab(id) {
   renderAll();
 }
 
+// ── RENDER ALL ────────────────────────────────────────────────────────────────
+
 function renderAll() {
-  chartInstances.forEach(c => c.destroy());
-  chartInstances = [];
+  const isSemanal = VIEW === 'semanal';
+  const isMensual = VIEW === 'mensual';
+  const isDiario  = VIEW === 'diario';
+  const tabs = isSemanal ? TABS_SEMANAL : isMensual ? TABS_MENSUAL : TABS_DIARIO;
 
-  const tabs = VIEW === 'semanal' ? TABS_SEMANAL
-             : VIEW === 'mensual' ? TABS_MENSUAL
-             :                     TABS_DIARIO;
+  // Tab bar
+  const tb = document.getElementById('tabs-bar');
+  if (tb) {
+    tb.innerHTML = tabs.map(t =>
+      `<button class="tab-btn${t.id===CUR_TAB?' active':''}" onclick="setTab('${t.id}')">${t.label}</button>`
+    ).join('');
+  }
 
-  if (!tabs.find(t => t.id === CUR_TAB)) CUR_TAB = tabs[0].id;
+  // Periods & maps
+  let periods, labelMap, growthMap, opsMap, buyersMap, storeMap;
+  if (isSemanal) {
+    const allW = D.weeks || [];
+    periods   = allW.length > 14 ? allW.slice(-14) : allW;
+    labelMap  = D.wlabels || {};
+    growthMap = D.wg || {};
+    opsMap    = D.wo || {};
+    buyersMap = D.wb || {};
+    storeMap  = D.ws || {};
+  } else if (isMensual) {
+    periods   = D.months || [];
+    labelMap  = D.mlabels || {};
+    growthMap = D.mg || {};
+    opsMap    = D.mo || {};
+    buyersMap = D.mb || {};
+    storeMap  = D.ms || {};
+  } else {
+    periods   = D.daily_dates || [];
+    labelMap  = D.dlabels || {};
+    growthMap = D.dg || {};
+    opsMap    = D.do || {};
+    buyersMap = {};
+    storeMap  = {};
+  }
 
-  document.getElementById('tabs-bar').innerHTML = tabs.map(t =>
-    `<button class="tab-btn ${t.id===CUR_TAB?'active':''}" onclick="setTab('${t.id}')">${t.label}</button>`
-  ).join('');
+  const el = document.getElementById('content');
+  if (!el) return;
 
-  const content = document.getElementById('content');
-
-  // ── VISTA DIARIA ──────────────────────────────────────────────────────────
-  if (VIEW === 'diario') {
+  let html = '';
+  if (isDiario) {
     switch(CUR_TAB) {
-      case 'growth':   content.innerHTML = renderDailyGrowth();   break;
-      case 'ops':      content.innerHTML = renderDailyOps();      break;
-      case 'buyers':   content.innerHTML = renderDailyBuyers();   break;
-      case 'graficos': content.innerHTML = renderDailyGraficos(); break;
-      case 'plan':     content.innerHTML = renderPlaceholder('Plan Diario', 'Próximamente — integración con plan diario / 4+8.'); break;
-      default:         content.innerHTML = renderPlaceholder(CUR_TAB, '');
+      case 'growth':   html = renderDailyGrowth(); break;
+      case 'ops':      html = renderDailyOps();    break;
+      case 'buyers':   html = renderDailyBuyers(); break;
+      case 'graficos': html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
+      case 'plan':     html = renderPlan(); break;
+      default:         html = renderPlaceholder(CUR_TAB, ''); break;
     }
-    return;
+  } else {
+    switch(CUR_TAB) {
+      case 'growth':     html = renderGrowth(periods, labelMap, growthMap, storeMap); break;
+      case 'ops':        html = renderOps(periods, labelMap, opsMap); break;
+      case 'buyers':     html = renderBuyers(periods, labelMap, buyersMap, growthMap); break;
+      case 'graficos':   html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
+      case 'cx':         html = renderCX(periods, labelMap, opsMap); break;
+      case 'pl':         html = renderPL(periods, labelMap); break;
+      case 'assortment': html = renderAssortment(); break;
+      case 'demo':       html = renderDemo(); break;
+      case 'nps':        html = renderNPS(); break;
+      case 'plan':       html = renderPlan(); break;
+      case 'rolling':    html = isSemanal ? renderRolling() : renderRolling28(); break;
+      default:           html = renderPlaceholder(CUR_TAB, ''); break;
+    }
   }
-
-  // ── VISTA SEMANAL / MENSUAL ───────────────────────────────────────────────
-  const periods   = VIEW === 'semanal' ? D.weeks   : D.months;
-  const labelMap  = VIEW === 'semanal' ? D.wlabels : D.mlabels;
-  const growthMap = VIEW === 'semanal' ? D.wg  : D.mg;
-  const opsMap    = VIEW === 'semanal' ? D.wo  : D.mo;
-  const buyersMap = VIEW === 'semanal' ? D.wb  : D.mb;
-  const storeMap  = VIEW === 'semanal' ? D.ws  : D.ms;
-  const visiblePeriods = periods.length > 16 ? periods.slice(-16) : periods;
-
-  switch(CUR_TAB) {
-    case 'growth':
-      content.innerHTML = renderGrowth(visiblePeriods, labelMap, growthMap, storeMap);
-      break;
-    case 'ops':
-      content.innerHTML = renderOps(visiblePeriods, labelMap, opsMap);
-      break;
-    case 'buyers':
-      content.innerHTML = renderBuyers(visiblePeriods, labelMap, buyersMap, growthMap);
-      break;
-    case 'graficos':
-      content.innerHTML = renderGraficos(visiblePeriods, labelMap, growthMap, opsMap);
-      break;
-    case 'cx':
-      content.innerHTML = renderCX(visiblePeriods, labelMap, opsMap);
-      break;
-    case 'pl':
-      content.innerHTML = renderPL(visiblePeriods, labelMap);
-      break;
-    case 'assortment':
-      content.innerHTML = renderAssortment();
-      break;
-    case 'rolling':
-      content.innerHTML = VIEW === 'mensual' ? renderRolling28() : renderRolling();
-      break;
-    case 'demo':
-      content.innerHTML = renderDemo();
-      break;
-    case 'nps':
-      content.innerHTML = renderNPS();
-      break;
-    case 'plan':
-      content.innerHTML = renderPlan();
-      break;
-    default:
-      content.innerHTML = renderPlaceholder(CUR_TAB, '');
-  }
+  el.innerHTML = html;
 }
 
-// Init
+// ── INIT ──────────────────────────────────────────────────────────────────────
+
 document.getElementById('updated-label').textContent = 'Actualizado: ' + D.generated;
-renderAll();
+setView('semanal');
 </script>
 </body>
 </html>"""
 
-try:
-    json_test = json.dumps(DATA, default=str, ensure_ascii=False)
-    print(f"  JSON OK ({len(json_test):,} chars)")
-except Exception as e:
-    print(f"ERROR serializando JSON: {e}")
-    traceback.print_exc()
-    sys.exit(1)
+with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+    f.write(HTML)
 
-try:
-    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-        f.write(HTML)
-except Exception as e:
-    print(f"ERROR escribiendo HTML: {e}")
-    traceback.print_exc()
-    sys.exit(1)
+print(f'Dashboard escrito → {OUTPUT_FILE}')
 
-print(f"\n✓ Dashboard generado: {OUTPUT_FILE}")
-print(f"  Semanas:    {len(weeks)}")
-print(f"  Meses:      {len(months)}")
-print(f"  Días:       {len(daily_dates)} (últimos {DAILY_WINDOW}d)")
-print(f"  Rolling 7d: {len(rolling)} períodos")
-print(f"  Rolling28d: {len(rolling28)} períodos")
-print(f"  P&L meses:  {len(mpl_rows)}")
-print(f"  CX meses:   {len(mcx_rows)}")
-print(f"  Daily Ops:  {len(do_rows)} días")
