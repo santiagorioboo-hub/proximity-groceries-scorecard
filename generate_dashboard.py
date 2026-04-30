@@ -630,8 +630,56 @@ if nps_monthly is not None:
         nps_data[mk][tienda] = sf(r.get('NPS_Score'))
 
 # ── ASSORTMENT DATA ───────────────────────────────────────────────────────────
-# Datos del Google Sheet "Stock Diario" (Ene-Abr 2026, 4 tiendas)
-ASSORTMENT = {
+# Parsea assortment_raw.csv (formato humano del Google Sheet)
+
+_MONTH_MAP_ASM = {'enero':1,'febrero':2,'marzo':3,'abril':4,'mayo':5,
+                  'junio':6,'julio':7,'agosto':8,'septiembre':9,
+                  'octubre':10,'noviembre':11,'diciembre':12}
+_STORE_NORM_ASM = {'caballito':'Caballito','scalabrini':'Scalabrini',
+                   'vicente lopez':'Vicente Lopez','villa urquiza':'Villa Urquiza'}
+
+def _parse_assortment_csv():
+    path = os.path.join(DATA_DIR, 'assortment_raw.csv')
+    if not os.path.exists(path): return None
+    try:
+        df = pd.read_csv(path, header=None, encoding='utf-8', encoding_errors='replace')
+    except Exception:
+        try: df = pd.read_csv(path, header=None, encoding='latin-1')
+        except: return None
+    _cur_store = None; _month_idxs = None; _detected_months = []; _year = 2026
+    _store_data = {s: {'Disponibilidad': [], 'Profundidad': [], 'Gap': []} for s in STORES}
+    for _, row in df.iterrows():
+        c0 = '' if str(row.iloc[0]).strip() in ('nan','None','') else str(row.iloc[0]).strip()
+        c1 = '' if len(row) < 2 or str(row.iloc[1]).strip() in ('nan','None','') else str(row.iloc[1]).strip()
+        if c0 == '' and c1 != '':
+            _normed = next((v for k,v in _STORE_NORM_ASM.items() if k in c1.lower()), None)
+            if _normed: _cur_store = _normed; _month_idxs = None; continue
+        if c0 == '' and _cur_store:
+            mf = [(ci, _MONTH_MAP_ASM[str(row.iloc[ci]).strip().lower()])
+                  for ci in range(1, len(row))
+                  if str(row.iloc[ci]).strip().lower() in _MONTH_MAP_ASM]
+            if mf: _month_idxs = mf; _detected_months = _detected_months or [m for _,m in mf]; continue
+        if not (c0 and _cur_store and _month_idxs): continue
+        vals = []
+        for ci, _ in _month_idxs:
+            cell = str(row.iloc[ci]).strip() if ci < len(row) else ''
+            cell = cell.replace('%','').replace(',','.').strip()
+            try: vals.append(float(cell))
+            except: vals.append(None)
+        c0l = c0.lower()
+        if 'disponibilidad' in c0l:
+            _store_data[_cur_store]['Disponibilidad'] = [v/100 if v is not None else None for v in vals]
+        elif 'profundidad' in c0l:
+            _store_data[_cur_store]['Profundidad'] = [v/100 if v is not None else None for v in vals]
+        elif 'gap' in c0l:
+            _store_data[_cur_store]['Gap'] = vals
+    if not _detected_months: return None
+    _mlabels = [MONTHS_ES[m-1]+f"'{str(_year)[2:]}" for m in _detected_months]
+    return {'months': _mlabels, 'stores': _store_data}
+
+_parsed_asm = _parse_assortment_csv()
+print(f"  Assortment: {'dynamic (' + str(len(_parsed_asm['months'])) + ' meses)' if _parsed_asm else 'fallback hardcoded'}")
+ASSORTMENT = _parsed_asm if _parsed_asm else {
     'months': ["Ene'26","Feb'26","Mar'26","Abr'26"],
     'stores': {
         'Caballito':    {'Disponibilidad':[0.710,0.714,0.702,0.708],'Profundidad':[0.5879,0.615,0.600,0.525],'Gap':[12.2, 9.9,10.2,18.3]},
@@ -640,6 +688,53 @@ ASSORTMENT = {
         'Villa Urquiza':{'Disponibilidad':[0.699,0.707,0.699,0.711],'Profundidad':[0.5791,0.602,0.618,0.543],'Gap':[12.0,10.6, 8.2,16.8]},
     }
 }
+
+# ── CX CLAIMS & BPP DATA ─────────────────────────────────────────────────────
+# cx_claims_raw.csv: mes,tienda,motivo,fallo,claims,gmv_reclamado
+# cx_bpp_raw.csv:    mes,CLAIM_TYPE,bpp_meli_usd,bpp_recovery_usd,casos
+
+_cx_claims_raw = load('cx_claims_raw.csv')
+_cx_bpp_raw    = load('cx_bpp_raw.csv')
+
+cx_claims_rows = {}   # mk → { tienda → { motivo → {fallo→claims} } }
+if _cx_claims_raw is not None and len(_cx_claims_raw) > 0:
+    try:
+        _cx_claims_raw['mes'] = pd.to_datetime(_cx_claims_raw['mes'], errors='coerce').dt.date
+        for _, r in _cx_claims_raw.iterrows():
+            if pd.isnull(r['mes']): continue
+            mk = str(date(r['mes'].year, r['mes'].month, 1))
+            tienda = str(r.get('tienda','') or '').strip() or 'Total'
+            motivo = str(r.get('motivo','') or '').strip()
+            fallo  = str(r.get('fallo','') or '').strip()
+            cnt    = int(r['claims']) if pd.notna(r.get('claims')) else 0
+            gmv    = float(r['gmv_reclamado']) if pd.notna(r.get('gmv_reclamado')) else 0.0
+            if mk not in cx_claims_rows: cx_claims_rows[mk] = {}
+            if tienda not in cx_claims_rows[mk]: cx_claims_rows[mk][tienda] = {}
+            key = f"{motivo}|{fallo}"
+            if key not in cx_claims_rows[mk][tienda]:
+                cx_claims_rows[mk][tienda][key] = {'motivo':motivo,'fallo':fallo,'claims':0,'gmv':0.0}
+            cx_claims_rows[mk][tienda][key]['claims'] += cnt
+            cx_claims_rows[mk][tienda][key]['gmv']    += gmv
+        print(f"  CX Claims: {len(cx_claims_rows)} meses cargados")
+    except Exception as e:
+        print(f"  ⚠ Error procesando cx_claims_raw: {e}")
+
+cx_bpp_rows = {}   # mk → { claim_type → {bpp_meli:, bpp_recovery:, casos:} }
+if _cx_bpp_raw is not None and len(_cx_bpp_raw) > 0:
+    try:
+        _cx_bpp_raw['mes'] = pd.to_datetime(_cx_bpp_raw['mes'], errors='coerce').dt.date
+        for _, r in _cx_bpp_raw.iterrows():
+            if pd.isnull(r['mes']): continue
+            mk   = str(date(r['mes'].year, r['mes'].month, 1))
+            ct   = str(r.get('CLAIM_TYPE','') or '').strip() or 'OTHER'
+            meli = float(r['bpp_meli_usd']) if pd.notna(r.get('bpp_meli_usd')) else 0.0
+            rec  = float(r['bpp_recovery_usd']) if pd.notna(r.get('bpp_recovery_usd')) else 0.0
+            cas  = int(r['casos']) if pd.notna(r.get('casos')) else 0
+            if mk not in cx_bpp_rows: cx_bpp_rows[mk] = {}
+            cx_bpp_rows[mk][ct] = {'bpp_meli': round(meli,2), 'bpp_recovery': round(rec,2), 'casos': cas}
+        print(f"  CX BPP: {len(cx_bpp_rows)} meses cargados")
+    except Exception as e:
+        print(f"  ⚠ Error procesando cx_bpp_raw: {e}")
 
 # ── ASSEMBLE DATA BLOB ────────────────────────────────────────────────────────
 
@@ -682,6 +777,9 @@ DATA = dict(
     nps_data        = nps_data,
     # Assortment
     assortment      = ASSORTMENT,
+    # CX detalle (claims por tipo/tienda y BPP)
+    cx_claims       = cx_claims_rows,
+    cx_bpp          = cx_bpp_rows,
 )
 
 JSON_DATA = json.dumps(DATA, default=str, ensure_ascii=False)
@@ -1292,6 +1390,108 @@ function renderCX(periods, labelMap, opsMap) {
   ];
   h += buildTable(periods, labelMap, OPS_CX_ROWS, opsMap);
 
+  // ── Casuística de Reclamos ─────────────────────────────────────────────────
+  const hasClaims = D.cx_claims && Object.keys(D.cx_claims).length > 0;
+  if (hasClaims) {
+    const availClaims = periods.filter(p => D.cx_claims[p]);
+    h += '<div class="section-title" style="margin-top:20px">Casuística de Reclamos</div>';
+    h += '<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Por motivo y fallo — Carrefour Seller ID 2516198735</p>';
+    // Table: motivo | fallo | [mes1] | [mes2] ...
+    // Collect all unique motivo|fallo keys across all periods
+    const _claimKeys = [];
+    const _claimKeySet = new Set();
+    for (const p of availClaims) {
+      const byStore = D.cx_claims[p];
+      for (const tienda of Object.keys(byStore)) {
+        for (const [k, v] of Object.entries(byStore[tienda])) {
+          if (!_claimKeySet.has(k)) { _claimKeySet.add(k); _claimKeys.push({k, motivo:v.motivo, fallo:v.fallo}); }
+        }
+      }
+    }
+    // One table per tienda (plus Total)
+    const _claimTiendas = [...new Set(availClaims.flatMap(p => Object.keys(D.cx_claims[p])))].sort();
+    for (const tienda of _claimTiendas) {
+      h += '<div style="font-weight:600;color:#cbd5e1;margin:10px 0 4px;font-size:12px">'+tienda+'</div>';
+      h += '<div class="table-wrap"><table class="sc-table"><thead><tr>';
+      h += '<th style="text-align:left;min-width:140px">Motivo</th><th style="text-align:left;min-width:100px">Fallo</th>';
+      for (const p of availClaims) h += '<th>'+(labelMap[p]||p)+'</th>';
+      h += '</tr></thead><tbody>';
+      for (const {k, motivo, fallo} of _claimKeys) {
+        const anyVal = availClaims.some(p => D.cx_claims[p]?.[tienda]?.[k]?.claims);
+        if (!anyVal) continue;
+        h += '<tr><td style="text-align:left;padding-left:12px">'+motivo+'</td><td style="text-align:left">'+fallo+'</td>';
+        for (const p of availClaims) {
+          const v = D.cx_claims[p]?.[tienda]?.[k]?.claims ?? null;
+          h += '<td>'+(v!=null?v:'—')+'</td>';
+        }
+        h += '</tr>';
+      }
+      h += '</tbody></table></div>';
+    }
+  }
+
+  // ── BPP (Buyer Protection Program) ────────────────────────────────────────
+  const hasBPP = D.cx_bpp && Object.keys(D.cx_bpp).length > 0;
+  if (hasBPP) {
+    const availBPP = periods.filter(p => D.cx_bpp[p]);
+    h += '<div class="section-title" style="margin-top:20px">BPP — Buyer Protection Program</div>';
+    h += '<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Cashout Meli y recupero de seller, por tipo de reclamo</p>';
+    // Collect all claim types across available periods
+    const _bppTypes = [...new Set(availBPP.flatMap(p => Object.keys(D.cx_bpp[p])))].sort();
+    // KPI cards for latest period
+    const lastBPP = availBPP[availBPP.length-1];
+    if (lastBPP) {
+      const bppRec = D.cx_bpp[lastBPP];
+      const totalMeli = Object.values(bppRec).reduce((a,v) => a+(v.bpp_meli||0), 0);
+      const totalRec  = Object.values(bppRec).reduce((a,v) => a+(v.bpp_recovery||0), 0);
+      const totalCas  = Object.values(bppRec).reduce((a,v) => a+(v.casos||0), 0);
+      h += '<div class="kpi-row">';
+      h += '<div class="kpi-card"><div class="kpi-label">Cashout Meli (USD)</div><div class="kpi-value" style="color:#ef4444">$'+totalMeli.toFixed(0)+'</div></div>';
+      h += '<div class="kpi-card"><div class="kpi-label">Recupero Seller (USD)</div><div class="kpi-value" style="color:#f59e0b">$'+totalRec.toFixed(0)+'</div></div>';
+      h += '<div class="kpi-card"><div class="kpi-label">Casos BPP</div><div class="kpi-value">'+totalCas+'</div></div>';
+      const coverage = totalMeli>0 ? totalRec/totalMeli : null;
+      h += '<div class="kpi-card"><div class="kpi-label">Cobertura Seller</div><div class="kpi-value" style="color:'+( coverage!=null&&coverage>=0.5?'#16a34a':'#dc2626')+'">'+( coverage!=null?(coverage*100).toFixed(0)+'%':'—')+'</div></div>';
+      h += '</div>';
+    }
+    // Table by claim type
+    h += '<div class="table-wrap"><table class="sc-table"><thead><tr>';
+    h += '<th style="text-align:left">Tipo</th><th>Casos</th><th>Cashout Meli (USD)</th><th>Recupero Seller (USD)</th><th>Cobertura</th>';
+    h += '<th style="font-size:10px;color:#94a3b8">Período: '+(labelMap[lastBPP]||lastBPP||'—')+'</th></tr></thead><tbody>';
+    if (lastBPP) {
+      for (const ct of _bppTypes) {
+        const r = D.cx_bpp[lastBPP]?.[ct];
+        if (!r) continue;
+        const cov = r.bpp_meli>0 ? (r.bpp_recovery/r.bpp_meli*100).toFixed(0)+'%' : '—';
+        h += '<tr><td style="text-align:left;padding-left:12px;font-weight:600">'+ct+'</td>';
+        h += '<td>'+r.casos+'</td><td>$'+r.bpp_meli.toFixed(0)+'</td><td>$'+r.bpp_recovery.toFixed(0)+'</td><td>'+cov+'</td><td></td></tr>';
+      }
+      // Totals row
+      const bppRec = D.cx_bpp[lastBPP];
+      const tM = Object.values(bppRec).reduce((a,v)=>a+(v.bpp_meli||0),0);
+      const tR = Object.values(bppRec).reduce((a,v)=>a+(v.bpp_recovery||0),0);
+      const tC = Object.values(bppRec).reduce((a,v)=>a+(v.casos||0),0);
+      h += '<tr style="font-weight:700;border-top:2px solid #334155"><td style="text-align:left;padding-left:12px">TOTAL</td>';
+      h += '<td>'+tC+'</td><td>$'+tM.toFixed(0)+'</td><td>$'+tR.toFixed(0)+'</td><td>'+(tM>0?(tR/tM*100).toFixed(0)+'%':'—')+'</td><td></td></tr>';
+    }
+    h += '</tbody></table></div>';
+    // Trend over months if multiple periods
+    if (availBPP.length > 1) {
+      h += '<div style="margin-top:12px;font-size:11px;color:#94a3b8">Evolución total BPP Cashout Meli (USD):</div>';
+      h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">';
+      for (const p of availBPP) {
+        const total = Object.values(D.cx_bpp[p]).reduce((a,v)=>a+(v.bpp_meli||0),0);
+        h += '<div style="background:#1e293b;border-radius:6px;padding:6px 10px;text-align:center">';
+        h += '<div style="font-size:10px;color:#94a3b8">'+(labelMap[p]||p)+'</div>';
+        h += '<div style="font-weight:700;color:#ef4444">$'+total.toFixed(0)+'</div></div>';
+      }
+      h += '</div>';
+    }
+  } else {
+    h += '<div class="section-title" style="margin-top:20px">BPP — Buyer Protection Program</div>';
+    h += renderPlaceholder('BPP Pendiente',
+      'Ejecutar query <code>cx_bpp_raw.csv</code> con <code>new_cust_id = 2516198735</code> para ver cobertura BPP.');
+  }
+
   return h;
 }
 
@@ -1628,22 +1828,102 @@ function renderDailyOps(){if(!D.daily_dates||!D.daily_dates.length)return render
 function renderDailyBuyers(){if(!D.daily_dates||!D.daily_dates.length)return renderPlaceholder('Buyers Diario','Sin datos.');return renderBuyers(D.daily_dates,D.dlabels||{},D.dcvr_day||{},D.dg||{});}
 function renderPlaceholder(t,s){return '<div class="placeholder"><h3 style="color:#475569">'+t+'</h3><p style="margin-top:6px;color:#94a3b8;font-size:12px">'+(s||'')+'</p></div>';}
 function toggleStore(id){const el=document.getElementById(id),ico=document.getElementById(id.replace('store-body-','store-ico-'));if(!el)return;const open=el.style.display!=='none';el.style.display=open?'none':'';if(ico)ico.textContent=open?'▶':'▼';}
-function setView(view){VIEW=view;['semanal','mensual','diario'].forEach(v=>{const b=document.getElementById('btn-'+v);if(b)b.classList.toggle('active',v===view);});const tabs=view==='semanal'?TABS_SEMANAL:view==='mensual'?TABS_MENSUAL:TABS_DIARIO;if(!tabs.find(t=>t.id===CUR_TAB))CUR_TAB=tabs[0].id;renderAll();}
-function setTab(id){CUR_TAB=id;renderAll();}
-function renderAll(){
-  const isSemanal=VIEW==='semanal',isMensual=VIEW==='mensual',isDiario=VIEW==='diario';
-  const tabs=isSemanal?TABS_SEMANAL:isMensual?TABS_MENSUAL:TABS_DIARIO;
-  const tb=document.getElementById('tabs-bar');
-  if(tb)tb.innerHTML=tabs.map(t=>'<button class="tab-btn'+(t.id===CUR_TAB?' active':'')+"\" onclick=\"setTab('"+ t.id +"')\">"+t.label+'</button>').join('');
-  let periods,labelMap,growthMap,opsMap,buyersMap,storeMap;
-  if(isSemanal){const allW=D.weeks||[];periods=allW.length>14?allW.slice(-14):allW;labelMap=D.wlabels||{};growthMap=D.wg||{};opsMap=D.wo||{};buyersMap=D.wb||{};storeMap=D.ws||{};}
-  else if(isMensual){periods=D.months||[];labelMap=D.mlabels||{};growthMap=D.mg||{};opsMap=D.mo||{};buyersMap=D.mb||{};storeMap=D.ms||{};}
-  else{periods=D.daily_dates||[];labelMap=D.dlabels||{};growthMap=D.dg||{};opsMap=D.do||{};buyersMap={};storeMap={};}
-  const el=document.getElementById('content');if(!el)return;
-  let html="";
-  if(isDiario){switch(CUR_TAB){case 'growth':html=renderDailyGrowth();break;case 'ops':html=renderDailyOps();break;case 'buyers':html=renderDailyBuyers();break;case 'graficos':html=renderGraficos(periods,labelMap,growthMap,opsMap);break;case 'plan':html=renderPlan();break;default:html=renderPlaceholder(CUR_TAB,'');break;}}
-  else{switch(CUR_TAB){case 'growth':html=renderGrowth(periods,labelMap,growthMap,storeMap);break;case 'ops':html=renderOps(periods,labelMap,opsMap);break;case 'buyers':html=renderBuyers(periods,labelMap,buyersMap,growthMap);break;case 'graficos':html=renderGraficos(periods,labelMap,growthMap,opsMap);break;case 'cx':html=renderCX(periods,labelMap,opsMap);break;case 'nps':html=renderNPS();break;case 'pl':html=renderPL(periods,labelMap);break;case 'assortment':html=renderAssortment();break;case 'demo':html=renderDemo();break;case 'plan':html=renderPlan();break;case 'rolling':html=isSemanal?renderRolling():renderRolling28();break;default:html=renderPlaceholder(CUR_TAB,'');break;}}
-  el.innerHTML=html;
+function setView(view) {
+  VIEW = view;
+  ['diario','semanal','mensual','rolling'].forEach(v => {
+    const b = document.getElementById('btn-' + v);
+    if (b) b.classList.toggle('active', v === view);
+  });
+  const tabs = view === 'diario'  ? TABS_DIARIO  :
+               view === 'mensual' ? TABS_MENSUAL :
+               view === 'rolling' ? TABS_ROLLING :
+               TABS_SEMANAL;
+  if (!tabs.find(t => t.id === CUR_TAB)) CUR_TAB = tabs[0].id;
+  renderAll();
+}
+
+function setTab(id) { CUR_TAB = id; renderAll(); }
+
+function renderAll() {
+  const isSemanal = VIEW === 'semanal';
+  const isMensual = VIEW === 'mensual';
+  const isDiario  = VIEW === 'diario';
+  const isRolling = VIEW === 'rolling';
+
+  const tabs = isDiario  ? TABS_DIARIO  :
+               isMensual ? TABS_MENSUAL :
+               isRolling ? TABS_ROLLING :
+               TABS_SEMANAL;
+
+  const tb = document.getElementById('tabs-bar');
+  if (tb) tb.innerHTML = tabs.map(t =>
+    `<button class="tab-btn${t.id===CUR_TAB?' active':''}" onclick="setTab('${t.id}')">${t.label}</button>`
+  ).join('');
+
+  let periods, labelMap, growthMap, opsMap, buyersMap, storeMap;
+  if (isSemanal) {
+    const allW = D.weeks || [];
+    periods   = allW.length > 14 ? allW.slice(-14) : allW;
+    labelMap  = D.wlabels || {};
+    growthMap = D.wg || {};
+    opsMap    = D.wo || {};
+    buyersMap = D.wb || {};
+    storeMap  = D.ws || {};
+  } else if (isMensual) {
+    periods   = D.months || [];
+    labelMap  = D.mlabels || {};
+    growthMap = D.mg || {};
+    opsMap    = D.mo || {};
+    buyersMap = D.mb || {};
+    storeMap  = D.ms || {};
+  } else {
+    periods   = D.daily_dates || [];
+    labelMap  = D.dlabels || {};
+    growthMap = D.dg || {};
+    opsMap    = D.do || {};
+    buyersMap = {};
+    storeMap  = {};
+  }
+
+  const el = document.getElementById('content');
+  if (!el) return;
+
+  let html = '';
+  try {
+    if (isRolling) {
+      switch (CUR_TAB) {
+        case 'rolling7d':  html = renderRolling();   break;
+        case 'rolling28d': html = renderRolling28(); break;
+        default:           html = renderPlaceholder(CUR_TAB, ''); break;
+      }
+    } else if (isDiario) {
+      switch (CUR_TAB) {
+        case 'growth':   html = renderDailyGrowth(); break;
+        case 'ops':      html = renderDailyOps();    break;
+        case 'buyers':   html = renderDailyBuyers(); break;
+        case 'graficos': html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
+        case 'plan':     html = renderPlan(); break;
+        default:         html = renderPlaceholder(CUR_TAB, ''); break;
+      }
+    } else {
+      switch (CUR_TAB) {
+        case 'growth':     html = renderGrowth(periods, labelMap, growthMap, storeMap); break;
+        case 'ops':        html = renderOps(periods, labelMap, opsMap); break;
+        case 'buyers':     html = renderBuyers(periods, labelMap, buyersMap, growthMap); break;
+        case 'graficos':   html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
+        case 'cx':         html = renderCX(periods, labelMap, opsMap); break;
+        case 'pl':         html = renderPL(periods, labelMap); break;
+        case 'assortment': html = renderAssortment(); break;
+        case 'demo':       html = renderDemo(); break;
+        case 'plan':       html = renderPlan(); break;
+        default:           html = renderPlaceholder(CUR_TAB, ''); break;
+      }
+    }
+  } catch (e) {
+    html = renderPlaceholder('Error', e.message);
+    console.error('renderAll error [' + CUR_TAB + ']:', e);
+  }
+  el.innerHTML = html;
 }
 document.getElementById('updated-label').textContent='Actualizado: '+D.generated;
 setView('semanal');
