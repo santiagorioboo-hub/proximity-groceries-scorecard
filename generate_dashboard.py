@@ -775,9 +775,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
     <div style="flex:1"></div>
     <div class="toggle-group">
+      <button class="toggle-btn" id="btn-diario"   onclick="setView('diario')">Diario</button>
       <button class="toggle-btn active" id="btn-semanal" onclick="setView('semanal')">Semanal</button>
-      <button class="toggle-btn" id="btn-mensual" onclick="setView('mensual')">Mensual</button>
-      <button class="toggle-btn" id="btn-diario"  onclick="setView('diario')">Diario</button>
+      <button class="toggle-btn" id="btn-mensual"  onclick="setView('mensual')">Mensual</button>
+      <button class="toggle-btn" id="btn-rolling"  onclick="setView('rolling')">Fechas Móviles</button>
     </div>
   </div>
 
@@ -800,15 +801,14 @@ const PD = D.plan_daily   || {};
 
 const TABS_SEMANAL = [
   {id:'growth',   label:'Growth'},
-  {id:'ops',      label:'Ops + NPS'},
+  {id:'ops',      label:'Ops'},
   {id:'buyers',   label:'Buyers'},
   {id:'graficos', label:'Gráficos'},
   {id:'plan',     label:'Plan'},
-  {id:'rolling',  label:'Fechas Móviles'},
 ];
 const TABS_MENSUAL = [
   {id:'growth',     label:'Growth'},
-  {id:'ops',        label:'Ops + NPS'},
+  {id:'ops',        label:'Ops'},
   {id:'buyers',     label:'Buyers'},
   {id:'graficos',   label:'Gráficos'},
   {id:'cx',         label:'CX'},
@@ -816,7 +816,10 @@ const TABS_MENSUAL = [
   {id:'assortment', label:'Assortment'},
   {id:'demo',       label:'Demográficos'},
   {id:'plan',       label:'Plan'},
-  {id:'rolling',    label:'Fechas Móviles'},
+];
+const TABS_ROLLING = [
+  {id:'rolling7d',  label:'Rolling 7D'},
+  {id:'rolling28d', label:'Rolling 28D'},
 ];
 const TABS_DIARIO = [
   {id:'growth',   label:'Growth'},
@@ -1345,6 +1348,78 @@ function renderAssortment() {
   return h;
 }
 
+// ── DEMOGRÁFICOS TAB ──────────────────────────────────────────────────────────
+
+function renderDemo() {
+  const demo = D.demo || {};
+  if (!demo.nse_by_month && !demo.age_by_month && !demo.gender_by_month)
+    return renderPlaceholder('Demográficos', 'Sin datos — verificar q1_clean.csv y q2_clean.csv.');
+
+  chartInstances.forEach(c => c.destroy()); chartInstances = [];
+
+  const months   = D.months || [];
+  const labels   = months.map(mk => (D.mlabels[mk]||mk).replace(' MTD',''));
+  const nseOrder = demo.nse_order || ['PLATINUM','GOLD','SILVER','BRONZE','Sin clasif.'];
+  const ageOrder = demo.age_order || ['18-29','30-44','45-59','60+'];
+  const NSE_C  = {PLATINUM:'#7c3aed',GOLD:'#f59e0b',SILVER:'#94a3b8',BRONZE:'#d97706','Sin clasif.':'#e2e8f0'};
+  const AGE_C  = {'18-29':'#1d4ed8','30-44':'#059669','45-59':'#f59e0b','60+':'#a855f7'};
+  const GEN_C  = {female:'#ec4899',male:'#3b82f6'};
+
+  function pctStacked(byKey, order, keys) {
+    return order.map(seg => ({
+      label: seg,
+      data: keys.map(k => {
+        const row = byKey[k] || {};
+        const total = Object.values(row).reduce((s,v) => s+(v||0), 0);
+        return total > 0 ? Math.round((row[seg]||0) / total * 1000) / 10 : null;
+      })
+    }));
+  }
+
+  let h = '';
+  if (demo.buyers_ytd_total) {
+    h += '<div class="kpi-row"><div class="kpi-card"><div class="kpi-label">Buyers Únicos YTD 2026</div><div class="kpi-value">' + fmtCnt(demo.buyers_ytd_total) + '</div></div></div>';
+  }
+
+  h += '<div class="charts-grid">';
+  if (demo.gender_by_month) h += '<div class="chart-card"><h3>Buyers por Género</h3><canvas id="dch-gen"></canvas></div>';
+  if (demo.age_by_month)    h += '<div class="chart-card"><h3>Buyers por Rango Etario</h3><canvas id="dch-age"></canvas></div>';
+  if (demo.nse_by_month)    h += '<div class="chart-card"><h3>NSE por Mes</h3><canvas id="dch-nse"></canvas></div>';
+  if (demo.nse_by_store)    h += '<div class="chart-card"><h3>NSE por Tienda</h3><canvas id="dch-store"></canvas></div>';
+  h += '</div>';
+
+  setTimeout(() => {
+    const stackOpts = {
+      responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{position:'bottom',labels:{font:{size:9},boxWidth:10,padding:5}}},
+      scales:{x:{stacked:true,ticks:{font:{size:9},maxRotation:45}},y:{stacked:true,min:0,max:100,ticks:{font:{size:9},callback:v=>v+'%'}}}
+    };
+    function mkChart(id, xLabels, dsData, colorMap) {
+      const el = document.getElementById(id); if (!el) return;
+      chartInstances.push(new Chart(el, {
+        type:'bar',
+        data:{labels:xLabels, datasets: dsData.map(d => ({label:d.label, data:d.data, backgroundColor:colorMap[d.label]||'#94a3b8', borderWidth:0}))},
+        options: stackOpts
+      }));
+    }
+    if (demo.gender_by_month) mkChart('dch-gen',   labels, pctStacked(demo.gender_by_month,['female','male'],months), GEN_C);
+    if (demo.age_by_month)    mkChart('dch-age',   labels, pctStacked(demo.age_by_month, ageOrder, months), AGE_C);
+    if (demo.nse_by_month)    mkChart('dch-nse',   labels, pctStacked(demo.nse_by_month, nseOrder, months), NSE_C);
+    if (demo.nse_by_store) {
+      const storeData = nseOrder.map(seg => ({
+        label: seg,
+        data: D.stores.map(s => {
+          const row = (demo.nse_by_store[s]||{});
+          const tot = Object.values(row).reduce((a,v) => a+(v||0), 0);
+          return tot > 0 ? Math.round((row[seg]||0)/tot*1000)/10 : null;
+        })
+      }));
+      mkChart('dch-store', D.stores, storeData, NSE_C);
+    }
+  }, 50);
+  return h;
+}
+
 // ── PLAN TAB ──────────────────────────────────────────────────────────────────
 
 function planRow(label, vals, totFn, style) {
@@ -1579,11 +1654,14 @@ function toggleStore(id) {
 
 function setView(view) {
   VIEW = view;
-  ['semanal','mensual','diario'].forEach(v => {
+  ['diario','semanal','mensual','rolling'].forEach(v => {
     const btn = document.getElementById('btn-' + v);
     if (btn) btn.classList.toggle('active', v === view);
   });
-  const tabs = view === 'semanal' ? TABS_SEMANAL : view === 'mensual' ? TABS_MENSUAL : TABS_DIARIO;
+  const tabs = view === 'diario'  ? TABS_DIARIO  :
+               view === 'semanal' ? TABS_SEMANAL :
+               view === 'mensual' ? TABS_MENSUAL :
+               TABS_ROLLING;
   if (!tabs.find(t => t.id === CUR_TAB)) CUR_TAB = tabs[0].id;
   renderAll();
 }
@@ -1599,7 +1677,9 @@ function renderAll() {
   const isSemanal = VIEW === 'semanal';
   const isMensual = VIEW === 'mensual';
   const isDiario  = VIEW === 'diario';
-  const tabs = isSemanal ? TABS_SEMANAL : isMensual ? TABS_MENSUAL : TABS_DIARIO;
+  const isRolling = VIEW === 'rolling';
+  const tabs = isSemanal ? TABS_SEMANAL : isMensual ? TABS_MENSUAL :
+               isDiario  ? TABS_DIARIO  : TABS_ROLLING;
 
   // Tab bar
   const tb = document.getElementById('tabs-bar');
@@ -1639,30 +1719,39 @@ function renderAll() {
   if (!el) return;
 
   let html = '';
-  if (isDiario) {
-    switch(CUR_TAB) {
-      case 'growth':   html = renderDailyGrowth(); break;
-      case 'ops':      html = renderDailyOps();    break;
-      case 'buyers':   html = renderDailyBuyers(); break;
-      case 'graficos': html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
-      case 'plan':     html = renderPlan(); break;
-      default:         html = renderPlaceholder(CUR_TAB, ''); break;
+  try {
+    if (isRolling) {
+      switch(CUR_TAB) {
+        case 'rolling7d':  html = renderRolling();   break;
+        case 'rolling28d': html = renderRolling28(); break;
+        default:           html = renderPlaceholder(CUR_TAB, ''); break;
+      }
+    } else if (isDiario) {
+      switch(CUR_TAB) {
+        case 'growth':   html = renderDailyGrowth(); break;
+        case 'ops':      html = renderDailyOps();    break;
+        case 'buyers':   html = renderDailyBuyers(); break;
+        case 'graficos': html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
+        case 'plan':     html = renderPlan(); break;
+        default:         html = renderPlaceholder(CUR_TAB, ''); break;
+      }
+    } else {
+      switch(CUR_TAB) {
+        case 'growth':     html = renderGrowth(periods, labelMap, growthMap, storeMap); break;
+        case 'ops':        html = renderOps(periods, labelMap, opsMap); break;
+        case 'buyers':     html = renderBuyers(periods, labelMap, buyersMap, growthMap); break;
+        case 'graficos':   html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
+        case 'cx':         html = renderCX(periods, labelMap, opsMap); break;
+        case 'pl':         html = renderPL(periods, labelMap); break;
+        case 'assortment': html = renderAssortment(); break;
+        case 'demo':       html = renderDemo(); break;
+        case 'plan':       html = renderPlan(); break;
+        default:           html = renderPlaceholder(CUR_TAB, ''); break;
+      }
     }
-  } else {
-    switch(CUR_TAB) {
-      case 'growth':     html = renderGrowth(periods, labelMap, growthMap, storeMap); break;
-      case 'ops':        html = renderOps(periods, labelMap, opsMap); break;
-      case 'buyers':     html = renderBuyers(periods, labelMap, buyersMap, growthMap); break;
-      case 'graficos':   html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
-      case 'cx':         html = renderCX(periods, labelMap, opsMap); break;
-      case 'pl':         html = renderPL(periods, labelMap); break;
-      case 'assortment': html = renderAssortment(); break;
-      case 'demo':       html = renderDemo(); break;
-      case 'nps':        html = renderNPS(); break;
-      case 'plan':       html = renderPlan(); break;
-      case 'rolling':    html = isSemanal ? renderRolling() : renderRolling28(); break;
-      default:           html = renderPlaceholder(CUR_TAB, ''); break;
-    }
+  } catch(e) {
+    html = renderPlaceholder('Error', e.message);
+    console.error('renderAll error:', e);
   }
   el.innerHTML = html;
 }
