@@ -96,12 +96,16 @@ dgf  = load('daily_growth_full.csv')
 dvf  = load('daily_visits_full.csv')
 dcvr = load('daily_cvr.csv')
 dops = load('daily_ops.csv')
-mpl_raw = load('monthly_pl.csv')
-mcx_raw = load('monthly_cx.csv')
+mpl_raw       = load('monthly_pl.csv')
+mcx_raw       = load('monthly_cx.csv')
 mcx_store_raw = load('monthly_cx_by_store.csv')
-q1   = load('q1_clean.csv')          # NSE + edad por tienda/mes
-q2   = load('q2_clean.csv')          # NSE + edad + género por mes
-q3   = load('q3_buyers_ytd.csv')     # Buyers únicos YTD 2026
+plan_monthly  = load('plan_monthly.csv')
+plan_daily    = load('plan_daily.csv')
+plan_weekly   = load('plan_weekly.csv')
+nps_monthly   = load('monthly_nps.csv')
+q1   = load('q1_clean.csv')
+q2   = load('q2_clean.csv')
+q3   = load('q3_buyers_ytd.csv')
 
 # ── WEEKLY GROWTH ─────────────────────────────────────────────────────────────
 
@@ -556,6 +560,74 @@ if q3 is not None:
 demo_data['buyers_ytd_by_month'] = buyers_ytd_by_month
 demo_data['buyers_ytd_total']    = buyers_ytd_total
 
+# ── PLAN DATA ────────────────────────────────────────────────────────────────
+
+plan_monthly_dict = {}   # mk → {NMV_V2, NMV_4+8}
+if plan_monthly is not None:
+    for _, r in plan_monthly.iterrows():
+        mk = str(date.fromisoformat(str(r['Mes'])[:10]))
+        plan_monthly_dict[mk] = {
+            'NMV_V2':  sf(r.get('NMV_V2')),
+            'NMV_4p8': sf(r.get('NMV_4+8')),
+        }
+
+plan_daily_dict = {}   # date_str → {NMV_V2, NSI_V2, NMV_4+8, NSI_4+8}
+if plan_daily is not None:
+    for col in plan_daily.columns:
+        if col.lower() == 'fecha':
+            plan_daily['Fecha'] = pd.to_datetime(plan_daily['Fecha'], errors='coerce').dt.date
+    for _, r in plan_daily.iterrows():
+        if pd.isnull(r['Fecha']): continue
+        dk = str(r['Fecha'])
+        plan_daily_dict[dk] = {
+            'NMV_V2':  sf(r.get('NMV_V2')),
+            'NSI_V2':  sf(r.get('NSI_V2')),
+            'NMV_4p8': sf(r.get('NMV_4+8')),
+            'NSI_4p8': sf(r.get('NSI_4+8')),
+        }
+
+plan_weekly_dict = {}   # week_str → {NMV_V2, NSI_V2, NMV_4+8, NSI_4+8}
+if plan_weekly is not None:
+    for col in plan_weekly.columns:
+        if col.lower() == 'semana':
+            plan_weekly['Semana'] = pd.to_datetime(plan_weekly['Semana'], errors='coerce').dt.date
+    for _, r in plan_weekly.iterrows():
+        if pd.isnull(r['Semana']): continue
+        wk = str(r['Semana'])
+        plan_weekly_dict[wk] = {
+            'NMV_V2':  sf(r.get('NMV_V2')),
+            'NSI_V2':  sf(r.get('NSI_V2')),
+            'NMV_4p8': sf(r.get('NMV_4+8')),
+            'NSI_4p8': sf(r.get('NSI_4+8')),
+        }
+
+# ── NPS DATA ─────────────────────────────────────────────────────────────────
+
+nps_data = {}   # mk → {Tienda → NPS_Score}
+if nps_monthly is not None:
+    for col in nps_monthly.columns:
+        if col.lower() == 'mes':
+            nps_monthly[col] = pd.to_datetime(nps_monthly[col], errors='coerce').dt.date
+    for _, r in nps_monthly.iterrows():
+        if pd.isnull(r['Mes']): continue
+        mk     = str(date(r['Mes'].year, r['Mes'].month, 1))
+        t = r.get('Tienda')
+        tienda = 'Total' if (t is None or str(t).strip() in ('', 'None', 'nan')) else str(t)
+        if mk not in nps_data: nps_data[mk] = {}
+        nps_data[mk][tienda] = sf(r.get('NPS_Score'))
+
+# ── ASSORTMENT DATA ───────────────────────────────────────────────────────────
+
+ASSORTMENT = {
+    'months': ['Ene','Feb','Mar','Abr'],
+    'stores': {
+        'Caballito':    {'Disponibilidad':[0.710,0.714,0.702,0.708], 'Profundidad':[0.5879,0.615,0.600,0.525], 'Gap':[12.2, 9.9,10.2,18.3]},
+        'Scalabrini':   {'Disponibilidad':[0.690,0.696,0.687,0.711], 'Profundidad':[0.5903,0.630,0.616,0.557], 'Gap':[10.0, 6.6, 7.1,15.4]},
+        'Vicente Lopez':{'Disponibilidad':[0.721,0.724,0.709,0.737], 'Profundidad':[0.6010,0.628,0.627,0.570], 'Gap':[12.0, 9.6, 8.2,16.7]},
+        'Villa Urquiza':{'Disponibilidad':[0.699,0.707,0.699,0.711], 'Profundidad':[0.5791,0.602,0.618,0.543], 'Gap':[12.0,10.6, 8.2,16.8]},
+    }
+}
+
 # ── ASSEMBLE DATA BLOB ────────────────────────────────────────────────────────
 
 DATA = dict(
@@ -589,6 +661,14 @@ DATA = dict(
     rolling28       = rolling28,
     store_colors    = STORE_COLORS,
     stores          = STORES,
+    # Plan
+    plan_monthly    = plan_monthly_dict,
+    plan_weekly     = plan_weekly_dict,
+    plan_daily      = plan_daily_dict,
+    # NPS dinámico
+    nps_data        = nps_data,
+    # Assortment
+    assortment      = ASSORTMENT,
 )
 
 JSON_DATA = json.dumps(DATA, default=str, ensure_ascii=False)
@@ -710,39 +790,13 @@ const D = """ + JSON_DATA + """;
 let VIEW = 'semanal';
 let CUR_TAB = 'growth';
 
-// ── PLAN DATA (hardcoded — Plan 2+10 aprobado) ────────────────────────────────
-const MONTHLY_PLAN = {
-  '2026-01-01': {NMV: 175799372},
-  '2026-02-01': {NMV: 196000000},
-  '2026-03-01': {NMV: 332708333},
-  '2026-04-01': {NMV: 244000000},
-  '2026-05-01': {NMV: 325000000},
-  '2026-06-01': {NMV: 360000000},
-  '2026-07-01': {NMV: 470000000},
-  '2026-08-01': {NMV: 510000000},
-  '2026-09-01': {NMV: 610000000},
-  '2026-10-01': {NMV: 880000000},
-  '2026-11-01': {NMV: 1600000000},
-  '2026-12-01': {NMV: 2116349703},
-};
-const WEEKLY_PLAN = {
-  '2026-01-11': {NMV: 39175647,  NSI: 10438},
-  '2026-01-18': {NMV: 38245818,  NSI: 10354},
-  '2026-01-25': {NMV: 38070378,  NSI: 10331},
-  '2026-02-01': {NMV: 50979600,  NSI: 13452},
-  '2026-02-08': {NMV: 49450800,  NSI: 12868},
-  '2026-02-15': {NMV: 46236400,  NSI: 12207},
-  '2026-02-22': {NMV: 49333200,  NSI: 13137},
-  '2026-03-01': {NMV: 75877678,  NSI: 19530},
-  '2026-03-08': {NMV: 75877678,  NSI: 19530},
-  '2026-03-15': {NMV: 75877678,  NSI: 19530},
-  '2026-03-22': {NMV: 71775839,  NSI: 18474},
-  '2026-03-29': {NMV: 72324522,  NSI: 18457},
-  '2026-04-05': {NMV: 80738627,  NSI: 20454},
-  '2026-04-12': {NMV: 83160786,  NSI: 21068},
-  '2026-04-19': {NMV: 85655610,  NSI: 21700},
-  '2026-04-26': {NMV: 61204883,  NSI: 15506},
-};
+// ── PLAN DATA (desde CSVs parseados) ─────────────────────────────────────────
+// D.plan_monthly[mk] = {NMV_V2, NMV_4p8}
+// D.plan_weekly[wk]  = {NMV_V2, NSI_V2, NMV_4p8, NSI_4p8}
+// D.plan_daily[dk]   = {NMV_V2, NSI_V2, NMV_4p8, NSI_4p8}  (desde Abril)
+const PM = D.plan_monthly || {};
+const PW = D.plan_weekly  || {};
+const PD = D.plan_daily   || {};
 
 const TABS_SEMANAL = [
   {id:'growth',   label:'Growth'},
@@ -1235,110 +1289,157 @@ function renderRolling28() {
 // ── ASSORTMENT ────────────────────────────────────────────────────────────────
 
 function renderAssortment() {
-  return `<div class="placeholder">
-    <h3 style="color:#475569">Assortment</h3>
-    <p style="margin-bottom:12px">Cobertura de surtido — en desarrollo.</p>
-    <p style="font-size:11px;color:#94a3b8;max-width:420px;margin:0 auto">
-      Compartir la query de cobertura de items (ej. DM_SPM o similar) para implementar métricas de:
-      items activos, cobertura vs catálogo target, OOS rate, nuevos items, etc.
-    </p>
-  </div>`;
+  const A = D.assortment;
+  if (!A || !A.stores) return renderPlaceholder('Assortment', 'Sin datos de assortment.');
+
+  const months    = A.months;
+  const storeKeys = Object.keys(A.stores);
+  const lastMIdx  = months.length - 1;
+
+  // KPI cards — último mes, promedio de tiendas
+  const avgDisp = storeKeys.reduce((s,k)=>s+(A.stores[k].Disponibilidad[lastMIdx]||0),0)/storeKeys.length;
+  const avgProf = storeKeys.reduce((s,k)=>s+(A.stores[k].Profundidad[lastMIdx]||0),0)/storeKeys.length;
+  const avgGap  = storeKeys.reduce((s,k)=>s+(A.stores[k].Gap[lastMIdx]||0),0)/storeKeys.length;
+
+  let h = '<div class="kpi-row">';
+  h += '<div class="kpi-card"><div class="kpi-label">Disponibilidad Promedio (' + months[lastMIdx] + ')</div><div class="kpi-value" style="color:' + (avgDisp>=0.70?'#059669':'#dc2626') + '">' + (avgDisp*100).toFixed(1) + '%</div></div>';
+  h += '<div class="kpi-card"><div class="kpi-label">Profundidad Promedio (' + months[lastMIdx] + ')</div><div class="kpi-value" style="color:' + (avgProf>=0.60?'#059669':'#f59e0b') + '">' + (avgProf*100).toFixed(1) + '%</div></div>';
+  h += '<div class="kpi-card"><div class="kpi-label">Gap Promedio (p.p.)</div><div class="kpi-value" style="color:' + (avgGap<=10?'#059669':'#dc2626') + '">' + avgGap.toFixed(1) + '</div></div>';
+  h += '</div>';
+
+  h += '<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Disponibilidad = % SKUs activos sobre total catálogo &nbsp;|&nbsp; Profundidad = % de SKUs con stock suficiente &nbsp;|&nbsp; Gap = diferencia (p.p.)</p>';
+
+  // Tabla por tienda
+  h += '<div class="table-wrap"><table class="sc-table"><thead><tr><th>Tienda / Métrica</th>';
+  for (const m of months) h += '<th>' + m + '</th>';
+  h += '</tr></thead><tbody>';
+
+  for (const store of storeKeys) {
+    const color = D.store_colors[store] || '#94a3b8';
+    const sd    = A.stores[store];
+    h += '<tr class="pl-separator"><td colspan="' + (months.length+1) + '" style="padding:6px 12px"><span class="store-pill" style="background:' + color + '">' + store + '</span></td></tr>';
+
+    const metrics = [
+      {key:'Disponibilidad', fmt: v => (v*100).toFixed(1)+'%', hb:true,  thresh:0.70},
+      {key:'Profundidad',    fmt: v => (v*100).toFixed(1)+'%', hb:true,  thresh:0.60},
+      {key:'Gap (p.p.)',     fmt: v => v.toFixed(1),           hb:false, thresh:10},
+    ];
+    for (const m of metrics) {
+      const vals = sd[m.key];
+      h += '<tr><td style="padding-left:24px">' + m.key + '</td>';
+      for (let i=0; i<months.length; i++) {
+        const v   = vals[i];
+        const isLast = i === months.length-1;
+        let cls = '';
+        if (isLast) {
+          const good = m.hb ? v >= m.thresh : v <= m.thresh;
+          cls = good ? 'good' : 'bad';
+        }
+        h += '<td class="' + (isLast?'last-col ':'') + cls + '">' + (v!=null?m.fmt(v):'—') + '</td>';
+      }
+      h += '</tr>';
+    }
+  }
+
+  h += '</tbody></table></div>';
+  return h;
 }
 
 // ── PLAN TAB ──────────────────────────────────────────────────────────────────
 
-function renderPlan() {
-  const isWeekly  = VIEW === 'semanal';
-  const plan      = isWeekly ? WEEKLY_PLAN : MONTHLY_PLAN;
-  const allPeriods= isWeekly ? D.weeks   : D.months;
-  const labelMap  = isWeekly ? D.wlabels : D.mlabels;
-  const growthMap = isWeekly ? D.wg      : D.mg;
-
-  // Periods: union of actual data + plan keys (capped at latest real period for future months)
-  const lastReal = allPeriods.length ? allPeriods[allPeriods.length-1] : '';
-  const planKeys = Object.keys(plan).filter(p => p <= lastReal || !growthMap[lastReal]);
-  const allKeys  = [...new Set([...allPeriods.filter(p => plan[p] || growthMap[p]), ...planKeys])].sort();
-  const periods  = isWeekly ? allKeys : allKeys.slice(-12);
-
-  if (!periods.length) return renderPlaceholder('Plan vs Real', 'Sin períodos con datos de plan.');
-
-  // KPIs: acumulado de períodos con datos reales
-  let sumPlanKPI = 0, sumRealKPI = 0;
-  for (const p of periods) {
-    const pv = (plan[p]||{}).NMV; const rv = (growthMap[p]||{}).NMV;
-    if (pv && rv) { sumPlanKPI += pv; sumRealKPI += rv; }
+function planRow(label, vals, totFn, style) {
+  let t = 0, hasAny = false;
+  let h = '<tr><td style="' + (style||'') + '">' + label + '</td>';
+  for (const v of vals) {
+    if (v != null) { t += v; hasAny = true; }
+    const cellStyle = style || (v == null ? 'color:#94a3b8' : '');
+    h += '<td style="' + cellStyle + '">' + (v != null ? totFn(v) : '—') + '</td>';
   }
-  const totalPct = sumPlanKPI > 0 ? (sumRealKPI - sumPlanKPI) / sumPlanKPI : null;
+  h += '<td style="font-weight:700">' + (hasAny ? totFn(t) : '—') + '</td></tr>';
+  return h;
+}
+
+function renderPlan() {
+  const isSemanal = VIEW === 'semanal';
+  const isDiario  = VIEW === 'diario';
+  const planMap   = isSemanal ? PW : (isDiario ? PD : PM);
+  const growthMap = isSemanal ? D.wg : (isDiario ? D.dg : D.mg);
+  const allPeriods= isSemanal ? D.weeks : (isDiario ? D.daily_dates : D.months);
+  const labelMap  = isSemanal ? D.wlabels : (isDiario ? D.dlabels : D.mlabels);
+
+  // Períodos que tienen datos de plan o real, desde 2026
+  const periods = allPeriods.filter(p => p >= '2026-01-01' && (planMap[p] || growthMap[p]));
+  if (!periods.length) return renderPlaceholder('Plan vs Real', 'Sin períodos con datos de plan 2026.');
+
+  // KPI acumulado
+  let sumReal=0, sumV2=0, sum48=0;
+  for (const p of periods) {
+    const rv  = (growthMap[p]||{}).NMV;
+    const pv2 = (planMap[p]||{}).NMV_V2;
+    const p48 = (planMap[p]||{}).NMV_4p8;
+    if (rv)  sumReal += rv;
+    if (pv2) sumV2   += pv2;
+    if (p48) sum48   += p48;
+  }
 
   let h = '<div class="kpi-row">';
-  h += `<div class="kpi-card"><div class="kpi-label">NMV Real (acum. vs plan)</div><div class="kpi-value">${fmtNMV(sumRealKPI||null)}</div></div>`;
-  h += `<div class="kpi-card"><div class="kpi-label">NMV Plan (acum.)</div><div class="kpi-value" style="color:#94a3b8">${fmtNMV(sumPlanKPI||null)}</div></div>`;
-  if (totalPct !== null) {
-    h += `<div class="kpi-card"><div class="kpi-label">vs Plan</div><div class="kpi-value" style="color:${totalPct>=0?'#16a34a':'#dc2626'}">${totalPct>=0?'+':''}${(totalPct*100).toFixed(1)}%</div></div>`;
+  h += '<div class="kpi-card"><div class="kpi-label">NMV Real (acum.)</div><div class="kpi-value">' + fmtNMV(sumReal||null) + '</div></div>';
+  h += '<div class="kpi-card" style="border-top-color:#64748b"><div class="kpi-label">Plan V2 (acum.)</div><div class="kpi-value" style="color:#64748b">' + fmtNMV(sumV2||null) + '</div></div>';
+  h += '<div class="kpi-card" style="border-top-color:#94a3b8"><div class="kpi-label">Forecast 4+8 (acum.)</div><div class="kpi-value" style="color:#94a3b8">' + fmtNMV(sum48||null) + '</div></div>';
+  if (sumV2 > 0 && sumReal > 0) {
+    const pv2 = (sumReal-sumV2)/sumV2;
+    h += '<div class="kpi-card" style="border-top-color:' + (pv2>=0?'#059669':'#dc2626') + '"><div class="kpi-label">vs Plan V2</div><div class="kpi-value" style="color:' + (pv2>=0?'#059669':'#dc2626') + '">' + (pv2>=0?'+':'') + (pv2*100).toFixed(1) + '%</div></div>';
+  }
+  if (sum48 > 0 && sumReal > 0) {
+    const p48 = (sumReal-sum48)/sum48;
+    h += '<div class="kpi-card" style="border-top-color:' + (p48>=0?'#059669':'#dc2626') + '"><div class="kpi-label">vs Fcst 4+8</div><div class="kpi-value" style="color:' + (p48>=0?'#059669':'#dc2626') + '">' + (p48>=0?'+':'') + (p48*100).toFixed(1) + '%</div></div>';
   }
   h += '</div>';
 
   // Tabla
-  h += '<div class="table-wrap"><table class="sc-table"><thead><tr><th>Métrica</th>';
-  for (const p of periods) h += `<th>${(labelMap&&labelMap[p])||p}</th>`;
+  const slicedPeriods = isSemanal ? periods : periods.slice(-12);
+  h += '<div class="table-wrap"><table class="sc-table' + (isDiario?' compact':'') + '"><thead><tr><th>Métrica</th>';
+  for (const p of slicedPeriods) h += '<th>' + ((labelMap&&labelMap[p])||p) + '</th>';
   h += '<th>TOTAL</th></tr></thead><tbody>';
 
-  // Fila NMV Plan
-  h += '<tr><td style="font-style:italic;color:#94a3b8">NMV Plan</td>';
-  let tPlan = 0;
-  for (const p of periods) {
-    const v = (plan[p]||{}).NMV || null;
-    if (v) tPlan += v;
-    h += `<td style="font-style:italic;color:#94a3b8">${fmtNMV(v)}</td>`;
-  }
-  h += `<td style="font-style:italic;color:#94a3b8">${fmtNMV(tPlan||null)}</td></tr>`;
+  const v2Vals  = slicedPeriods.map(p => (planMap[p]||{}).NMV_V2  || null);
+  const f48Vals = slicedPeriods.map(p => (planMap[p]||{}).NMV_4p8 || null);
+  const realVals= slicedPeriods.map(p => (growthMap[p]||{}).NMV   || null);
 
-  // Fila NMV Real
-  h += '<tr><td style="font-weight:600">NMV Real</td>';
-  let tReal = 0;
-  for (const p of periods) {
-    const v = (growthMap[p]||{}).NMV || null;
-    if (v) tReal += v;
-    h += `<td${v==null?' style="color:#94a3b8"':''}>${fmtNMV(v)}</td>`;
-  }
-  h += `<td style="font-weight:600">${fmtNMV(tReal||null)}</td></tr>`;
+  h += planRow('Plan V2 (target)', v2Vals,  fmtNMV, 'font-style:italic;color:#64748b');
+  h += planRow('Forecast 4+8',     f48Vals, fmtNMV, 'font-style:italic;color:#94a3b8');
+  h += planRow('NMV Real',         realVals,fmtNMV, 'font-weight:700');
 
-  // Fila vs Plan %
-  h += '<tr><td style="font-weight:600;color:#64748b">vs Plan</td>';
-  for (const p of periods) {
-    const pv = (plan[p]||{}).NMV || null;
-    const rv = (growthMap[p]||{}).NMV || null;
-    if (pv && rv) {
-      const pct = (rv - pv) / pv;
-      h += `<td class="${pct>=0?'good':'bad'}">${pct>=0?'+':''}${(pct*100).toFixed(1)}%</td>`;
-    } else {
-      h += '<td>—</td>';
-    }
+  // % vs V2
+  h += '<tr><td style="color:#1d4ed8;font-weight:600">% vs Plan V2</td>';
+  for (const p of slicedPeriods) {
+    const pv=(planMap[p]||{}).NMV_V2, rv=(growthMap[p]||{}).NMV;
+    if (pv && rv) { const d=(rv-pv)/pv; h += '<td class="' + (d>=0?'good':'bad') + '">' + (d>=0?'+':'') + (d*100).toFixed(1) + '%</td>'; }
+    else h += '<td>—</td>';
   }
-  if (tPlan > 0 && tReal > 0) {
-    const pTot = (tReal - tPlan) / tPlan;
-    h += `<td class="${pTot>=0?'good':'bad'}">${pTot>=0?'+':''}${(pTot*100).toFixed(1)}%</td>`;
-  } else { h += '<td>—</td>'; }
+  { const d = sumV2>0&&sumReal>0?(sumReal-sumV2)/sumV2:null;
+    h += '<td class="' + (d!=null?(d>=0?'good':'bad'):'') + '" style="font-weight:700">' + (d!=null?((d>=0?'+':'')+(d*100).toFixed(1)+'%'):'—') + '</td>'; }
   h += '</tr>';
 
-  // NSI rows (semanal only)
-  if (isWeekly) {
-    h += '<tr><td style="font-style:italic;color:#94a3b8">NSI Plan</td>';
-    let tNSIPlan = 0;
-    for (const p of periods) {
-      const v = (plan[p]||{}).NSI || null;
-      if (v) tNSIPlan += v;
-      h += `<td style="font-style:italic;color:#94a3b8">${fmtCnt(v)}</td>`;
-    }
-    h += `<td style="font-style:italic;color:#94a3b8">${fmtCnt(tNSIPlan||null)}</td></tr>`;
-    h += '<tr><td style="font-weight:600">NSI Real</td>';
-    let tNSIReal = 0;
-    for (const p of periods) {
-      const v = (growthMap[p]||{}).NSI || null;
-      if (v) tNSIReal += v;
-      h += `<td>${fmtCnt(v)}</td>`;
-    }
-    h += `<td style="font-weight:600">${fmtCnt(tNSIReal||null)}</td></tr>`;
+  // % vs 4+8
+  h += '<tr><td style="color:#64748b;font-weight:600">% vs Fcst 4+8</td>';
+  for (const p of slicedPeriods) {
+    const pv=(planMap[p]||{}).NMV_4p8, rv=(growthMap[p]||{}).NMV;
+    if (pv && rv) { const d=(rv-pv)/pv; h += '<td class="' + (d>=0?'good':'bad') + '">' + (d>=0?'+':'') + (d*100).toFixed(1) + '%</td>'; }
+    else h += '<td>—</td>';
+  }
+  { const d = sum48>0&&sumReal>0?(sumReal-sum48)/sum48:null;
+    h += '<td class="' + (d!=null?(d>=0?'good':'bad'):'') + '" style="font-weight:700">' + (d!=null?((d>=0?'+':'')+(d*100).toFixed(1)+'%'):'—') + '</td>'; }
+  h += '</tr>';
+
+  // NSI (semanal/diario)
+  if (isSemanal || isDiario) {
+    const nsiV2   = slicedPeriods.map(p => (planMap[p]||{}).NSI_V2  || null);
+    const nsi48   = slicedPeriods.map(p => (planMap[p]||{}).NSI_4p8 || null);
+    const nsiReal = slicedPeriods.map(p => (growthMap[p]||{}).NSI   || null);
+    h += planRow('NSI Plan V2',    nsiV2,  fmtCnt, 'font-style:italic;color:#64748b');
+    h += planRow('NSI Fcst 4+8',   nsi48,  fmtCnt, 'font-style:italic;color:#94a3b8');
+    h += planRow('NSI Real',       nsiReal,fmtCnt, 'font-weight:600');
   }
 
   h += '</tbody></table></div>';
@@ -1347,6 +1448,7 @@ function renderPlan() {
 
 // ── NPS ────────────────────────────────────────────────────────────────────────
 
+// Fallback hardcoded (se usa si monthly_nps.csv no existe)
 const NPS_HARDCODED = {
   months: ["Dic'25","Ene'26","Feb'26","Mar'26","Abr'26"],
   'Total':         [26, 39, 20, 15, 29],
@@ -1365,6 +1467,9 @@ function npsColor(v) {
 }
 
 function renderNPS(standalone) {
+  // Preferir datos dinámicos de BQ; fallback a hardcoded
+  const hasDynamic = D.nps_data && Object.keys(D.nps_data).length > 0;
+  if (hasDynamic) return renderNPSDynamic();
   const nd     = NPS_HARDCODED;
   const months = nd.months;
   const storeKeys = ['Total', ...D.stores];
@@ -1400,6 +1505,42 @@ function renderNPS(standalone) {
   h += '</tbody></table></div>';
   return h;
 }
+
+function renderNPSDynamic() {
+  const npsD  = D.nps_data;
+  const months = Object.keys(npsD).sort();
+  const storeKeys = ['Total', ...D.stores];
+  const lastMk = months[months.length-1];
+
+  let h = '<div class="section-title" style="margin-top:24px">NPS por Tienda</div>';
+  h += '<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Net Promoter Score mensual — datos desde BQ (BT_CX_NPS_TX_SURVEY_RESPONSES)</p>';
+
+  h += '<div class="kpi-row">';
+  for (const s of storeKeys) {
+    const v = npsD[lastMk] ? npsD[lastMk][s] : null;
+    h += '<div class="kpi-card"><div class="kpi-label">' + s + '</div><div class="kpi-value" style="color:' + npsColor(v) + '">' + (v!=null?Math.round(v):'—') + '</div></div>';
+  }
+  h += '</div>';
+
+  h += '<div class="table-wrap"><table class="sc-table"><thead><tr><th>Tienda</th>';
+  for (const mk of months) h += '<th>' + mk.slice(0,7) + '</th>';
+  h += '</tr></thead><tbody>';
+
+  for (const s of storeKeys) {
+    h += '<tr><td style="font-weight:' + (s==='Total'?'700':'500') + '">' + s + '</td>';
+    for (const mk of months) {
+      const v = npsD[mk] ? npsD[mk][s] : null;
+      const vr = v != null ? Math.round(v) : null;
+      const bg = vr!=null?(vr>=50?'#dcfce7':vr>=30?'#d1fae5':vr>=0?'#fef3c7':'#fee2e2'):'';
+      h += '<td style="background:' + bg + ';color:' + npsColor(vr) + ';font-weight:600">' + (vr!=null?vr:'—') + '</td>';
+    }
+    h += '</tr>';
+  }
+  h += '</tbody></table></div>';
+  return h;
+}
+
+// ── ASSORTMENT ─────────────────────────────────────────────────────────────────
 
 // ── DAILY VIEWS ───────────────────────────────────────────────────────────────
 
