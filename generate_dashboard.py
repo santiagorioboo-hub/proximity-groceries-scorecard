@@ -1323,13 +1323,13 @@ function renderAssortment() {
     h += '<tr class="pl-separator"><td colspan="' + (months.length+1) + '" style="padding:6px 12px"><span class="store-pill" style="background:' + color + '">' + store + '</span></td></tr>';
 
     const metrics = [
-      {key:'Disponibilidad', fmt: v => (v*100).toFixed(1)+'%', hb:true,  thresh:0.70},
-      {key:'Profundidad',    fmt: v => (v*100).toFixed(1)+'%', hb:true,  thresh:0.60},
-      {key:'Gap (p.p.)',     fmt: v => v.toFixed(1),           hb:false, thresh:10},
+      {key:'Disponibilidad', lbl:'Disponibilidad', fmt: v => (v*100).toFixed(1)+'%', hb:true,  thresh:0.70},
+      {key:'Profundidad',    lbl:'Profundidad',    fmt: v => (v*100).toFixed(1)+'%', hb:true,  thresh:0.60},
+      {key:'Gap',            lbl:'Gap (p.p.)',     fmt: v => v.toFixed(1),           hb:false, thresh:10},
     ];
     for (const m of metrics) {
-      const vals = sd[m.key];
-      h += '<tr><td style="padding-left:24px">' + m.key + '</td>';
+      const vals = sd[m.key] || [];
+      h += '<tr><td style="padding-left:24px">' + m.lbl + '</td>';
       for (let i=0; i<months.length; i++) {
         const v   = vals[i];
         const isLast = i === months.length-1;
@@ -1471,7 +1471,6 @@ function renderPlan() {
   }
   h += '</div>';
 
-  // Tabla
   const slicedPeriods = isSemanal ? periods : periods.slice(-12);
   h += '<div class="table-wrap"><table class="sc-table' + (isDiario?' compact':'') + '"><thead><tr><th>Métrica</th>';
   for (const p of slicedPeriods) h += '<th>' + ((labelMap&&labelMap[p])||p) + '</th>';
@@ -1485,7 +1484,6 @@ function renderPlan() {
   h += planRow('Forecast 4+8',     f48Vals, fmtNMV, 'font-style:italic;color:#94a3b8');
   h += planRow('NMV Real',         realVals,fmtNMV, 'font-weight:700');
 
-  // % vs V2
   h += '<tr><td style="color:#1d4ed8;font-weight:600">% vs Plan V2</td>';
   for (const p of slicedPeriods) {
     const pv=(planMap[p]||{}).NMV_V2, rv=(growthMap[p]||{}).NMV;
@@ -1493,10 +1491,9 @@ function renderPlan() {
     else h += '<td>—</td>';
   }
   { const d = sumV2>0&&sumReal>0?(sumReal-sumV2)/sumV2:null;
-    h += '<td class="' + (d!=null?(d>=0?'good':'bad'):'') + '" style="font-weight:700">' + (d!=null?((d>=0?'+':'')+(d*100).toFixed(1)+'%'):'—') + '</td>'; }
+    h += '<td class="' + (d!=null?(d>=0?'good':'bad'):'') + '" style="font-weight:700">' + (d!=null?((d>=0?'+':'')+(d*100).toFixed(1)+'%'):'\u2014') + '</td>'; }
   h += '</tr>';
 
-  // % vs 4+8
   h += '<tr><td style="color:#64748b;font-weight:600">% vs Fcst 4+8</td>';
   for (const p of slicedPeriods) {
     const pv=(planMap[p]||{}).NMV_4p8, rv=(growthMap[p]||{}).NMV;
@@ -1504,26 +1501,21 @@ function renderPlan() {
     else h += '<td>—</td>';
   }
   { const d = sum48>0&&sumReal>0?(sumReal-sum48)/sum48:null;
-    h += '<td class="' + (d!=null?(d>=0?'good':'bad'):'') + '" style="font-weight:700">' + (d!=null?((d>=0?'+':'')+(d*100).toFixed(1)+'%'):'—') + '</td>'; }
+    h += '<td class="' + (d!=null?(d>=0?'good':'bad'):'') + '" style="font-weight:700">' + (d!=null?((d>=0?'+':'')+(d*100).toFixed(1)+'%'):'\u2014') + '</td>'; }
   h += '</tr>';
 
-  // NSI (semanal/diario)
   if (isSemanal || isDiario) {
     const nsiV2   = slicedPeriods.map(p => (planMap[p]||{}).NSI_V2  || null);
     const nsi48   = slicedPeriods.map(p => (planMap[p]||{}).NSI_4p8 || null);
     const nsiReal = slicedPeriods.map(p => (growthMap[p]||{}).NSI   || null);
-    h += planRow('NSI Plan V2',    nsiV2,  fmtCnt, 'font-style:italic;color:#64748b');
-    h += planRow('NSI Fcst 4+8',   nsi48,  fmtCnt, 'font-style:italic;color:#94a3b8');
-    h += planRow('NSI Real',       nsiReal,fmtCnt, 'font-weight:600');
+    h += planRow('NSI Plan V2',  nsiV2,  fmtCnt, 'font-style:italic;color:#64748b');
+    h += planRow('NSI Fcst 4+8', nsi48,  fmtCnt, 'font-style:italic;color:#94a3b8');
+    h += planRow('NSI Real',     nsiReal,fmtCnt, 'font-weight:600');
   }
-
   h += '</tbody></table></div>';
   return h;
 }
 
-// ── NPS ────────────────────────────────────────────────────────────────────────
-
-// Fallback hardcoded (se usa si monthly_nps.csv no existe)
 const NPS_HARDCODED = {
   months: ["Dic'25","Ene'26","Feb'26","Mar'26","Abr'26"],
   'Total':         [26, 39, 20, 15, 29],
@@ -1532,240 +1524,82 @@ const NPS_HARDCODED = {
   'Vicente Lopez': [29, 19, -5, 27, 34],
   'Villa Urquiza': [27, 44, 37, 17, 20],
 };
-
-function npsColor(v) {
-  if (v == null) return '#94a3b8';
-  if (v >= 50)  return '#15803d';
-  if (v >= 30)  return '#16a34a';
-  if (v >= 0)   return '#f59e0b';
-  return '#dc2626';
+function npsColor(v){
+  if(v==null)return '#94a3b8';
+  if(v>=50)return '#15803d'; if(v>=30)return '#16a34a'; if(v>=0)return '#f59e0b'; return '#dc2626';
 }
-
-function renderNPS(standalone) {
-  // Preferir datos dinámicos de BQ; fallback a hardcoded
-  const hasDynamic = D.nps_data && Object.keys(D.nps_data).length > 0;
-  if (hasDynamic) return renderNPSDynamic();
-  const nd     = NPS_HARDCODED;
-  const months = nd.months;
-  const storeKeys = ['Total', ...D.stores];
-  const lastIdx   = months.length - 1;
-
-  let h = '<div class="section-title" style="margin-top:24px">NPS por Tienda</div>';
-  h += '<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Net Promoter Score mensual — datos del reporte CX</p>';
-
-  // KPI cards — último mes
-  h += '<div class="kpi-row">';
-  for (const s of storeKeys) {
-    const v = nd[s] ? nd[s][lastIdx] : null;
-    h += `<div class="kpi-card"><div class="kpi-label">${s}</div><div class="kpi-value" style="color:${npsColor(v)}">${v!=null?v:'—'}</div></div>`;
+function renderNPS(){
+  const hasDynamic=D.nps_data&&Object.keys(D.nps_data).length>0;
+  if(hasDynamic)return renderNPSDynamic();
+  const nd=NPS_HARDCODED,months=nd.months,storeKeys=['Total',...D.stores],lastIdx=months.length-1;
+  let h='<div class="section-title" style="margin-top:20px">NPS por tienda</div>';
+  h+='<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Datos hardcoded — actualización mensual manual</p>';
+  h+='<div class="kpi-row">';
+  for(const s of storeKeys){
+    const v=nd[s]?nd[s][lastIdx]:null;
+    h+='<div class="kpi-card"><div class="kpi-label">'+s+'</div><div class="kpi-value" style="color:'+npsColor(v)+'">'+(v!=null?v:'—')+'</div></div>';
   }
-  h += '</div>';
-
-  // Tabla
-  h += '<div class="table-wrap"><table class="sc-table"><thead><tr><th style="text-align:left">Tienda</th>';
-  for (const m of months) h += `<th>${m}</th>`;
-  h += '</tr></thead><tbody>';
-
-  for (const s of storeKeys) {
-    const isBold = s === 'Total';
-    h += `<tr><td style="${isBold?'font-weight:700':'font-weight:500'};text-align:left;padding-left:12px">${s}</td>`;
-    const vals = nd[s] || [];
-    for (let i = 0; i < months.length; i++) {
-      const v  = vals[i] != null ? vals[i] : null;
-      const bg = v != null ? (v >= 50 ? '#dcfce7' : v >= 30 ? '#d1fae5' : v >= 0 ? '#fef3c7' : '#fee2e2') : '';
-      h += `<td style="background:${bg};color:${npsColor(v)};font-weight:600">${v!=null?v:'—'}</td>`;
+  h+='</div>';
+  h+='<div class="table-wrap"><table class="sc-table"><thead><tr><th style="text-align:left">Tienda</th>';
+  for(const m of months)h+='<th>'+m+'</th>';
+  h+='</tr></thead><tbody>';
+  for(const s of storeKeys){
+    h+='<tr><td style="'+(s==='Total'?'font-weight:700':'font-weight:500')+';text-align:left;padding-left:12px">'+s+'</td>';
+    const vals=nd[s]||[];
+    for(let i=0;i<months.length;i++){
+      const v=vals[i]!=null?vals[i]:null,bg=v!=null?(v>=50?'#dcfce7':v>=30?'#d1fae5':v>=0?'#fef3c7':'#fee2e2'):'';
+      h+='<td style="background:'+bg+';color:'+npsColor(v)+';font-weight:600">'+(v!=null?v:'—')+'</td>';
     }
-    h += '</tr>';
+    h+='</tr>';
   }
-  h += '</tbody></table></div>';
-  return h;
+  h+='</tbody></table></div>'; return h;
 }
-
-function renderNPSDynamic() {
-  const npsD  = D.nps_data;
-  const months = Object.keys(npsD).sort();
-  const storeKeys = ['Total', ...D.stores];
-  const lastMk = months[months.length-1];
-
-  let h = '<div class="section-title" style="margin-top:24px">NPS por Tienda</div>';
-  h += '<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Net Promoter Score mensual — datos desde BQ (BT_CX_NPS_TX_SURVEY_RESPONSES)</p>';
-
-  h += '<div class="kpi-row">';
-  for (const s of storeKeys) {
-    const v = npsD[lastMk] ? npsD[lastMk][s] : null;
-    h += '<div class="kpi-card"><div class="kpi-label">' + s + '</div><div class="kpi-value" style="color:' + npsColor(v) + '">' + (v!=null?Math.round(v):'—') + '</div></div>';
-  }
-  h += '</div>';
-
-  h += '<div class="table-wrap"><table class="sc-table"><thead><tr><th>Tienda</th>';
-  for (const mk of months) h += '<th>' + mk.slice(0,7) + '</th>';
-  h += '</tr></thead><tbody>';
-
-  for (const s of storeKeys) {
-    h += '<tr><td style="font-weight:' + (s==='Total'?'700':'500') + '">' + s + '</td>';
-    for (const mk of months) {
-      const v = npsD[mk] ? npsD[mk][s] : null;
-      const vr = v != null ? Math.round(v) : null;
-      const bg = vr!=null?(vr>=50?'#dcfce7':vr>=30?'#d1fae5':vr>=0?'#fef3c7':'#fee2e2'):'';
-      h += '<td style="background:' + bg + ';color:' + npsColor(vr) + ';font-weight:600">' + (vr!=null?vr:'—') + '</td>';
-    }
-    h += '</tr>';
-  }
-  h += '</tbody></table></div>';
-  return h;
+function renderNPSDynamic(){
+  const nd=D.nps_data,mkList=Object.keys(nd).sort();
+  const ME=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const ml=mk=>{const d=new Date(mk+'T00:00:00');return ME[d.getMonth()]+"'"+String(d.getFullYear()).slice(2);};
+  const storeKeys=['Total',...D.stores],lastMk=mkList[mkList.length-1];
+  let h='<div class="section-title" style="margin-top:20px">NPS por tienda</div>';
+  h+='<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Datos desde BigQuery — último período: <strong>'+ml(lastMk)+'</strong></p>';
+  h+='<div class="kpi-row">';
+  for(const s of storeKeys){const key=s==='Total'?'':s,v=nd[lastMk]?nd[lastMk][key]:null;h+='<div class="kpi-card"><div class="kpi-label">'+s+'</div><div class="kpi-value" style="color:'+npsColor(v)+'">'+(v!=null?v:'—')+'</div></div>';}
+  h+='</div>';
+  h+='<div class="table-wrap"><table class="sc-table"><thead><tr><th style="text-align:left">Tienda</th>';
+  for(const mk of mkList)h+='<th>'+ml(mk)+'</th>';
+  h+='</tr></thead><tbody>';
+  for(const s of storeKeys){const key=s==='Total'?'':s;h+='<tr><td style="'+(s==='Total'?'font-weight:700':'font-weight:500')+';text-align:left;padding-left:12px">'+s+'</td>';for(const mk of mkList){const v=nd[mk]?nd[mk][key]:null,bg=v!=null?(v>=50?'#dcfce7':v>=30?'#d1fae5':v>=0?'#fef3c7':'#fee2e2'):'';h+='<td style="background:'+bg+';color:'+npsColor(v)+';font-weight:600">'+(v!=null?v:'—')+'</td>';}h+='</tr>';}
+  h+='</tbody></table></div>'; return h;
 }
-
-// ── ASSORTMENT ─────────────────────────────────────────────────────────────────
-
-// ── DAILY VIEWS ───────────────────────────────────────────────────────────────
-
-function renderDailyGrowth() {
-  if (!D.daily_dates || D.daily_dates.length === 0)
-    return renderPlaceholder('Growth Diario', 'Sin datos diarios disponibles.');
-  return renderGrowth(D.daily_dates, D.dlabels||{}, D.dg||{}, {});
+function renderDailyGrowth(){if(!D.daily_dates||!D.daily_dates.length)return renderPlaceholder('Growth Diario','Sin datos.');return renderGrowth(D.daily_dates,D.dlabels||{},D.dg||{},{});}
+function renderDailyOps(){if(!D.daily_dates||!D.daily_dates.length)return renderPlaceholder('Ops Diario','Sin datos.');return renderOps(D.daily_dates,D.dlabels||{},D.do||{});}
+function renderDailyBuyers(){if(!D.daily_dates||!D.daily_dates.length)return renderPlaceholder('Buyers Diario','Sin datos.');return renderBuyers(D.daily_dates,D.dlabels||{},D.dcvr_day||{},D.dg||{});}
+function renderPlaceholder(t,s){return '<div class="placeholder"><h3 style="color:#475569">'+t+'</h3><p style="margin-top:6px;color:#94a3b8;font-size:12px">'+(s||'')+'</p></div>';}
+function toggleStore(id){const el=document.getElementById(id),ico=document.getElementById(id.replace('store-body-','store-ico-'));if(!el)return;const open=el.style.display!=='none';el.style.display=open?'none':'';if(ico)ico.textContent=open?'▶':'▼';}
+function setView(view){VIEW=view;['semanal','mensual','diario'].forEach(v=>{const b=document.getElementById('btn-'+v);if(b)b.classList.toggle('active',v===view);});const tabs=view==='semanal'?TABS_SEMANAL:view==='mensual'?TABS_MENSUAL:TABS_DIARIO;if(!tabs.find(t=>t.id===CUR_TAB))CUR_TAB=tabs[0].id;renderAll();}
+function setTab(id){CUR_TAB=id;renderAll();}
+function renderAll(){
+  const isSemanal=VIEW==='semanal',isMensual=VIEW==='mensual',isDiario=VIEW==='diario';
+  const tabs=isSemanal?TABS_SEMANAL:isMensual?TABS_MENSUAL:TABS_DIARIO;
+  const tb=document.getElementById('tabs-bar');
+  if(tb)tb.innerHTML=tabs.map(t=>'<button class="tab-btn'+(t.id===CUR_TAB?' active':'')+"\" onclick=\"setTab('"+ t.id +"')\">"+t.label+'</button>').join('');
+  let periods,labelMap,growthMap,opsMap,buyersMap,storeMap;
+  if(isSemanal){const allW=D.weeks||[];periods=allW.length>14?allW.slice(-14):allW;labelMap=D.wlabels||{};growthMap=D.wg||{};opsMap=D.wo||{};buyersMap=D.wb||{};storeMap=D.ws||{};}
+  else if(isMensual){periods=D.months||[];labelMap=D.mlabels||{};growthMap=D.mg||{};opsMap=D.mo||{};buyersMap=D.mb||{};storeMap=D.ms||{};}
+  else{periods=D.daily_dates||[];labelMap=D.dlabels||{};growthMap=D.dg||{};opsMap=D.do||{};buyersMap={};storeMap={};}
+  const el=document.getElementById('content');if(!el)return;
+  let html="";
+  if(isDiario){switch(CUR_TAB){case 'growth':html=renderDailyGrowth();break;case 'ops':html=renderDailyOps();break;case 'buyers':html=renderDailyBuyers();break;case 'graficos':html=renderGraficos(periods,labelMap,growthMap,opsMap);break;case 'plan':html=renderPlan();break;default:html=renderPlaceholder(CUR_TAB,'');break;}}
+  else{switch(CUR_TAB){case 'growth':html=renderGrowth(periods,labelMap,growthMap,storeMap);break;case 'ops':html=renderOps(periods,labelMap,opsMap);break;case 'buyers':html=renderBuyers(periods,labelMap,buyersMap,growthMap);break;case 'graficos':html=renderGraficos(periods,labelMap,growthMap,opsMap);break;case 'cx':html=renderCX(periods,labelMap,opsMap);break;case 'pl':html=renderPL(periods,labelMap);break;case 'assortment':html=renderAssortment();break;case 'demo':html=renderPlaceholder('Demógráficos','En desarrollo.');break;case 'plan':html=renderPlan();break;case 'rolling':html=isSemanal?renderRolling():renderRolling28();break;default:html=renderPlaceholder(CUR_TAB,'');break;}}
+  el.innerHTML=html;
 }
-
-function renderDailyOps() {
-  if (!D.daily_dates || D.daily_dates.length === 0)
-    return renderPlaceholder('Ops Diario', 'Sin datos diarios disponibles.');
-  return renderOps(D.daily_dates, D.dlabels||{}, D.do||{});
-}
-
-function renderDailyBuyers() {
-  if (!D.daily_dates || D.daily_dates.length === 0)
-    return renderPlaceholder('Buyers Diario', 'Sin datos diarios disponibles.');
-  return renderBuyers(D.daily_dates, D.dlabels||{}, D.dcvr_day||{}, D.dg||{});
-}
-
-// ── UTILS ─────────────────────────────────────────────────────────────────────
-
-function renderPlaceholder(title, subtitle) {
-  return `<div class="placeholder"><h3 style="color:#475569">${title}</h3><p style="margin-top:6px;color:#94a3b8;font-size:12px">${subtitle||''}</p></div>`;
-}
-
-function toggleStore(id) {
-  const el  = document.getElementById(id);
-  const ico = document.getElementById(id.replace('store-body-','store-ico-'));
-  if (!el) return;
-  const open = el.style.display !== 'none';
-  el.style.display = open ? 'none' : '';
-  if (ico) ico.textContent = open ? '▶' : '▼';
-}
-
-function setView(view) {
-  VIEW = view;
-  ['diario','semanal','mensual','rolling'].forEach(v => {
-    const btn = document.getElementById('btn-' + v);
-    if (btn) btn.classList.toggle('active', v === view);
-  });
-  const tabs = view === 'diario'  ? TABS_DIARIO  :
-               view === 'semanal' ? TABS_SEMANAL :
-               view === 'mensual' ? TABS_MENSUAL :
-               TABS_ROLLING;
-  if (!tabs.find(t => t.id === CUR_TAB)) CUR_TAB = tabs[0].id;
-  renderAll();
-}
-
-function setTab(id) {
-  CUR_TAB = id;
-  renderAll();
-}
-
-// ── RENDER ALL ────────────────────────────────────────────────────────────────
-
-function renderAll() {
-  const isSemanal = VIEW === 'semanal';
-  const isMensual = VIEW === 'mensual';
-  const isDiario  = VIEW === 'diario';
-  const isRolling = VIEW === 'rolling';
-  const tabs = isSemanal ? TABS_SEMANAL : isMensual ? TABS_MENSUAL :
-               isDiario  ? TABS_DIARIO  : TABS_ROLLING;
-
-  // Tab bar
-  const tb = document.getElementById('tabs-bar');
-  if (tb) {
-    tb.innerHTML = tabs.map(t =>
-      `<button class="tab-btn${t.id===CUR_TAB?' active':''}" onclick="setTab('${t.id}')">${t.label}</button>`
-    ).join('');
-  }
-
-  // Periods & maps
-  let periods, labelMap, growthMap, opsMap, buyersMap, storeMap;
-  if (isSemanal) {
-    const allW = D.weeks || [];
-    periods   = allW.length > 14 ? allW.slice(-14) : allW;
-    labelMap  = D.wlabels || {};
-    growthMap = D.wg || {};
-    opsMap    = D.wo || {};
-    buyersMap = D.wb || {};
-    storeMap  = D.ws || {};
-  } else if (isMensual) {
-    periods   = D.months || [];
-    labelMap  = D.mlabels || {};
-    growthMap = D.mg || {};
-    opsMap    = D.mo || {};
-    buyersMap = D.mb || {};
-    storeMap  = D.ms || {};
-  } else {
-    periods   = D.daily_dates || [];
-    labelMap  = D.dlabels || {};
-    growthMap = D.dg || {};
-    opsMap    = D.do || {};
-    buyersMap = {};
-    storeMap  = {};
-  }
-
-  const el = document.getElementById('content');
-  if (!el) return;
-
-  let html = '';
-  try {
-    if (isRolling) {
-      switch(CUR_TAB) {
-        case 'rolling7d':  html = renderRolling();   break;
-        case 'rolling28d': html = renderRolling28(); break;
-        default:           html = renderPlaceholder(CUR_TAB, ''); break;
-      }
-    } else if (isDiario) {
-      switch(CUR_TAB) {
-        case 'growth':   html = renderDailyGrowth(); break;
-        case 'ops':      html = renderDailyOps();    break;
-        case 'buyers':   html = renderDailyBuyers(); break;
-        case 'graficos': html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
-        case 'plan':     html = renderPlan(); break;
-        default:         html = renderPlaceholder(CUR_TAB, ''); break;
-      }
-    } else {
-      switch(CUR_TAB) {
-        case 'growth':     html = renderGrowth(periods, labelMap, growthMap, storeMap); break;
-        case 'ops':        html = renderOps(periods, labelMap, opsMap); break;
-        case 'buyers':     html = renderBuyers(periods, labelMap, buyersMap, growthMap); break;
-        case 'graficos':   html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
-        case 'cx':         html = renderCX(periods, labelMap, opsMap); break;
-        case 'pl':         html = renderPL(periods, labelMap); break;
-        case 'assortment': html = renderAssortment(); break;
-        case 'demo':       html = renderDemo(); break;
-        case 'plan':       html = renderPlan(); break;
-        default:           html = renderPlaceholder(CUR_TAB, ''); break;
-      }
-    }
-  } catch(e) {
-    html = renderPlaceholder('Error', e.message);
-    console.error('renderAll error:', e);
-  }
-  el.innerHTML = html;
-}
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
-
-document.getElementById('updated-label').textContent = 'Actualizado: ' + D.generated;
+document.getElementById('updated-label').textContent='Actualizado: '+D.generated;
 setView('semanal');
 </script>
 </body>
-</html>"""
+</html>
+"""
 
 with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
     f.write(HTML)
 
-print(f'Dashboard escrito → {OUTPUT_FILE}')
-
+print(f'Dashboard escrito \u2192 {OUTPUT_FILE}')
