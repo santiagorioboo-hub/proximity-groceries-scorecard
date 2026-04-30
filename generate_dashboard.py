@@ -156,8 +156,12 @@ if wo is not None:
             FR_Items_Remp   = sf(r['FR_Items_Reemplazo']),
             FR_Compras      = sf(r['FR_Compras']),
             FR_Compras_Remp = sf(r['FR_Compras_Reemplazo']),
+            Compra_Perfecta = sf(r.get('Compra_Perfecta')),
             On_Time         = sf(r['On_Time']),
             Cancel_Rate     = sf(r['Cancel_Rate']),
+            Cancel_Buyer    = sf(r.get('Cancel_Buyer')),
+            Cancel_Stockout = sf(r.get('Cancel_Stockout')),
+            Cancel_Seller   = sf(r.get('Cancel_Seller')),
         )
 
 # ── WEEKLY BUYERS ─────────────────────────────────────────────────────────────
@@ -250,13 +254,18 @@ mo_rows = {}
 if wo is not None:
     wo2 = wo.copy(); wo2['mk'] = wo2['Semana'].apply(month_key)
     for mk, grp in wo2.groupby('mk'):
+        def wcol(col): return sf(grp[col].mean()) if col in grp.columns else None
         mo_rows[mk] = dict(
-            FR_Items        = sf(grp['FR_Items'].mean()),
-            FR_Items_Remp   = sf(grp['FR_Items_Reemplazo'].mean()),
-            FR_Compras      = sf(grp['FR_Compras'].mean()),
-            FR_Compras_Remp = sf(grp['FR_Compras_Reemplazo'].mean()),
-            On_Time         = sf(grp['On_Time'].mean()),
-            Cancel_Rate     = sf(grp['Cancel_Rate'].mean()),
+            FR_Items        = wcol('FR_Items'),
+            FR_Items_Remp   = wcol('FR_Items_Reemplazo'),
+            FR_Compras      = wcol('FR_Compras'),
+            FR_Compras_Remp = wcol('FR_Compras_Reemplazo'),
+            Compra_Perfecta = wcol('Compra_Perfecta'),
+            On_Time         = wcol('On_Time'),
+            Cancel_Rate     = wcol('Cancel_Rate'),
+            Cancel_Buyer    = wcol('Cancel_Buyer'),
+            Cancel_Stockout = wcol('Cancel_Stockout'),
+            Cancel_Seller   = wcol('Cancel_Seller'),
         )
 
 # Monthly buyers
@@ -333,8 +342,12 @@ if dops is not None and daily_dates:
             FR_Items_Remp   = sf(r['FR_Items_Reemplazo']),
             FR_Compras      = sf(r['FR_Compras']),
             FR_Compras_Remp = sf(r['FR_Compras_Reemplazo']),
+            Compra_Perfecta = sf(r.get('Compra_Perfecta')),
             On_Time         = sf(r['On_Time']),
             Cancel_Rate     = sf(r['Cancel_Rate']),
+            Cancel_Buyer    = sf(r.get('Cancel_Buyer')),
+            Cancel_Stockout = sf(r.get('Cancel_Stockout')),
+            Cancel_Seller   = sf(r.get('Cancel_Seller')),
         )
 
 # Enrich daily growth with visits and CVR
@@ -617,14 +630,14 @@ if nps_monthly is not None:
         nps_data[mk][tienda] = sf(r.get('NPS_Score'))
 
 # ── ASSORTMENT DATA ───────────────────────────────────────────────────────────
-
+# Datos del Google Sheet "Stock Diario" (Ene-Abr 2026, 4 tiendas)
 ASSORTMENT = {
-    'months': ['Ene','Feb','Mar','Abr'],
+    'months': ["Ene'26","Feb'26","Mar'26","Abr'26"],
     'stores': {
-        'Caballito':    {'Disponibilidad':[0.710,0.714,0.702,0.708], 'Profundidad':[0.5879,0.615,0.600,0.525], 'Gap':[12.2, 9.9,10.2,18.3]},
-        'Scalabrini':   {'Disponibilidad':[0.690,0.696,0.687,0.711], 'Profundidad':[0.5903,0.630,0.616,0.557], 'Gap':[10.0, 6.6, 7.1,15.4]},
-        'Vicente Lopez':{'Disponibilidad':[0.721,0.724,0.709,0.737], 'Profundidad':[0.6010,0.628,0.627,0.570], 'Gap':[12.0, 9.6, 8.2,16.7]},
-        'Villa Urquiza':{'Disponibilidad':[0.699,0.707,0.699,0.711], 'Profundidad':[0.5791,0.602,0.618,0.543], 'Gap':[12.0,10.6, 8.2,16.8]},
+        'Caballito':    {'Disponibilidad':[0.710,0.714,0.702,0.708],'Profundidad':[0.5879,0.615,0.600,0.525],'Gap':[12.2, 9.9,10.2,18.3]},
+        'Scalabrini':   {'Disponibilidad':[0.690,0.696,0.687,0.711],'Profundidad':[0.5903,0.630,0.616,0.557],'Gap':[10.0, 6.6, 7.1,15.4]},
+        'Vicente Lopez':{'Disponibilidad':[0.721,0.724,0.709,0.737],'Profundidad':[0.6010,0.628,0.627,0.570],'Gap':[12.0, 9.6, 8.2,16.7]},
+        'Villa Urquiza':{'Disponibilidad':[0.699,0.707,0.699,0.711],'Profundidad':[0.5791,0.602,0.618,0.543],'Gap':[12.0,10.6, 8.2,16.8]},
     }
 }
 
@@ -812,6 +825,7 @@ const TABS_MENSUAL = [
   {id:'buyers',     label:'Buyers'},
   {id:'graficos',   label:'Gráficos'},
   {id:'cx',         label:'CX'},
+  {id:'nps',        label:'NPS'},
   {id:'pl',         label:'P&L'},
   {id:'assortment', label:'Assortment'},
   {id:'demo',       label:'Demográficos'},
@@ -1011,18 +1025,57 @@ function renderGrowth(periods, labelMap, dataMap, storeDataMap) {
 
 // ── OPS TAB ───────────────────────────────────────────────────────────────────
 
-const OPS_ROWS = [
-  {key:'FR_Items',        name:'Fill Rate Items',               type:'pct', hb:true,  color:'#10b981'},
-  {key:'FR_Items_Remp',   name:'Fill Rate Items c/Reemplazo',   type:'pct', hb:true,  color:'#16a34a'},
-  {key:'FR_Compras',      name:'Fill Rate Compras',             type:'pct', hb:true,  color:'#3b82f6'},
-  {key:'FR_Compras_Remp', name:'Fill Rate Compras c/Reemplazo', type:'pct', hb:true,  color:'#6366f1'},
-  {key:'On_Time',         name:'On Time',                       type:'pct', hb:true,  color:'#f59e0b'},
-  {key:'Cancel_Rate',     name:'Cancelaciones',                 type:'pct', hb:false, color:'#ef4444'},
+const OPS_ROWS_FR = [
+  {key:'FR_Items',        name:'Fill Rate Items',               type:'pct', hb:true},
+  {key:'FR_Items_Remp',   name:'Fill Rate Items c/Reemplazo',   type:'pct', hb:true},
+  {key:'FR_Compras',      name:'Fill Rate Compras',             type:'pct', hb:true},
+  {key:'FR_Compras_Remp', name:'Fill Rate Compras c/Reemplazo', type:'pct', hb:true},
 ];
+const OPS_ROWS_ENTREGA = [
+  {key:'Compra_Perfecta', name:'Compra Perfecta',              type:'pct', hb:true},
+  {key:'On_Time',         name:'On Time',                      type:'pct', hb:true},
+];
+const OPS_ROWS_CANCEL = [
+  {key:'Cancel_Rate',     name:'Cancelaciones Total',          type:'pct', hb:false},
+  {key:'Cancel_Buyer',    name:'├ Buyer initiated',            type:'pct', hb:false},
+  {key:'Cancel_Stockout', name:'├ Stockout',                   type:'pct', hb:false},
+  {key:'Cancel_Seller',   name:'└ Seller',                     type:'pct', hb:false},
+];
+const OPS_ROWS = [...OPS_ROWS_FR, ...OPS_ROWS_ENTREGA, ...OPS_ROWS_CANCEL];
 
 function renderOps(periods, labelMap, dataMap) {
-  let h = buildTable(periods, labelMap, OPS_ROWS, dataMap);
-  h += renderNPS();
+  const isMensual = VIEW === 'mensual';
+
+  let h = '<div class="section-title">Fill Rate</div>';
+  h += buildTable(periods, labelMap, OPS_ROWS_FR, dataMap);
+
+  h += '<div class="section-title" style="margin-top:16px">Compra Perfecta & On Time</div>';
+  h += buildTable(periods, labelMap, OPS_ROWS_ENTREGA, dataMap);
+
+  h += '<div class="section-title" style="margin-top:16px">Cancelaciones</div>';
+  h += buildTable(periods, labelMap, OPS_ROWS_CANCEL, dataMap);
+
+  // Reclamos CX — solo mensual (viene de monthly_cx.csv)
+  if (isMensual && D.mcx && Object.keys(D.mcx).length > 0) {
+    const availCX = periods.filter(p => D.mcx[p]);
+    if (availCX.length) {
+      const CX_ROWS = [
+        {key:'Perfect_Purchase_Rate', name:'Compra Perfecta CX (%)', type:'pct', hb:true},
+        {key:'Claims_Rate',           name:'Tasa de Reclamos',       type:'pct', hb:false},
+        {key:'Total_Claims',          name:'Reclamos Totales',       type:'cnt', hb:false},
+        {key:'Repentance',            name:'├ Arrepentimiento',      type:'cnt', hb:false},
+        {key:'Incomplete',            name:'├ Incompleto',           type:'cnt', hb:false},
+        {key:'Different',             name:'├ Diferente al pedido',  type:'cnt', hb:false},
+        {key:'Defective',             name:'└ Defectuoso',           type:'cnt', hb:false},
+      ];
+      h += '<div class="section-title" style="margin-top:16px">Reclamos (CX)</div>';
+      h += buildTable(availCX, labelMap, CX_ROWS, D.mcx);
+    }
+  }
+
+  // NPS solo en mensual
+  if (isMensual) h += renderNPS();
+
   return h;
 }
 
@@ -1589,7 +1642,7 @@ function renderAll(){
   const el=document.getElementById('content');if(!el)return;
   let html="";
   if(isDiario){switch(CUR_TAB){case 'growth':html=renderDailyGrowth();break;case 'ops':html=renderDailyOps();break;case 'buyers':html=renderDailyBuyers();break;case 'graficos':html=renderGraficos(periods,labelMap,growthMap,opsMap);break;case 'plan':html=renderPlan();break;default:html=renderPlaceholder(CUR_TAB,'');break;}}
-  else{switch(CUR_TAB){case 'growth':html=renderGrowth(periods,labelMap,growthMap,storeMap);break;case 'ops':html=renderOps(periods,labelMap,opsMap);break;case 'buyers':html=renderBuyers(periods,labelMap,buyersMap,growthMap);break;case 'graficos':html=renderGraficos(periods,labelMap,growthMap,opsMap);break;case 'cx':html=renderCX(periods,labelMap,opsMap);break;case 'pl':html=renderPL(periods,labelMap);break;case 'assortment':html=renderAssortment();break;case 'demo':html=renderPlaceholder('Demógráficos','En desarrollo.');break;case 'plan':html=renderPlan();break;case 'rolling':html=isSemanal?renderRolling():renderRolling28();break;default:html=renderPlaceholder(CUR_TAB,'');break;}}
+  else{switch(CUR_TAB){case 'growth':html=renderGrowth(periods,labelMap,growthMap,storeMap);break;case 'ops':html=renderOps(periods,labelMap,opsMap);break;case 'buyers':html=renderBuyers(periods,labelMap,buyersMap,growthMap);break;case 'graficos':html=renderGraficos(periods,labelMap,growthMap,opsMap);break;case 'cx':html=renderCX(periods,labelMap,opsMap);break;case 'nps':html=renderNPS();break;case 'pl':html=renderPL(periods,labelMap);break;case 'assortment':html=renderAssortment();break;case 'demo':html=renderDemo();break;case 'plan':html=renderPlan();break;case 'rolling':html=isSemanal?renderRolling():renderRolling28();break;default:html=renderPlaceholder(CUR_TAB,'');break;}}
   el.innerHTML=html;
 }
 document.getElementById('updated-label').textContent='Actualizado: '+D.generated;

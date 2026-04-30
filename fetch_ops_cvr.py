@@ -57,19 +57,20 @@ SQL_OPS_WEEKLY = f"""
 SELECT
   DATE_TRUNC(DATE, WEEK(SUNDAY)) AS Semana,
   -- Fill Rate Items
-  ROUND(SAFE_DIVIDE(SUM(FI_TSI_PICKED_QT_FILL_RATE), SUM(FI_TSI)), 4) AS FR_Items,
-  ROUND(SAFE_DIVIDE(SUM(FI_TSI_PICKED_QT_FILL_RATE_REPLACEMENT), SUM(FI_TSI)), 4) AS FR_Items_Reemplazo,
+  ROUND(SAFE_DIVIDE(SUM(FI_TSI_PICKED_QT_FILL_RATE), SUM(FI_TSI)), 4)                          AS FR_Items,
+  ROUND(SAFE_DIVIDE(SUM(FI_TSI_PICKED_QT_FILL_RATE_REPLACEMENT), SUM(FI_TSI)), 4)              AS FR_Items_Reemplazo,
   -- Fill Rate Compras
-  ROUND(SAFE_DIVIDE(SUM(FC_COMPLETE_PURCHASE), SUM(FC_TOTAL_PURCHASES)), 4) AS FR_Compras,
-  ROUND(SAFE_DIVIDE(SUM(FC_COMPLETE_PURCHASE_REPLACEMENT), SUM(FC_TOTAL_PURCHASES)), 4) AS FR_Compras_Reemplazo,
+  ROUND(SAFE_DIVIDE(SUM(FC_COMPLETE_PURCHASE), SUM(FC_TOTAL_PURCHASES)), 4)                    AS FR_Compras,
+  ROUND(SAFE_DIVIDE(SUM(FC_COMPLETE_PURCHASE_REPLACEMENT), SUM(FC_TOTAL_PURCHASES)), 4)        AS FR_Compras_Reemplazo,
+  -- Compra Perfecta
+  ROUND(SAFE_DIVIDE(SUM(FC_COMPLETE_PURCHASE), SUM(FC_TOTAL_PURCHASES)), 4)                    AS Compra_Perfecta,
   -- On Time
-  ROUND(SAFE_DIVIDE(SUM(OT_ON_TIME), SUM(OT_PACKS)), 4) AS On_Time,
-  -- Cancelaciones
-  ROUND(SAFE_DIVIDE(SUM(CR_TOTAL_CANCELS_PURCHASES), SUM(CR_TOTAL_PURCHASES)), 4) AS Cancel_Rate,
-  -- Totales para verificación
-  SUM(FI_TSI) AS TSI_total,
-  SUM(FC_TOTAL_PURCHASES) AS Compras_total,
-  SUM(OT_PACKS) AS Packs_total,
+  ROUND(SAFE_DIVIDE(SUM(OT_ON_TIME), SUM(OT_PACKS)), 4)                                        AS On_Time,
+  -- Cancelaciones total + breakdown
+  ROUND(SAFE_DIVIDE(SUM(CR_TOTAL_CANCELS_PURCHASES), SUM(CR_TOTAL_PURCHASES)), 4)              AS Cancel_Rate,
+  ROUND(SAFE_DIVIDE(SUM(CR_BUYER_CANCELS_PURCHASES), SUM(CR_TOTAL_PURCHASES)), 4)              AS Cancel_Buyer,
+  ROUND(SAFE_DIVIDE(SUM(CR_STOCKOUTS_CANCELS_PURCHASES), SUM(CR_TOTAL_PURCHASES)), 4)          AS Cancel_Stockout,
+  ROUND(SAFE_DIVIDE(SUM(CR_SELLER_CANCELS_PURCHASES), SUM(CR_TOTAL_PURCHASES)), 4)             AS Cancel_Seller,
   SUM(CR_TOTAL_PURCHASES) AS CR_Purchases_total
 FROM `meli-bi-data.WHOWNER.DM_OPS_FH_TB_DASH_SCORECARD_2025_GLOBAL`
 WHERE SIT_SITE_ID = 'MLA'
@@ -149,11 +150,34 @@ FULL JOIN visitors v USING(Fecha)
 ORDER BY Fecha
 """
 
+# ── DAILY OPS (últimos 60 días para tener margen) ─────────────────────────────
+SQL_OPS_DAILY = f"""
+SELECT
+  DATE AS Fecha,
+  ROUND(SAFE_DIVIDE(SUM(FI_TSI_PICKED_QT_FILL_RATE), SUM(FI_TSI)), 4)                          AS FR_Items,
+  ROUND(SAFE_DIVIDE(SUM(FI_TSI_PICKED_QT_FILL_RATE_REPLACEMENT), SUM(FI_TSI)), 4)              AS FR_Items_Reemplazo,
+  ROUND(SAFE_DIVIDE(SUM(FC_COMPLETE_PURCHASE), SUM(FC_TOTAL_PURCHASES)), 4)                    AS FR_Compras,
+  ROUND(SAFE_DIVIDE(SUM(FC_COMPLETE_PURCHASE_REPLACEMENT), SUM(FC_TOTAL_PURCHASES)), 4)        AS FR_Compras_Reemplazo,
+  ROUND(SAFE_DIVIDE(SUM(FC_COMPLETE_PURCHASE), SUM(FC_TOTAL_PURCHASES)), 4)                    AS Compra_Perfecta,
+  ROUND(SAFE_DIVIDE(SUM(OT_ON_TIME), SUM(OT_PACKS)), 4)                                        AS On_Time,
+  ROUND(SAFE_DIVIDE(SUM(CR_TOTAL_CANCELS_PURCHASES), SUM(CR_TOTAL_PURCHASES)), 4)              AS Cancel_Rate,
+  ROUND(SAFE_DIVIDE(SUM(CR_BUYER_CANCELS_PURCHASES), SUM(CR_TOTAL_PURCHASES)), 4)              AS Cancel_Buyer,
+  ROUND(SAFE_DIVIDE(SUM(CR_STOCKOUTS_CANCELS_PURCHASES), SUM(CR_TOTAL_PURCHASES)), 4)          AS Cancel_Stockout,
+  ROUND(SAFE_DIVIDE(SUM(CR_SELLER_CANCELS_PURCHASES), SUM(CR_TOTAL_PURCHASES)), 4)             AS Cancel_Seller
+FROM `meli-bi-data.WHOWNER.DM_OPS_FH_TB_DASH_SCORECARD_2025_GLOBAL`
+WHERE SIT_SITE_ID = 'MLA'
+  AND CAST(STORE_ID AS STRING) IN ({','.join(["'"+s.strip()+"'" for s in STORE_IDS.split(",")])})
+  AND DATE >= DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)
+GROUP BY Fecha
+ORDER BY Fecha
+"""
+
 print('\nSubmitting jobs...')
 jobs = {
     'weekly_ops.csv':   (SQL_OPS_WEEKLY,  f'ops-w-{ts}'),
     'weekly_cvr.csv':   (SQL_CVR_WEEKLY,  f'cvr-w-{ts}'),
     'daily_cvr.csv':    (SQL_CVR_DAILY,   f'cvr-d-{ts}'),
+    'daily_ops.csv':    (SQL_OPS_DAILY,   f'ops-d-{ts}'),
 }
 for fname, (sql, jid) in jobs.items():
     submit(sql, jid)
@@ -164,7 +188,6 @@ for fname, (sql, jid) in jobs.items():
     try:
         schema, rows = wait_and_get(jid)
         save(fname, schema, rows)
-        # Print sample
         if rows:
             print(f'    First row: {dict(zip(schema, rows[0]))}')
             print(f'    Last row:  {dict(zip(schema, rows[-1]))}')
