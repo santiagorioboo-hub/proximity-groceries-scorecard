@@ -1262,37 +1262,36 @@ function renderPL(periods, labelMap) {
 
   let h = `<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Último período con datos P&L: <strong>${lbl}</strong></p>`;
 
+  // KPI cards — métricas clave en %
   h += '<div class="kpi-row">';
-  [
-    {key:'TGMV',               label:'TGMV',       type:'nmv'},
-    {key:'NMV',                label:'NMV',         type:'nmv'},
-    {key:'Net_Monetization',   label:'Net Monet.',  type:'nmv'},
-    {key:'Variable_Contribution', label:'Contrib. Var.', type:'nmv'},
-    {key:'Take_Rate',          label:'Take Rate',   type:'pct'},
-  ].forEach(k => {
-    const v = rec[k.key];
-    h += `<div class="kpi-card"><div class="kpi-label">${k.label}</div><div class="kpi-value">${fmt(v,k.type)}</div></div>`;
-  });
+  h += `<div class="kpi-card"><div class="kpi-label">NMV</div><div class="kpi-value">${fmt(rec.NMV,'nmv')}</div></div>`;
+  const tr = rec.Take_Rate;
+  h += `<div class="kpi-card"><div class="kpi-label">Net Monet. %</div><div class="kpi-value" style="color:${tr!=null&&tr>=0.09?'#16a34a':'#f59e0b'}">${fmt(tr,'pct')}</div></div>`;
+  const vc = rec.VC_Over_NMV;
+  h += `<div class="kpi-card"><div class="kpi-label">Contrib. Var. %</div><div class="kpi-value" style="color:${vc!=null&&vc>=0?'#16a34a':'#dc2626'}">${fmt(vc,'pct')}</div></div>`;
+  const dc = rec.DC_Over_NMV;
+  h += `<div class="kpi-card"><div class="kpi-label">Contrib. Directa %</div><div class="kpi-value" style="color:${dc!=null&&dc>=0?'#16a34a':'#dc2626'}">${fmt(dc,'pct')}</div></div>`;
+  h += `<div class="kpi-card"><div class="kpi-label">TGMV</div><div class="kpi-value" style="color:#94a3b8">${fmt(rec.TGMV,'nmv')}</div></div>`;
   h += '</div>';
 
   const PL_ROWS = [
     {separator:true, name:'Volumen'},
-    {key:'TGMV',                    name:'TGMV (GMV Total)',               type:'nmv',  hb:true},
-    {key:'NMV',                     name:'NMV (Net Merch. Value)',          type:'nmv',  hb:true},
+    {key:'NMV',                     name:'NMV',                             type:'nmv',  hb:true},
+    {key:'TGMV',                    name:'TGMV (GMV Total)',                type:'nmv',  hb:true},
     {separator:true, name:'Monetización'},
     {key:'Net_Variable_Fee',        name:'Net Variable Fee',                type:'nmv',  hb:true},
     {key:'Net_Monetization',        name:'Net Monetization',                type:'nmv',  hb:true},
+    {key:'Take_Rate',               name:'% Net Monet. / NMV',             type:'pct',  hb:true, extraClass:'pl-ratio'},
     {key:'Product_Net_Monetization',name:'Product Net Monetization',        type:'nmv',  hb:true},
-    {key:'Take_Rate',               name:'Take Rate (Net Monet./NMV)',      type:'pct',  hb:true, extraClass:'pl-ratio'},
     {separator:true, name:'Costos'},
-    {key:'Shipping_Cost',           name:'Costo de Distribución/Envío',     type:'nmv',  hb:false},
+    {key:'Shipping_Cost',           name:'Shipping / Distribución',         type:'nmv',  hb:false},
     {key:'Promotions',              name:'Promociones',                     type:'nmv',  hb:false},
     {key:'Coupons',                 name:'Cupones',                         type:'nmv',  hb:false},
     {separator:true, name:'Contribuciones'},
     {key:'Variable_Contribution',   name:'Contribución Variable',           type:'nmv',  hb:true},
-    {key:'VC_Over_NMV',             name:'Contrib. Variable / NMV',         type:'pct',  hb:true, extraClass:'pl-ratio'},
+    {key:'VC_Over_NMV',             name:'% VC / NMV',                     type:'pct',  hb:true, extraClass:'pl-ratio'},
     {key:'Direct_Contribution',     name:'Contribución Directa',            type:'nmv',  hb:true},
-    {key:'DC_Over_NMV',             name:'Contrib. Directa / NMV',          type:'pct',  hb:true, extraClass:'pl-ratio'},
+    {key:'DC_Over_NMV',             name:'% DC / NMV',                     type:'pct',  hb:true, extraClass:'pl-ratio'},
   ];
   h += buildTable(availPeriods, labelMap, PL_ROWS, D.mpl);
   return h;
@@ -1621,318 +1620,4 @@ function renderDemo() {
   function pctStacked(byKey, order, keys) {
     return order.map(seg => ({
       label: seg,
-      data: keys.map(k => {
-        const row = byKey[k] || {};
-        const total = Object.values(row).reduce((s,v) => s+(v||0), 0);
-        return total > 0 ? Math.round((row[seg]||0) / total * 1000) / 10 : null;
-      })
-    }));
-  }
-
-  let h = '';
-  if (demo.buyers_ytd_total) {
-    h += '<div class="kpi-row"><div class="kpi-card"><div class="kpi-label">Buyers Únicos YTD 2026</div><div class="kpi-value">' + fmtCnt(demo.buyers_ytd_total) + '</div></div></div>';
-  }
-
-  h += '<div class="charts-grid">';
-  if (demo.gender_by_month) h += '<div class="chart-card"><h3>Buyers por Género</h3><canvas id="dch-gen"></canvas></div>';
-  if (demo.age_by_month)    h += '<div class="chart-card"><h3>Buyers por Rango Etario</h3><canvas id="dch-age"></canvas></div>';
-  if (demo.nse_by_month)    h += '<div class="chart-card"><h3>NSE por Mes</h3><canvas id="dch-nse"></canvas></div>';
-  if (demo.nse_by_store)    h += '<div class="chart-card"><h3>NSE por Tienda</h3><canvas id="dch-store"></canvas></div>';
-  h += '</div>';
-
-  setTimeout(() => {
-    const stackOpts = {
-      responsive:true, maintainAspectRatio:true,
-      plugins:{legend:{position:'bottom',labels:{font:{size:9},boxWidth:10,padding:5}}},
-      scales:{x:{stacked:true,ticks:{font:{size:9},maxRotation:45}},y:{stacked:true,min:0,max:100,ticks:{font:{size:9},callback:v=>v+'%'}}}
-    };
-    function mkChart(id, xLabels, dsData, colorMap) {
-      const el = document.getElementById(id); if (!el) return;
-      chartInstances.push(new Chart(el, {
-        type:'bar',
-        data:{labels:xLabels, datasets: dsData.map(d => ({label:d.label, data:d.data, backgroundColor:colorMap[d.label]||'#94a3b8', borderWidth:0}))},
-        options: stackOpts
-      }));
-    }
-    if (demo.gender_by_month) mkChart('dch-gen',   labels, pctStacked(demo.gender_by_month,['female','male'],months), GEN_C);
-    if (demo.age_by_month)    mkChart('dch-age',   labels, pctStacked(demo.age_by_month, ageOrder, months), AGE_C);
-    if (demo.nse_by_month)    mkChart('dch-nse',   labels, pctStacked(demo.nse_by_month, nseOrder, months), NSE_C);
-    if (demo.nse_by_store) {
-      const storeData = nseOrder.map(seg => ({
-        label: seg,
-        data: D.stores.map(s => {
-          const row = (demo.nse_by_store[s]||{});
-          const tot = Object.values(row).reduce((a,v) => a+(v||0), 0);
-          return tot > 0 ? Math.round((row[seg]||0)/tot*1000)/10 : null;
-        })
-      }));
-      mkChart('dch-store', D.stores, storeData, NSE_C);
-    }
-  }, 50);
-  return h;
-}
-
-// ── PLAN TAB ──────────────────────────────────────────────────────────────────
-
-function planRow(label, vals, totFn, style) {
-  let t = 0, hasAny = false;
-  let h = '<tr><td style="' + (style||'') + '">' + label + '</td>';
-  for (const v of vals) {
-    if (v != null) { t += v; hasAny = true; }
-    const cellStyle = style || (v == null ? 'color:#94a3b8' : '');
-    h += '<td style="' + cellStyle + '">' + (v != null ? totFn(v) : '—') + '</td>';
-  }
-  h += '<td style="font-weight:700">' + (hasAny ? totFn(t) : '—') + '</td></tr>';
-  return h;
-}
-
-function renderPlan() {
-  const isSemanal = VIEW === 'semanal';
-  const isDiario  = VIEW === 'diario';
-  const planMap   = isSemanal ? PW : (isDiario ? PD : PM);
-  const growthMap = isSemanal ? D.wg : (isDiario ? D.dg : D.mg);
-  const allPeriods= isSemanal ? D.weeks : (isDiario ? D.daily_dates : D.months);
-  const labelMap  = isSemanal ? D.wlabels : (isDiario ? D.dlabels : D.mlabels);
-
-  // Períodos que tienen datos de plan o real, desde 2026
-  const periods = allPeriods.filter(p => p >= '2026-01-01' && (planMap[p] || growthMap[p]));
-  if (!periods.length) return renderPlaceholder('Plan vs Real', 'Sin períodos con datos de plan 2026.');
-
-  // KPI acumulado
-  let sumReal=0, sumV2=0, sum48=0;
-  for (const p of periods) {
-    const rv  = (growthMap[p]||{}).NMV;
-    const pv2 = (planMap[p]||{}).NMV_V2;
-    const p48 = (planMap[p]||{}).NMV_4p8;
-    if (rv)  sumReal += rv;
-    if (pv2) sumV2   += pv2;
-    if (p48) sum48   += p48;
-  }
-
-  let h = '<div class="kpi-row">';
-  h += '<div class="kpi-card"><div class="kpi-label">NMV Real (acum.)</div><div class="kpi-value">' + fmtNMV(sumReal||null) + '</div></div>';
-  h += '<div class="kpi-card" style="border-top-color:#64748b"><div class="kpi-label">Plan V2 (acum.)</div><div class="kpi-value" style="color:#64748b">' + fmtNMV(sumV2||null) + '</div></div>';
-  h += '<div class="kpi-card" style="border-top-color:#94a3b8"><div class="kpi-label">Forecast 4+8 (acum.)</div><div class="kpi-value" style="color:#94a3b8">' + fmtNMV(sum48||null) + '</div></div>';
-  if (sumV2 > 0 && sumReal > 0) {
-    const pv2 = (sumReal-sumV2)/sumV2;
-    h += '<div class="kpi-card" style="border-top-color:' + (pv2>=0?'#059669':'#dc2626') + '"><div class="kpi-label">vs Plan V2</div><div class="kpi-value" style="color:' + (pv2>=0?'#059669':'#dc2626') + '">' + (pv2>=0?'+':'') + (pv2*100).toFixed(1) + '%</div></div>';
-  }
-  if (sum48 > 0 && sumReal > 0) {
-    const p48 = (sumReal-sum48)/sum48;
-    h += '<div class="kpi-card" style="border-top-color:' + (p48>=0?'#059669':'#dc2626') + '"><div class="kpi-label">vs Fcst 4+8</div><div class="kpi-value" style="color:' + (p48>=0?'#059669':'#dc2626') + '">' + (p48>=0?'+':'') + (p48*100).toFixed(1) + '%</div></div>';
-  }
-  h += '</div>';
-
-  const slicedPeriods = isSemanal ? periods : periods.slice(-12);
-  h += '<div class="table-wrap"><table class="sc-table' + (isDiario?' compact':'') + '"><thead><tr><th>Métrica</th>';
-  for (const p of slicedPeriods) h += '<th>' + ((labelMap&&labelMap[p])||p) + '</th>';
-  h += '<th>TOTAL</th></tr></thead><tbody>';
-
-  const v2Vals  = slicedPeriods.map(p => (planMap[p]||{}).NMV_V2  || null);
-  const f48Vals = slicedPeriods.map(p => (planMap[p]||{}).NMV_4p8 || null);
-  const realVals= slicedPeriods.map(p => (growthMap[p]||{}).NMV   || null);
-
-  h += planRow('Plan V2 (target)', v2Vals,  fmtNMV, 'font-style:italic;color:#64748b');
-  h += planRow('Forecast 4+8',     f48Vals, fmtNMV, 'font-style:italic;color:#94a3b8');
-  h += planRow('NMV Real',         realVals,fmtNMV, 'font-weight:700');
-
-  h += '<tr><td style="color:#1d4ed8;font-weight:600">% vs Plan V2</td>';
-  for (const p of slicedPeriods) {
-    const pv=(planMap[p]||{}).NMV_V2, rv=(growthMap[p]||{}).NMV;
-    if (pv && rv) { const d=(rv-pv)/pv; h += '<td class="' + (d>=0?'good':'bad') + '">' + (d>=0?'+':'') + (d*100).toFixed(1) + '%</td>'; }
-    else h += '<td>—</td>';
-  }
-  { const d = sumV2>0&&sumReal>0?(sumReal-sumV2)/sumV2:null;
-    h += '<td class="' + (d!=null?(d>=0?'good':'bad'):'') + '" style="font-weight:700">' + (d!=null?((d>=0?'+':'')+(d*100).toFixed(1)+'%'):'\u2014') + '</td>'; }
-  h += '</tr>';
-
-  h += '<tr><td style="color:#64748b;font-weight:600">% vs Fcst 4+8</td>';
-  for (const p of slicedPeriods) {
-    const pv=(planMap[p]||{}).NMV_4p8, rv=(growthMap[p]||{}).NMV;
-    if (pv && rv) { const d=(rv-pv)/pv; h += '<td class="' + (d>=0?'good':'bad') + '">' + (d>=0?'+':'') + (d*100).toFixed(1) + '%</td>'; }
-    else h += '<td>—</td>';
-  }
-  { const d = sum48>0&&sumReal>0?(sumReal-sum48)/sum48:null;
-    h += '<td class="' + (d!=null?(d>=0?'good':'bad'):'') + '" style="font-weight:700">' + (d!=null?((d>=0?'+':'')+(d*100).toFixed(1)+'%'):'\u2014') + '</td>'; }
-  h += '</tr>';
-
-  if (isSemanal || isDiario) {
-    const nsiV2   = slicedPeriods.map(p => (planMap[p]||{}).NSI_V2  || null);
-    const nsi48   = slicedPeriods.map(p => (planMap[p]||{}).NSI_4p8 || null);
-    const nsiReal = slicedPeriods.map(p => (growthMap[p]||{}).NSI   || null);
-    h += planRow('NSI Plan V2',  nsiV2,  fmtCnt, 'font-style:italic;color:#64748b');
-    h += planRow('NSI Fcst 4+8', nsi48,  fmtCnt, 'font-style:italic;color:#94a3b8');
-    h += planRow('NSI Real',     nsiReal,fmtCnt, 'font-weight:600');
-  }
-  h += '</tbody></table></div>';
-  return h;
-}
-
-const NPS_HARDCODED = {
-  months: ["Dic'25","Ene'26","Feb'26","Mar'26","Abr'26"],
-  'Total':         [26, 39, 20, 15, 29],
-  'Scalabrini':    [14, 48, 25,  9, 31],
-  'Caballito':     [16, 45, 20,  6, 20],
-  'Vicente Lopez': [29, 19, -5, 27, 34],
-  'Villa Urquiza': [27, 44, 37, 17, 20],
-};
-function npsColor(v){
-  if(v==null)return '#94a3b8';
-  if(v>=50)return '#15803d'; if(v>=30)return '#16a34a'; if(v>=0)return '#f59e0b'; return '#dc2626';
-}
-function renderNPS(){
-  const hasDynamic=D.nps_data&&Object.keys(D.nps_data).length>0;
-  if(hasDynamic)return renderNPSDynamic();
-  const nd=NPS_HARDCODED,months=nd.months,storeKeys=['Total',...D.stores],lastIdx=months.length-1;
-  let h='<div class="section-title" style="margin-top:20px">NPS por tienda</div>';
-  h+='<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Datos hardcoded — actualización mensual manual</p>';
-  h+='<div class="kpi-row">';
-  for(const s of storeKeys){
-    const v=nd[s]?nd[s][lastIdx]:null;
-    h+='<div class="kpi-card"><div class="kpi-label">'+s+'</div><div class="kpi-value" style="color:'+npsColor(v)+'">'+(v!=null?v:'—')+'</div></div>';
-  }
-  h+='</div>';
-  h+='<div class="table-wrap"><table class="sc-table"><thead><tr><th style="text-align:left">Tienda</th>';
-  for(const m of months)h+='<th>'+m+'</th>';
-  h+='</tr></thead><tbody>';
-  for(const s of storeKeys){
-    h+='<tr><td style="'+(s==='Total'?'font-weight:700':'font-weight:500')+';text-align:left;padding-left:12px">'+s+'</td>';
-    const vals=nd[s]||[];
-    for(let i=0;i<months.length;i++){
-      const v=vals[i]!=null?vals[i]:null,bg=v!=null?(v>=50?'#dcfce7':v>=30?'#d1fae5':v>=0?'#fef3c7':'#fee2e2'):'';
-      h+='<td style="background:'+bg+';color:'+npsColor(v)+';font-weight:600">'+(v!=null?v:'—')+'</td>';
-    }
-    h+='</tr>';
-  }
-  h+='</tbody></table></div>'; return h;
-}
-function renderNPSDynamic(){
-  const nd=D.nps_data,mkList=Object.keys(nd).sort();
-  const ME=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const ml=mk=>{const d=new Date(mk+'T00:00:00');return ME[d.getMonth()]+"'"+String(d.getFullYear()).slice(2);};
-  const storeKeys=['Total',...D.stores],lastMk=mkList[mkList.length-1];
-  let h='<div class="section-title" style="margin-top:20px">NPS por tienda</div>';
-  h+='<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Datos desde BigQuery — último período: <strong>'+ml(lastMk)+'</strong></p>';
-  h+='<div class="kpi-row">';
-  for(const s of storeKeys){const key=s==='Total'?'':s,v=nd[lastMk]?nd[lastMk][key]:null;h+='<div class="kpi-card"><div class="kpi-label">'+s+'</div><div class="kpi-value" style="color:'+npsColor(v)+'">'+(v!=null?v:'—')+'</div></div>';}
-  h+='</div>';
-  h+='<div class="table-wrap"><table class="sc-table"><thead><tr><th style="text-align:left">Tienda</th>';
-  for(const mk of mkList)h+='<th>'+ml(mk)+'</th>';
-  h+='</tr></thead><tbody>';
-  for(const s of storeKeys){const key=s==='Total'?'':s;h+='<tr><td style="'+(s==='Total'?'font-weight:700':'font-weight:500')+';text-align:left;padding-left:12px">'+s+'</td>';for(const mk of mkList){const v=nd[mk]?nd[mk][key]:null,bg=v!=null?(v>=50?'#dcfce7':v>=30?'#d1fae5':v>=0?'#fef3c7':'#fee2e2'):'';h+='<td style="background:'+bg+';color:'+npsColor(v)+';font-weight:600">'+(v!=null?v:'—')+'</td>';}h+='</tr>';}
-  h+='</tbody></table></div>'; return h;
-}
-function renderDailyGrowth(){if(!D.daily_dates||!D.daily_dates.length)return renderPlaceholder('Growth Diario','Sin datos.');return renderGrowth(D.daily_dates,D.dlabels||{},D.dg||{},{});}
-function renderDailyOps(){if(!D.daily_dates||!D.daily_dates.length)return renderPlaceholder('Ops Diario','Sin datos.');return renderOps(D.daily_dates,D.dlabels||{},D.do||{});}
-function renderDailyBuyers(){if(!D.daily_dates||!D.daily_dates.length)return renderPlaceholder('Buyers Diario','Sin datos.');return renderBuyers(D.daily_dates,D.dlabels||{},D.dcvr_day||{},D.dg||{});}
-function renderPlaceholder(t,s){return '<div class="placeholder"><h3 style="color:#475569">'+t+'</h3><p style="margin-top:6px;color:#94a3b8;font-size:12px">'+(s||'')+'</p></div>';}
-function toggleStore(id){const el=document.getElementById(id),ico=document.getElementById(id.replace('store-body-','store-ico-'));if(!el)return;const open=el.style.display!=='none';el.style.display=open?'none':'';if(ico)ico.textContent=open?'▶':'▼';}
-function setView(view) {
-  VIEW = view;
-  ['diario','semanal','mensual','rolling'].forEach(v => {
-    const b = document.getElementById('btn-' + v);
-    if (b) b.classList.toggle('active', v === view);
-  });
-  const tabs = view === 'diario'  ? TABS_DIARIO  :
-               view === 'mensual' ? TABS_MENSUAL :
-               view === 'rolling' ? TABS_ROLLING :
-               TABS_SEMANAL;
-  if (!tabs.find(t => t.id === CUR_TAB)) CUR_TAB = tabs[0].id;
-  renderAll();
-}
-
-function setTab(id) { CUR_TAB = id; renderAll(); }
-
-function renderAll() {
-  const isSemanal = VIEW === 'semanal';
-  const isMensual = VIEW === 'mensual';
-  const isDiario  = VIEW === 'diario';
-  const isRolling = VIEW === 'rolling';
-
-  const tabs = isDiario  ? TABS_DIARIO  :
-               isMensual ? TABS_MENSUAL :
-               isRolling ? TABS_ROLLING :
-               TABS_SEMANAL;
-
-  const tb = document.getElementById('tabs-bar');
-  if (tb) tb.innerHTML = tabs.map(t =>
-    `<button class="tab-btn${t.id===CUR_TAB?' active':''}" onclick="setTab('${t.id}')">${t.label}</button>`
-  ).join('');
-
-  let periods, labelMap, growthMap, opsMap, buyersMap, storeMap;
-  if (isSemanal) {
-    const allW = D.weeks || [];
-    periods   = allW.length > 14 ? allW.slice(-14) : allW;
-    labelMap  = D.wlabels || {};
-    growthMap = D.wg || {};
-    opsMap    = D.wo || {};
-    buyersMap = D.wb || {};
-    storeMap  = D.ws || {};
-  } else if (isMensual) {
-    periods   = D.months || [];
-    labelMap  = D.mlabels || {};
-    growthMap = D.mg || {};
-    opsMap    = D.mo || {};
-    buyersMap = D.mb || {};
-    storeMap  = D.ms || {};
-  } else {
-    periods   = D.daily_dates || [];
-    labelMap  = D.dlabels || {};
-    growthMap = D.dg || {};
-    opsMap    = D.do || {};
-    buyersMap = {};
-    storeMap  = {};
-  }
-
-  const el = document.getElementById('content');
-  if (!el) return;
-
-  let html = '';
-  try {
-    if (isRolling) {
-      switch (CUR_TAB) {
-        case 'rolling7d':  html = renderRolling();   break;
-        case 'rolling28d': html = renderRolling28(); break;
-        default:           html = renderPlaceholder(CUR_TAB, ''); break;
-      }
-    } else if (isDiario) {
-      switch (CUR_TAB) {
-        case 'growth':   html = renderDailyGrowth(); break;
-        case 'ops':      html = renderDailyOps();    break;
-        case 'buyers':   html = renderDailyBuyers(); break;
-        case 'graficos': html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
-        case 'plan':     html = renderPlan(); break;
-        default:         html = renderPlaceholder(CUR_TAB, ''); break;
-      }
-    } else {
-      switch (CUR_TAB) {
-        case 'growth':     html = renderGrowth(periods, labelMap, growthMap, storeMap); break;
-        case 'ops':        html = renderOps(periods, labelMap, opsMap); break;
-        case 'buyers':     html = renderBuyers(periods, labelMap, buyersMap, growthMap); break;
-        case 'graficos':   html = renderGraficos(periods, labelMap, growthMap, opsMap); break;
-        case 'cx':         html = renderCX(periods, labelMap, opsMap); break;
-        case 'pl':         html = renderPL(periods, labelMap); break;
-        case 'assortment': html = renderAssortment(); break;
-        case 'demo':       html = renderDemo(); break;
-        case 'plan':       html = renderPlan(); break;
-        default:           html = renderPlaceholder(CUR_TAB, ''); break;
-      }
-    }
-  } catch (e) {
-    html = renderPlaceholder('Error', e.message);
-    console.error('renderAll error [' + CUR_TAB + ']:', e);
-  }
-  el.innerHTML = html;
-}
-document.getElementById('updated-label').textContent='Actualizado: '+D.generated;
-setView('semanal');
-</script>
-</body>
-</html>
-"""
-
-with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-    f.write(HTML)
-
-print(f'Dashboard escrito \u2192 {OUTPUT_FILE}')
+      data: keys.map(k
