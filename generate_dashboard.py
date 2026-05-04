@@ -81,8 +81,10 @@ def day_label(d):
     """'2026-04-27' → '27/abr'"""
     return f"{d.day}/{MONTHS_ES[d.month-1].lower()}"
 
-DAILY_WINDOW = 28   # días a mostrar en vista diaria
-CUTOFF_DATE  = date(2026, 4, 30)   # último día visible (cierre Abril)
+DAILY_WINDOW  = 28   # días a mostrar en vista diaria
+_today_init   = date.today()
+CUTOFF_DATE   = date(_today_init.year, _today_init.month, 1) - timedelta(days=1)  # fin mes anterior (para semanal/mensual)
+CUTOFF_DAILY  = _today_init - timedelta(days=1)   # D-1: para vista diaria y rolling
 
 # ── LOAD CSVS ─────────────────────────────────────────────────────────────────
 
@@ -107,6 +109,8 @@ nps_monthly   = load('monthly_nps.csv')
 q1   = load('q1_clean.csv')
 q2   = load('q2_clean.csv')
 q3   = load('q3_buyers_ytd.csv')
+wos  = load('weekly_ops_by_store.csv')   # ops por tienda por semana
+dsf2 = load('daily_by_store.csv')        # growth diario por tienda
 
 # ── WEEKLY GROWTH ─────────────────────────────────────────────────────────────
 
@@ -243,7 +247,8 @@ if ws is not None:
     for mk, cnt in store_counts_m.items():
         if mk in mg_rows: mg_rows[mk]['Stores'] = int(cnt)
 
-months  = [mk for mk in sorted(mg_rows.keys()) if mk <= '2026-04-01']
+CUTOFF_MONTH_KEY = str(date(CUTOFF_DATE.year, CUTOFF_DATE.month, 1))
+months  = [mk for mk in sorted(mg_rows.keys()) if mk <= CUTOFF_MONTH_KEY]
 mlabels = {mk: month_label_from_key(mk) for mk in months}
 
 # Monthly ops
@@ -284,6 +289,41 @@ if ws is not None:
             NMV=sf(grp['NMV'].sum()), NSI=sf(grp['NSI'].sum())
         )
 
+# Weekly/Monthly ops by store (weekly_ops_by_store.csv)
+wos_rows = {}   # week_str → {tienda → ops metrics}
+mos_rows = {}   # month_key → {tienda → averaged ops}
+if wos is not None:
+    for _, r in wos.iterrows():
+        d = str(r['Semana']); t = r['Tienda']
+        if d not in wos_rows: wos_rows[d] = {}
+        wos_rows[d][t] = dict(
+            FR_Items=sf(r.get('FR_Items')), FR_Items_Remp=sf(r.get('FR_Items_Reemplazo')),
+            FR_Compras=sf(r.get('FR_Compras')), Compra_Perfecta=sf(r.get('Compra_Perfecta')),
+            On_Time=sf(r.get('On_Time')), Cancel_Rate=sf(r.get('Cancel_Rate')),
+        )
+    wos2 = wos.copy(); wos2['mk'] = wos2['Semana'].apply(month_key)
+    for (mk, tienda), grp in wos2.groupby(['mk', 'Tienda']):
+        if mk not in mos_rows: mos_rows[mk] = {}
+        def _m(col, g=grp): return sf(g[col].mean()) if col in g.columns else None
+        mos_rows[mk][tienda] = dict(
+            FR_Items=_m('FR_Items'), FR_Items_Remp=_m('FR_Items_Reemplazo'),
+            FR_Compras=_m('FR_Compras'), Compra_Perfecta=_m('Compra_Perfecta'),
+            On_Time=_m('On_Time'), Cancel_Rate=_m('Cancel_Rate'),
+        )
+
+# Daily growth by store (daily_by_store.csv — se llena cuando existe el CSV)
+ds_rows = {}   # date_str → {tienda → {Compras, Ordenes, NMV, NSI, FR_Items}}
+if dsf2 is not None:
+    for _, r in dsf2.iterrows():
+        d = str(r['Fecha']); t = r['Tienda']
+        if d not in ds_rows: ds_rows[d] = {}
+        nsi = sf(r.get('NSI')); tsie = sf(r.get('TSIE_total'))
+        ds_rows[d][t] = dict(
+            Compras=sf(r.get('Compras')), Ordenes=sf(r.get('Ordenes')),
+            NMV=sf(r.get('NMV')), NSI=nsi,
+            FR_Items=sf(nsi/tsie) if (nsi and tsie) else None,
+        )
+
 # ── DAILY VIEW DATA (últimos 28 días) ────────────────────────────────────────
 
 daily_dates = []   # list of date objects, sorted asc, last 28 days
@@ -293,7 +333,7 @@ dcvr_day = {}      # str(date) → buyers, CVR
 do_rows  = {}      # str(date) → ops metrics
 
 if dgf is not None and len(dgf) > 0:
-    max_d = min(dgf['Fecha'].max(), CUTOFF_DATE)
+    max_d = min(dgf['Fecha'].max(), CUTOFF_DAILY)   # D-1
     cutoff = max_d - timedelta(days=DAILY_WINDOW - 1)
     dgf_w = dgf[(dgf['Fecha'] >= cutoff) & (dgf['Fecha'] <= max_d)].copy()
     # build full date range (fill gaps with None)
@@ -357,6 +397,19 @@ for dk in dg_rows:
 daily_date_strs  = [str(d) for d in daily_dates]
 daily_label_map  = {str(d): day_label(d) for d in daily_dates}
 
+# ── DAILY STORE BREAKDOWN (agrega weekly_by_store en ventana 28 días) ─────────
+# No hay daily_by_store.csv; se agregan las semanas que caen en la ventana diaria.
+daily_store_rows = {}   # {store_name → {Compras, Ordenes, NMV, NSI}}
+if ws is not None and daily_dates:
+    dwin_start = daily_dates[0] - timedelta(days=6)   # margen de 1 semana
+    dwin_end   = daily_dates[-1]
+    ws_win = ws[(ws['Semana'] >= dwin_start) & (ws['Semana'] <= dwin_end)]
+    for t, grp in ws_win.groupby('Tienda'):
+        daily_store_rows[t] = dict(
+            Compras=sf(grp['Compras'].sum()), Ordenes=sf(grp['Ordenes'].sum()),
+            NMV=sf(grp['NMV'].sum()),         NSI=sf(grp['NSI'].sum()),
+        )
+
 # ── P&L MENSUAL ───────────────────────────────────────────────────────────────
 
 mpl_rows = {}
@@ -389,9 +442,13 @@ for mk, r in mpl_rows.items():
         net_mon = r.get('Net_Monetization')
         var_con = r.get('Variable_Contribution')
         dir_con = r.get('Direct_Contribution')
-        r['Take_Rate']   = sf(net_mon / nmv) if net_mon is not None else None
-        r['VC_Over_NMV'] = sf(var_con / nmv) if var_con is not None else None
-        r['DC_Over_NMV'] = sf(dir_con / nmv) if dir_con is not None else None
+        r['Take_Rate']      = sf(net_mon / nmv) if net_mon is not None else None
+        r['VC_Over_NMV']    = sf(var_con / nmv) if var_con is not None else None
+        r['DC_Over_NMV']    = sf(dir_con / nmv) if dir_con is not None else None
+        ship = r.get('Shipping_Cost')
+        prom = r.get('Promotions')
+        r['Shipping_Over_NMV'] = sf(ship / nmv) if ship is not None else None
+        r['Promo_Over_NMV']    = sf(prom / nmv) if prom is not None else None
 
 # ── CX MENSUAL ────────────────────────────────────────────────────────────────
 
@@ -440,7 +497,7 @@ if mcx_store_raw is not None:
 
 rolling = []
 if dgf is not None and len(dgf) > 0:
-    max_date = min(dgf['Fecha'].max(), CUTOFF_DATE)
+    max_date = min(dgf['Fecha'].max(), CUTOFF_DAILY)   # Rolling usa D-1
     for i in range(13, -1, -1):
         end   = max_date - timedelta(days=i * 7)
         start = end - timedelta(days=6)
@@ -471,7 +528,7 @@ if dgf is not None and len(dgf) > 0:
 
 rolling28 = []
 if dgf is not None and len(dgf) > 0:
-    max_date = min(dgf['Fecha'].max(), CUTOFF_DATE)
+    max_date = min(dgf['Fecha'].max(), CUTOFF_DAILY)   # Rolling 28d usa D-1
     for i in range(6, -1, -1):        # 7 períodos de 28 días
         end   = max_date - timedelta(days=i * 28)
         start = end - timedelta(days=27)
@@ -761,6 +818,11 @@ DATA = dict(
     dg              = dg_rows,
     do              = do_rows,
     dcvr_day        = dcvr_day,
+    daily_store     = daily_store_rows,
+    ds              = ds_rows,       # daily growth por tienda (daily_by_store.csv)
+    # Ops por tienda
+    wos             = wos_rows,      # weekly ops por tienda
+    mos             = mos_rows,      # monthly ops por tienda
     # Rolling
     rolling         = rolling,
     rolling28       = rolling28,
@@ -932,7 +994,6 @@ const TABS_ROLLING = [
 const TABS_DIARIO = [
   {id:'growth',   label:'Growth'},
   {id:'ops',      label:'Ops'},
-  {id:'buyers',   label:'Buyers'},
   {id:'graficos', label:'Gráficos'},
   {id:'plan',     label:'Plan'},
 ];
@@ -1090,6 +1151,10 @@ const GROWTH_ROWS = [
 ];
 
 function renderGrowth(periods, labelMap, dataMap, storeDataMap) {
+  const isDiario = VIEW === 'diario';
+  // Filtrar "Tiendas activas" en vista diaria (no aplica)
+  const growthRows = isDiario ? GROWTH_ROWS.filter(r => r.key !== 'Stores') : GROWTH_ROWS;
+
   let h = '';
   const lastP = periods[periods.length-1];
   const rec   = dataMap[lastP] || {};
@@ -1104,7 +1169,7 @@ function renderGrowth(periods, labelMap, dataMap, storeDataMap) {
   });
   h += '</div>';
 
-  h += buildTable(periods, labelMap, GROWTH_ROWS, dataMap);
+  h += buildTable(periods, labelMap, growthRows, dataMap);
 
   h += `<div class="store-section">
     <div class="store-section-header" onclick="toggleStore('store-body-growth')">
@@ -1113,20 +1178,63 @@ function renderGrowth(periods, labelMap, dataMap, storeDataMap) {
     </div>
     <div class="store-section-body" id="store-body-growth">`;
 
-  const storeRowDefs = [
-    {key:'NMV',     name:'NMV',     type:'nmv', hb:true},
-    {key:'Compras', name:'Compras', type:'cnt', hb:true},
-    {key:'Ordenes', name:'Órdenes', type:'cnt', hb:true},
-    {key:'NSI',     name:'NSI',     type:'cnt', hb:true},
-  ];
-  for (const store of D.stores) {
-    const color = D.store_colors[store] || '#667eea';
-    h += `<div style="padding:10px 14px 0"><span class="store-pill" style="background:${color}">${store}</span></div>`;
-    const sDataMap = {};
-    for (const p of periods) {
-      sDataMap[p] = (storeDataMap[p] && storeDataMap[p][store]) ? storeDataMap[p][store] : {};
+  if (isDiario) {
+    // Vista diaria: usa D.ds (daily_by_store.csv) si está disponible, si no fallback a resumen semanal
+    const hasDailyStore = D.ds && Object.keys(D.ds).length > 0;
+    if (hasDailyStore) {
+      const dailyStoreRowDefs = [
+        {key:'NMV',     name:'NMV',     type:'nmv', hb:true},
+        {key:'Compras', name:'Compras', type:'cnt', hb:true},
+        {key:'Ordenes', name:'Órdenes', type:'cnt', hb:true},
+        {key:'NSI',     name:'NSI',     type:'cnt', hb:true},
+        {key:'FR_Items',name:'Fill Rate',type:'pct', hb:true},
+      ];
+      for (const store of D.stores) {
+        const color = D.store_colors[store] || '#667eea';
+        h += `<div style="padding:10px 14px 0"><span class="store-pill" style="background:${color}">${store}</span></div>`;
+        const sMap = {};
+        for (const p of periods) {
+          sMap[p] = (D.ds[p] && D.ds[p][store]) ? D.ds[p][store] : {};
+        }
+        h += buildTable(periods, labelMap, dailyStoreRowDefs, sMap, {showSparkline: true});
+      }
+    } else {
+      // Fallback: resumen agregado de la ventana (datos semanales)
+      const ds = D.daily_store || {};
+      const storeMetrics = [
+        {key:'NMV',     name:'NMV (28d)',     type:'nmv'},
+        {key:'Compras', name:'Compras (28d)', type:'cnt'},
+        {key:'NSI',     name:'NSI (28d)',     type:'cnt'},
+      ];
+      h += '<p style="font-size:11px;color:#94a3b8;padding:8px 14px 0">Acumulado ventana (datos semanales)</p>';
+      h += '<div class="table-wrap"><table class="sc-table"><thead><tr><th>Tienda</th>';
+      for (const m of storeMetrics) h += `<th>${m.name}</th>`;
+      h += '</tr></thead><tbody>';
+      for (const store of D.stores) {
+        const color = D.store_colors[store] || '#667eea';
+        const sd = ds[store] || {};
+        h += `<tr><td><span class="store-pill" style="background:${color}">${store}</span></td>`;
+        for (const m of storeMetrics) h += `<td>${fmt(sd[m.key] ?? null, m.type)}</td>`;
+        h += '</tr>';
+      }
+      h += '</tbody></table></div>';
     }
-    h += buildTable(periods, labelMap, storeRowDefs, sDataMap, {showSparkline: true});
+  } else {
+    const storeRowDefs = [
+      {key:'NMV',     name:'NMV',     type:'nmv', hb:true},
+      {key:'Compras', name:'Compras', type:'cnt', hb:true},
+      {key:'Ordenes', name:'Órdenes', type:'cnt', hb:true},
+      {key:'NSI',     name:'NSI',     type:'cnt', hb:true},
+    ];
+    for (const store of D.stores) {
+      const color = D.store_colors[store] || '#667eea';
+      h += `<div style="padding:10px 14px 0"><span class="store-pill" style="background:${color}">${store}</span></div>`;
+      const sDataMap = {};
+      for (const p of periods) {
+        sDataMap[p] = (storeDataMap[p] && storeDataMap[p][store]) ? storeDataMap[p][store] : {};
+      }
+      h += buildTable(periods, labelMap, storeRowDefs, sDataMap, {showSparkline: true});
+    }
   }
   h += '</div></div>';
   return h;
@@ -1184,6 +1292,54 @@ function renderOps(periods, labelMap, dataMap) {
 
   // NPS solo en mensual
   if (isMensual) h += renderNPS();
+
+  // ── Apertura por tienda — métricas ops reales (FR, On Time, Cancel, Compra Perfecta)
+  const opsStoreMap = VIEW === 'semanal' ? (D.wos || {})
+                    : VIEW === 'mensual' ? (D.mos || {})
+                    : VIEW === 'diario'  ? (() => {
+                        // Para diario: FR_Items de D.ds (growth diario por tienda)
+                        const out = {};
+                        for (const p of periods) {
+                          out[p] = {};
+                          const dayStores = D.ds && D.ds[p] ? D.ds[p] : {};
+                          for (const store of D.stores) {
+                            const sd = dayStores[store] || {};
+                            out[p][store] = { FR_Items: sd.FR_Items ?? null };
+                          }
+                        }
+                        return out;
+                      })()
+                    : {};
+
+  const hasOpsStore = Object.keys(opsStoreMap).length > 0;
+  if (hasOpsStore) {
+    h += `<div class="store-section" style="margin-top:16px">
+      <div class="store-section-header" onclick="toggleStore('store-body-ops')">
+        <h3>Apertura por tienda — Ops</h3>
+        <span class="store-toggle-icon" id="store-ico-ops">▼</span>
+      </div>
+      <div class="store-section-body" id="store-body-ops">`;
+    const opsStoreRowDefs = VIEW === 'diario'
+      ? [{key:'FR_Items', name:'Fill Rate Items', type:'pct', hb:true}]
+      : [
+          {key:'FR_Items',        name:'Fill Rate Items',   type:'pct', hb:true},
+          {key:'FR_Items_Remp',   name:'FR Items c/Remp',   type:'pct', hb:true},
+          {key:'FR_Compras',      name:'Fill Rate Compras', type:'pct', hb:true},
+          {key:'Compra_Perfecta', name:'Compra Perfecta',  type:'pct', hb:true},
+          {key:'On_Time',         name:'On Time',           type:'pct', hb:true},
+          {key:'Cancel_Rate',     name:'Cancelaciones',     type:'pct', hb:false},
+        ];
+    for (const store of D.stores) {
+      const color = D.store_colors[store] || '#667eea';
+      h += `<div style="padding:10px 14px 0"><span class="store-pill" style="background:${color}">${store}</span></div>`;
+      const sMap = {};
+      for (const p of periods) {
+        sMap[p] = (opsStoreMap[p] && opsStoreMap[p][store]) ? opsStoreMap[p][store] : {};
+      }
+      h += buildTable(periods, labelMap, opsStoreRowDefs, sMap, {showSparkline: true});
+    }
+    h += '</div></div>';
+  }
 
   return h;
 }
@@ -1254,57 +1410,78 @@ function renderGraficos(periods, labelMap, growthMap, opsMap) {
 }
 
 // ── P&L TAB ───────────────────────────────────────────────────────────────────
+// NMV usa valores de Growth (mg_rows = D.mg), igual que la solapa Growth.
+// El resto de las líneas se muestran como % de ese NMV.
 
-function renderPL(periods, labelMap) {
+function renderPL(periods, labelMap, growthMap) {
   if (!D.mpl || Object.keys(D.mpl).length === 0) {
     return renderPlaceholder('P&L',
       'Datos pendientes — ejecutar <code>fetch_pl.py</code> para cargar métricas de monetización desde BT_UE_OUTPUT_MNG.');
   }
 
-  const availPeriods = periods.filter(p => D.mpl[p]);
+  const availPeriods = periods.filter(p => D.mpl[p] || (growthMap && growthMap[p]));
   if (availPeriods.length === 0) {
     return renderPlaceholder('P&L', 'Sin datos de P&L para el período mostrado.');
   }
 
-  // KPI cards — último mes disponible
+  // KPI cards — último período disponible
   const lastP = availPeriods[availPeriods.length-1];
-  const rec   = D.mpl[lastP] || {};
-  const lbl   = (labelMap && labelMap[lastP]) || lastP;
+  // NMV desde Growth; ratios desde P&L
+  const nmvRec = (growthMap && growthMap[lastP]) || {};
+  const plRec  = D.mpl[lastP] || {};
+  const nmvVal = nmvRec.NMV || null;
+  const lbl    = (labelMap && labelMap[lastP]) || lastP;
 
   let h = `<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Último período con datos P&L: <strong>${lbl}</strong></p>`;
 
-  // KPI cards — métricas clave en %
+  const tr = plRec.Take_Rate;
+  const vc = plRec.VC_Over_NMV;
+  const dc = plRec.DC_Over_NMV;
   h += '<div class="kpi-row">';
-  h += `<div class="kpi-card"><div class="kpi-label">NMV</div><div class="kpi-value">${fmt(rec.NMV,'nmv')}</div></div>`;
-  const tr = rec.Take_Rate;
+  h += `<div class="kpi-card"><div class="kpi-label">NMV (Growth)</div><div class="kpi-value">${fmt(nmvVal,'nmv')}</div></div>`;
   h += `<div class="kpi-card"><div class="kpi-label">Net Monet. %</div><div class="kpi-value" style="color:${tr!=null&&tr>=0.09?'#16a34a':'#f59e0b'}">${fmt(tr,'pct')}</div></div>`;
-  const vc = rec.VC_Over_NMV;
   h += `<div class="kpi-card"><div class="kpi-label">Contrib. Var. %</div><div class="kpi-value" style="color:${vc!=null&&vc>=0?'#16a34a':'#dc2626'}">${fmt(vc,'pct')}</div></div>`;
-  const dc = rec.DC_Over_NMV;
   h += `<div class="kpi-card"><div class="kpi-label">Contrib. Directa %</div><div class="kpi-value" style="color:${dc!=null&&dc>=0?'#16a34a':'#dc2626'}">${fmt(dc,'pct')}</div></div>`;
-  h += `<div class="kpi-card"><div class="kpi-label">TGMV</div><div class="kpi-value" style="color:#94a3b8">${fmt(rec.TGMV,'nmv')}</div></div>`;
   h += '</div>';
 
+  // Construir plDataMap: NMV de growthMap, resto como % de NMV (de P&L)
+  const plDataMap = {};
+  for (const p of availPeriods) {
+    const g  = (growthMap && growthMap[p]) || {};
+    const pl = D.mpl[p] || {};
+    const nmv = g.NMV || null;
+    const safe = (v) => (nmv && nmv > 0 && v != null) ? v / nmv : null;
+    plDataMap[p] = {
+      NMV:                      nmv,
+      TGMV_pct:                 safe(pl.TGMV),
+      Net_Variable_Fee_pct:     safe(pl.Net_Variable_Fee),
+      Net_Monetization_pct:     safe(pl.Net_Monetization),
+      Product_NetMon_pct:       safe(pl.Product_Net_Monetization),
+      Shipping_Cost_pct:        safe(pl.Shipping_Cost),
+      Promotions_pct:           safe(pl.Promotions),
+      Coupons_pct:              safe(pl.Coupons),
+      Variable_Contribution_pct:safe(pl.Variable_Contribution),
+      Direct_Contribution_pct:  safe(pl.Direct_Contribution),
+    };
+  }
+
   const PL_ROWS = [
+    {key:'NMV',                       name:'NMV',                           type:'nmv', hb:true},
     {separator:true, name:'Volumen'},
-    {key:'NMV',                     name:'NMV',                             type:'nmv',  hb:true},
-    {key:'TGMV',                    name:'TGMV (GMV Total)',                type:'nmv',  hb:true},
-    {separator:true, name:'Monetización'},
-    {key:'Net_Variable_Fee',        name:'Net Variable Fee',                type:'nmv',  hb:true},
-    {key:'Net_Monetization',        name:'Net Monetization',                type:'nmv',  hb:true},
-    {key:'Take_Rate',               name:'% Net Monet. / NMV',             type:'pct',  hb:true, extraClass:'pl-ratio'},
-    {key:'Product_Net_Monetization',name:'Product Net Monetization',        type:'nmv',  hb:true},
-    {separator:true, name:'Costos'},
-    {key:'Shipping_Cost',           name:'Shipping / Distribución',         type:'nmv',  hb:false},
-    {key:'Promotions',              name:'Promociones',                     type:'nmv',  hb:false},
-    {key:'Coupons',                 name:'Cupones',                         type:'nmv',  hb:false},
-    {separator:true, name:'Contribuciones'},
-    {key:'Variable_Contribution',   name:'Contribución Variable',           type:'nmv',  hb:true},
-    {key:'VC_Over_NMV',             name:'% VC / NMV',                     type:'pct',  hb:true, extraClass:'pl-ratio'},
-    {key:'Direct_Contribution',     name:'Contribución Directa',            type:'nmv',  hb:true},
-    {key:'DC_Over_NMV',             name:'% DC / NMV',                     type:'pct',  hb:true, extraClass:'pl-ratio'},
+    {key:'TGMV_pct',                  name:'TGMV / NMV',                   type:'pct', hb:true,  extraClass:'pl-ratio'},
+    {separator:true, name:'Monetización (% NMV)'},
+    {key:'Net_Variable_Fee_pct',      name:'Net Variable Fee',              type:'pct', hb:true,  extraClass:'pl-ratio'},
+    {key:'Net_Monetization_pct',      name:'Net Monetization',              type:'pct', hb:true,  extraClass:'pl-ratio'},
+    {key:'Product_NetMon_pct',        name:'Product Net Monetization',      type:'pct', hb:true,  extraClass:'pl-ratio'},
+    {separator:true, name:'Costos (% NMV)'},
+    {key:'Shipping_Cost_pct',         name:'Shipping / Distribución',       type:'pct', hb:false, extraClass:'pl-ratio'},
+    {key:'Promotions_pct',            name:'Promociones',                   type:'pct', hb:false, extraClass:'pl-ratio'},
+    {key:'Coupons_pct',               name:'Cupones',                       type:'pct', hb:false, extraClass:'pl-ratio'},
+    {separator:true, name:'Contribuciones (% NMV)'},
+    {key:'Variable_Contribution_pct', name:'Contribución Variable',         type:'pct', hb:true,  extraClass:'pl-ratio'},
+    {key:'Direct_Contribution_pct',   name:'Contribución Directa',          type:'pct', hb:true,  extraClass:'pl-ratio'},
   ];
-  h += buildTable(availPeriods, labelMap, PL_ROWS, D.mpl);
+  h += buildTable(availPeriods, labelMap, PL_ROWS, plDataMap);
   return h;
 }
 
@@ -1783,8 +1960,8 @@ function renderPlan(periods, labelMap, growthMap, planKey) {
     {key:'NMV_4p8', name:'Forecast 4+8', type:'nmv', hb:true, extraClass:'pl-ratio', noDelta:true},
     {key:'VS_V2',   name:'VS Plan V2',   type:'pct', colorByValue:true},
     {key:'VS_4p8',  name:'VS Fcst 4+8',  type:'pct', colorByValue:true},
-    {key:'NSI',     name:'NSI',          type:'cnt', hb:true},
   ];
+  // NSI eliminado del Plan (todos los modos)
   h += buildTable(periods, labelMap, planTableRows, planTableMap);
   return h;
 }
@@ -1819,7 +1996,7 @@ function renderTab() {
       case 'buyers':     el.innerHTML = renderBuyers(periods, lm, D.mb, D.mg); break;
       case 'graficos':   el.innerHTML = renderGraficos(periods, lm, D.mg, D.mo); break;
       case 'cx':         el.innerHTML = renderCX(periods, lm, D.mo); break;
-      case 'pl':         el.innerHTML = renderPL(periods, lm); break;
+      case 'pl':         el.innerHTML = renderPL(periods, lm, D.mg); break;
       case 'assortment': el.innerHTML = renderAssortment(); break;
       case 'demo':       el.innerHTML = renderDemo(); break;
       case 'plan':       el.innerHTML = renderPlan(periods, lm, D.mg, 'monthly'); break;
@@ -1828,9 +2005,8 @@ function renderTab() {
   } else if (VIEW === 'diario') {
     const periods = D.daily_dates || [], lm = D.dlabels || {};
     switch (CUR_TAB) {
-      case 'growth':   el.innerHTML = renderGrowth(periods, lm, D.dg, {}); break;
+      case 'growth':   el.innerHTML = renderGrowth(periods, lm, D.dg, D.ds || D.daily_store || {}); break;
       case 'ops':      el.innerHTML = renderOps(periods, lm, D.do); break;
-      case 'buyers':   el.innerHTML = renderBuyers(periods, lm, {}, D.dg); break;
       case 'graficos': el.innerHTML = renderGraficos(periods, lm, D.dg, D.do); break;
       case 'plan':     el.innerHTML = renderPlan(periods, lm, D.dg, 'daily'); break;
       default:         el.innerHTML = renderPlaceholder(CUR_TAB, 'En construccion.');
@@ -1891,4 +2067,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
     f.write(HTML)
-print(f'  Dashboard generado: {OUTPUT_FILE}')
+print("Dashboard written: " + OUTPUT_FILE)

@@ -164,12 +164,48 @@ WHERE SIT_SITE_ID='MLA' AND BUSINESS_MODEL='INSTORE' AND TIM_DAY>='2025-10-20'
 GROUP BY 1 ORDER BY 1
 """
 
+SQL_DAILY_BY_STORE = f"""
+WITH FR AS ({SQL_FR}),
+ORD AS (
+  SELECT DATE(b.ORD_CLOSED_DT) AS Fecha,
+    CASE WHEN b.ORD_ITEM.NODE_ID='ARP25161987351' THEN 'Scalabrini'
+         WHEN b.ORD_ITEM.NODE_ID='ARP25161987354' THEN 'Caballito'
+         WHEN b.ORD_ITEM.NODE_ID='ARP25161987353' THEN 'Villa Urquiza'
+         WHEN b.ORD_ITEM.NODE_ID='ARP25161987355' THEN 'Vicente Lopez'
+    END AS Tienda,
+    CAST(b.CRT_PURCHASE_ID AS STRING) AS Compra,
+    CAST(b.ORD_ORDER_ID AS STRING) AS Order_ID,
+    b.ORD_STATUS AS Status, COALESCE(b.cc_usd_ratio,0) AS usd_ratio,
+    FR.TSIE,
+    CASE WHEN FR.TSI_PICKED>FR.TSIE THEN FR.TSIE ELSE FR.TSI_PICKED END AS TSI,
+    b.ORD_ITEM.UNIT_PRICE*FR.TSIE AS TGMV_LC,
+    b.ORD_ITEM.UNIT_PRICE*(CASE WHEN FR.TSI_PICKED>FR.TSIE THEN FR.TSIE ELSE FR.TSI_PICKED END) AS TGMV_FR_LC
+  FROM `meli-bi-data.WHOWNER.BT_ORD_ORDERS` AS b
+  LEFT JOIN FR ON b.ORD_ORDER_ID=FR.ORD_ORDER_ID
+  WHERE SIT_SITE_ID='MLA' AND ord_gmv_flg IS TRUE AND ord_category.marketplace_id='TM'
+    AND ord_auto_offer_flg IS NOT TRUE AND ORD_ITEM.SUPERMARKET_FLG IS TRUE
+    AND ARRAY_TO_STRING(ORD_ITEM_TAGS,',') LIKE '%supermarket_partnership%'
+    AND ORD_CLOSED_DT>='2025-10-20' AND b.ord_status NOT IN ('cancelled')
+    AND b.ORD_ITEM.NODE_ID IN ('ARP25161987351','ARP25161987354','ARP25161987353','ARP25161987355')
+  GROUP BY ALL
+)
+SELECT Fecha, Tienda,
+  COUNT(DISTINCT Compra) AS Compras, COUNT(DISTINCT Order_ID) AS Ordenes,
+  ROUND(SUM(CASE WHEN Status='partially_refunded' THEN TGMV_FR_LC ELSE TGMV_LC END),0) AS NMV,
+  ROUND(SUM(CASE WHEN Status='partially_refunded' THEN TGMV_FR_LC ELSE TGMV_LC END)*AVG(NULLIF(usd_ratio,0)),0) AS NMV_USD,
+  ROUND(SUM(COALESCE(TSI,TSIE)),0) AS NSI,
+  ROUND(SUM(TSIE),0) AS TSIE_total
+FROM ORD WHERE Tienda IS NOT NULL
+GROUP BY Fecha, Tienda ORDER BY Fecha, Tienda
+"""
+
 QUERIES = {
     'weekly_by_store.csv':    (SQL_WEEKLY_STORE,    f'ws-{ts}'),
     'weekly_buyers.csv':      (SQL_WEEKLY_BUYERS,   f'wb-{ts}'),
     'weekly_cancels.csv':     (SQL_WEEKLY_CANCELS,  f'wc-{ts}'),
     'daily_growth_full.csv':  (SQL_DAILY_FULL,      f'dgf-{ts}'),
     'daily_visits_full.csv':  (SQL_VISITS_DAILY_FULL, f'dvf-{ts}'),
+    'daily_by_store.csv':     (SQL_DAILY_BY_STORE,  f'dbs-{ts}'),
 }
 
 print('\nSubmitting...')

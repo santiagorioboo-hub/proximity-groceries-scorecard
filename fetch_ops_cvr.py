@@ -172,12 +172,37 @@ GROUP BY Fecha
 ORDER BY Fecha
 """
 
+# ── WEEKLY OPS BY STORE ───────────────────────────────────────────────────────
+SQL_OPS_WEEKLY_STORE = f"""
+SELECT
+  DATE_TRUNC(DATE, WEEK(SUNDAY)) AS Semana,
+  CASE
+    WHEN CAST(STORE_ID AS STRING) = '73211008' THEN 'Scalabrini'
+    WHEN CAST(STORE_ID AS STRING) = '74168488' THEN 'Caballito'
+    WHEN CAST(STORE_ID AS STRING) = '74170418' THEN 'Villa Urquiza'
+    WHEN CAST(STORE_ID AS STRING) = '74610774' THEN 'Vicente Lopez'
+  END AS Tienda,
+  ROUND(SAFE_DIVIDE(SUM(FI_TSI_PICKED_QT_FILL_RATE), SUM(FI_TSI)), 4)                     AS FR_Items,
+  ROUND(SAFE_DIVIDE(SUM(FI_TSI_PICKED_QT_FILL_RATE_REPLACEMENT), SUM(FI_TSI)), 4)         AS FR_Items_Reemplazo,
+  ROUND(SAFE_DIVIDE(SUM(FC_COMPLETE_PURCHASE), SUM(FC_TOTAL_PURCHASES)), 4)               AS FR_Compras,
+  ROUND(SAFE_DIVIDE(SUM(FC_COMPLETE_PURCHASE), SUM(FC_TOTAL_PURCHASES)), 4)               AS Compra_Perfecta,
+  ROUND(SAFE_DIVIDE(SUM(OT_ON_TIME), SUM(OT_PACKS)), 4)                                   AS On_Time,
+  ROUND(SAFE_DIVIDE(SUM(CR_TOTAL_CANCELS_PURCHASES), SUM(CR_TOTAL_PURCHASES)), 4)         AS Cancel_Rate
+FROM `meli-bi-data.WHOWNER.DM_OPS_FH_TB_DASH_SCORECARD_2025_GLOBAL`
+WHERE SIT_SITE_ID = 'MLA'
+  AND CAST(STORE_ID AS STRING) IN ('73211008','74168488','74170418','74610774')
+  AND DATE >= '2025-10-21'
+GROUP BY Semana, Tienda
+ORDER BY Semana, Tienda
+"""
+
 print('\nSubmitting jobs...')
 jobs = {
-    'weekly_ops.csv':   (SQL_OPS_WEEKLY,  f'ops-w-{ts}'),
-    'weekly_cvr.csv':   (SQL_CVR_WEEKLY,  f'cvr-w-{ts}'),
-    'daily_cvr.csv':    (SQL_CVR_DAILY,   f'cvr-d-{ts}'),
-    'daily_ops.csv':    (SQL_OPS_DAILY,   f'ops-d-{ts}'),
+    'weekly_ops.csv':          (SQL_OPS_WEEKLY,       f'ops-w-{ts}'),
+    'weekly_cvr.csv':          (SQL_CVR_WEEKLY,       f'cvr-w-{ts}'),
+    'daily_cvr.csv':           (SQL_CVR_DAILY,        f'cvr-d-{ts}'),
+    'daily_ops.csv':           (SQL_OPS_DAILY,        f'ops-d-{ts}'),
+    'weekly_ops_by_store.csv': (SQL_OPS_WEEKLY_STORE, f'ops-ws-{ts}'),
 }
 for fname, (sql, jid) in jobs.items():
     submit(sql, jid)
