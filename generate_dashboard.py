@@ -82,6 +82,7 @@ def day_label(d):
     return f"{d.day}/{MONTHS_ES[d.month-1].lower()}"
 
 DAILY_WINDOW = 28   # días a mostrar en vista diaria
+CUTOFF_DATE  = date(2026, 4, 30)   # último día visible (cierre Abril)
 
 # ── LOAD CSVS ─────────────────────────────────────────────────────────────────
 
@@ -109,7 +110,7 @@ q3   = load('q3_buyers_ytd.csv')
 
 # ── WEEKLY GROWTH ─────────────────────────────────────────────────────────────
 
-weeks   = sorted(wg['Fecha'].tolist()) if wg is not None else []
+weeks   = [d for d in (sorted(wg['Fecha'].tolist()) if wg is not None else []) if d <= CUTOFF_DATE]
 wlabels = {str(d): week_label(d, weeks) for d in weeks}
 
 wg_rows = {}
@@ -242,12 +243,8 @@ if ws is not None:
     for mk, cnt in store_counts_m.items():
         if mk in mg_rows: mg_rows[mk]['Stores'] = int(cnt)
 
-months  = sorted(mg_rows.keys())
-_today_mk = month_key(date.today())
-mlabels = {
-    mk: (month_label_from_key(mk) + ' MTD' if mk == _today_mk else month_label_from_key(mk))
-    for mk in months
-}
+months  = [mk for mk in sorted(mg_rows.keys()) if mk <= '2026-04-01']
+mlabels = {mk: month_label_from_key(mk) for mk in months}
 
 # Monthly ops
 mo_rows = {}
@@ -296,9 +293,9 @@ dcvr_day = {}      # str(date) → buyers, CVR
 do_rows  = {}      # str(date) → ops metrics
 
 if dgf is not None and len(dgf) > 0:
-    max_d = dgf['Fecha'].max()
+    max_d = min(dgf['Fecha'].max(), CUTOFF_DATE)
     cutoff = max_d - timedelta(days=DAILY_WINDOW - 1)
-    dgf_w = dgf[dgf['Fecha'] >= cutoff].copy()
+    dgf_w = dgf[(dgf['Fecha'] >= cutoff) & (dgf['Fecha'] <= max_d)].copy()
     # build full date range (fill gaps with None)
     all_dates = sorted(set(dgf_w['Fecha'].tolist()))
     daily_dates = all_dates
@@ -316,14 +313,14 @@ if dgf is not None and len(dgf) > 0:
         )
 
 if dvf is not None and len(dvf) > 0 and daily_dates:
-    cutoff = daily_dates[0]
-    dvf_w = dvf[dvf['Fecha'] >= cutoff]
+    cutoff = daily_dates[0]; end_d = daily_dates[-1]
+    dvf_w = dvf[(dvf['Fecha'] >= cutoff) & (dvf['Fecha'] <= end_d)]
     for _, r in dvf_w.iterrows():
         dv_rows[str(r['Fecha'])] = sf(r['Visitas'])
 
 if dcvr is not None and daily_dates:
-    cutoff = daily_dates[0]
-    dcvr_w = dcvr[dcvr['Fecha'] >= cutoff]
+    cutoff = daily_dates[0]; end_d = daily_dates[-1]
+    dcvr_w = dcvr[(dcvr['Fecha'] >= cutoff) & (dcvr['Fecha'] <= end_d)]
     for _, r in dcvr_w.iterrows():
         dk = str(r['Fecha'])
         dcvr_day[dk] = dict(
@@ -333,8 +330,8 @@ if dcvr is not None and daily_dates:
         )
 
 if dops is not None and daily_dates:
-    cutoff = daily_dates[0]
-    dops_w = dops[dops['Fecha'] >= cutoff]
+    cutoff = daily_dates[0]; end_d = daily_dates[-1]
+    dops_w = dops[(dops['Fecha'] >= cutoff) & (dops['Fecha'] <= end_d)]
     for _, r in dops_w.iterrows():
         dk = str(r['Fecha'])
         do_rows[dk] = dict(
@@ -443,7 +440,7 @@ if mcx_store_raw is not None:
 
 rolling = []
 if dgf is not None and len(dgf) > 0:
-    max_date = dgf['Fecha'].max()
+    max_date = min(dgf['Fecha'].max(), CUTOFF_DATE)
     for i in range(13, -1, -1):
         end   = max_date - timedelta(days=i * 7)
         start = end - timedelta(days=6)
@@ -474,7 +471,7 @@ if dgf is not None and len(dgf) > 0:
 
 rolling28 = []
 if dgf is not None and len(dgf) > 0:
-    max_date = dgf['Fecha'].max()
+    max_date = min(dgf['Fecha'].max(), CUTOFF_DATE)
     for i in range(6, -1, -1):        # 7 períodos de 28 días
         end   = max_date - timedelta(days=i * 28)
         start = end - timedelta(days=27)
@@ -703,11 +700,11 @@ if _cx_claims_raw is not None and len(_cx_claims_raw) > 0:
         for _, r in _cx_claims_raw.iterrows():
             if pd.isnull(r['mes']): continue
             mk = str(date(r['mes'].year, r['mes'].month, 1))
-            tienda = str(r.get('tienda','') or '').strip() or 'Total'
+            tienda = str(r.get('Tienda', r.get('tienda','')) or '').strip() or 'Total'
             motivo = str(r.get('motivo','') or '').strip()
             fallo  = str(r.get('fallo','') or '').strip()
-            cnt    = int(r['claims']) if pd.notna(r.get('claims')) else 0
-            gmv    = float(r['gmv_reclamado']) if pd.notna(r.get('gmv_reclamado')) else 0.0
+            cnt    = int(float(r['claims'])) if pd.notna(r.get('claims')) else 0
+            gmv    = float(r.get('gmv_reclamado_usd', r.get('gmv_reclamado', 0)) or 0)
             if mk not in cx_claims_rows: cx_claims_rows[mk] = {}
             if tienda not in cx_claims_rows[mk]: cx_claims_rows[mk][tienda] = {}
             key = f"{motivo}|{fallo}"
@@ -1041,17 +1038,32 @@ function buildTable(periods, labelMap, rowDefs, dataMap, opts) {
       const v = vals[i];
       const isLast = i === lastIdx;
       let cls = extraClass;
-      if (isLast) cls += ' last-col ' + deltaClass(delta, row.hb !== false);
+      if (isLast) {
+        if (row.colorByValue) {
+          // Color basado en el signo del valor actual, NO en el delta m/m
+          const valCls = (lastVal == null) ? 'neutral' : (lastVal >= 0 ? 'good' : 'bad');
+          cls += ' last-col ' + valCls;
+        } else if (row.noDelta) {
+          cls += ' last-col neutral';
+        } else {
+          cls += ' last-col ' + deltaClass(delta, row.hb !== false);
+        }
+      }
       let txt = fmt(v, row.type);
-      if (isLast && delta != null) txt += deltaTxt(delta);
+      // Solo mostrar delta en filas normales (no plan ni VS)
+      if (isLast && delta != null && !row.noDelta && !row.colorByValue) txt += deltaTxt(delta);
       h += `<td class="${cls}">${txt}</td>`;
     }
     if (showSparkline) {
       const bad = row.hb === false;
-      const lastDelta = (lastVal != null && prevVal != null && prevVal !== 0)
-                        ? (lastVal - prevVal)/Math.abs(prevVal) : null;
       let sparkColor = '#3b82f6';
-      if (lastDelta != null) sparkColor = (!bad ? lastDelta >= 0 : lastDelta <= 0) ? '#059669' : '#ef4444';
+      if (row.colorByValue) {
+        sparkColor = (lastVal != null && lastVal >= 0) ? '#059669' : '#ef4444';
+      } else if (!row.noDelta) {
+        const lastDelta = (lastVal != null && prevVal != null && prevVal !== 0)
+                          ? (lastVal - prevVal)/Math.abs(prevVal) : null;
+        if (lastDelta != null) sparkColor = (!bad ? lastDelta >= 0 : lastDelta <= 0) ? '#059669' : '#ef4444';
+      }
       h += `<td>${sparkline(vals, 70, 22, sparkColor)}</td>`;
     }
     h += '</tr>';
@@ -1767,10 +1779,10 @@ function renderPlan(periods, labelMap, growthMap, planKey) {
   }
   const planTableRows = [
     {key:'NMV',     name:'NMV Real',     type:'nmv', hb:true},
-    {key:'NMV_V2',  name:'Plan V2',      type:'nmv', hb:true, extraClass:'pl-ratio'},
-    {key:'NMV_4p8', name:'Forecast 4+8', type:'nmv', hb:true, extraClass:'pl-ratio'},
-    {key:'VS_V2',   name:'VS Plan V2',   type:'pct', hb:true},
-    {key:'VS_4p8',  name:'VS Fcst 4+8',  type:'pct', hb:true},
+    {key:'NMV_V2',  name:'Plan V2',      type:'nmv', hb:true, extraClass:'pl-ratio', noDelta:true},
+    {key:'NMV_4p8', name:'Forecast 4+8', type:'nmv', hb:true, extraClass:'pl-ratio', noDelta:true},
+    {key:'VS_V2',   name:'VS Plan V2',   type:'pct', colorByValue:true},
+    {key:'VS_4p8',  name:'VS Fcst 4+8',  type:'pct', colorByValue:true},
     {key:'NSI',     name:'NSI',          type:'cnt', hb:true},
   ];
   h += buildTable(periods, labelMap, planTableRows, planTableMap);
