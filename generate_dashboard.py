@@ -776,16 +776,21 @@ if _cx_claims_raw is not None and len(_cx_claims_raw) > 0:
 cx_bpp_rows = {}   # mk → { claim_type → {bpp_meli:, bpp_recovery:, casos:} }
 if _cx_bpp_raw is not None and len(_cx_bpp_raw) > 0:
     try:
-        _cx_bpp_raw['mes'] = pd.to_datetime(_cx_bpp_raw['mes'], errors='coerce').dt.date
         for _, r in _cx_bpp_raw.iterrows():
-            if pd.isnull(r['mes']): continue
-            mk   = str(date(r['mes'].year, r['mes'].month, 1))
+            # mes viene como INTEGER YYYYMM (ej: 202601) desde BT_CX_BPP_CAUSE
+            mes_raw = r.get('mes')
+            if pd.isna(mes_raw): continue
+            mk = month_key_from_ym(mes_raw)   # -> '2026-01-01'
             ct   = str(r.get('CLAIM_TYPE','') or '').strip() or 'OTHER'
-            meli = float(r['bpp_meli_usd']) if pd.notna(r.get('bpp_meli_usd')) else 0.0
+            meli = float(r['bpp_meli_usd'])     if pd.notna(r.get('bpp_meli_usd'))     else 0.0
             rec  = float(r['bpp_recovery_usd']) if pd.notna(r.get('bpp_recovery_usd')) else 0.0
-            cas  = int(r['casos']) if pd.notna(r.get('casos')) else 0
+            cas  = int(float(r['casos']))       if pd.notna(r.get('casos'))             else 0
             if mk not in cx_bpp_rows: cx_bpp_rows[mk] = {}
-            cx_bpp_rows[mk][ct] = {'bpp_meli': round(meli,2), 'bpp_recovery': round(rec,2), 'casos': cas}
+            if ct not in cx_bpp_rows[mk]:
+                cx_bpp_rows[mk][ct] = {'bpp_meli': 0.0, 'bpp_recovery': 0.0, 'casos': 0}
+            cx_bpp_rows[mk][ct]['bpp_meli']     = round(cx_bpp_rows[mk][ct]['bpp_meli']     + meli, 2)
+            cx_bpp_rows[mk][ct]['bpp_recovery'] = round(cx_bpp_rows[mk][ct]['bpp_recovery'] + rec,  2)
+            cx_bpp_rows[mk][ct]['casos']        += cas
         print(f"  CX BPP: {len(cx_bpp_rows)} meses cargados")
     except Exception as e:
         print(f"  ⚠ Error procesando cx_bpp_raw: {e}")
@@ -1176,7 +1181,7 @@ function renderGrowth(periods, labelMap, dataMap, storeDataMap) {
       <h3>Apertura por tienda</h3>
       <span class="store-toggle-icon" id="store-ico-growth">▼</span>
     </div>
-    <div class="store-section-body" id="store-body-growth">`;
+    <div class="store-section-body" id="store-body-growth" style="display:none">`;
 
   if (isDiario) {
     // Vista diaria: usa D.ds (daily_by_store.csv) si está disponible, si no fallback a resumen semanal
@@ -1318,7 +1323,7 @@ function renderOps(periods, labelMap, dataMap) {
         <h3>Apertura por tienda — Ops</h3>
         <span class="store-toggle-icon" id="store-ico-ops">▼</span>
       </div>
-      <div class="store-section-body" id="store-body-ops">`;
+      <div class="store-section-body" id="store-body-ops" style="display:none">`;
     const opsStoreRowDefs = VIEW === 'diario'
       ? [{key:'FR_Items', name:'Fill Rate Items', type:'pct', hb:true}]
       : [
@@ -1548,7 +1553,7 @@ function renderCX(periods, labelMap, opsMap) {
           <h3>Apertura por tienda</h3>
           <span class="store-toggle-icon" id="store-ico-cx">▼</span>
         </div>
-        <div class="store-section-body" id="store-body-cx">`;
+        <div class="store-section-body" id="store-body-cx" style="display:none">`;
 
       const cxStoreRows = [
         {key:'Perfect_Purchase_Rate', name:'Compra Perfecta (%)', type:'pct', hb:true},
@@ -1577,14 +1582,19 @@ function renderCX(periods, labelMap, opsMap) {
   ];
   h += buildTable(periods, labelMap, OPS_CX_ROWS, opsMap);
 
-  // ── Casuística de Reclamos ─────────────────────────────────────────────────
+  // ── Casuística de Reclamos (sección colapsable completa) ──────────────────
   const hasClaims = D.cx_claims && Object.keys(D.cx_claims).length > 0;
   if (hasClaims) {
     const availClaims = periods.filter(p => D.cx_claims[p]);
-    h += '<div class="section-title" style="margin-top:20px">Casuística de Reclamos</div>';
-    h += '<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">Por motivo y fallo — Carrefour Seller ID 2516198735</p>';
-    // Table: motivo | fallo | [mes1] | [mes2] ...
-    // Collect all unique motivo|fallo keys across all periods
+    // Wrapper colapsable que oculta toda la sección
+    h += `<div class="store-section" style="margin-top:20px">
+      <div class="store-section-header" onclick="toggleStore('casuistica-body')">
+        <h3>Casuística de Reclamos</h3>
+        <span class="store-toggle-icon" id="store-ico-casuistica-body">▼</span>
+      </div>
+      <div class="store-section-body" id="casuistica-body" style="display:none">
+        <p style="font-size:11px;color:#94a3b8;padding:8px 14px 4px">Por motivo y fallo — expandir por tienda</p>`;
+    // Collect all unique motivo|fallo keys
     const _claimKeys = [];
     const _claimKeySet = new Set();
     for (const p of availClaims) {
@@ -1595,10 +1605,16 @@ function renderCX(periods, labelMap, opsMap) {
         }
       }
     }
-    // One table per tienda (plus Total)
+    // Acordeón por tienda (dentro del wrapper)
     const _claimTiendas = [...new Set(availClaims.flatMap(p => Object.keys(D.cx_claims[p])))].sort();
     for (const tienda of _claimTiendas) {
-      h += '<div style="font-weight:600;color:#cbd5e1;margin:10px 0 4px;font-size:12px">'+tienda+'</div>';
+      const safeId = 'claims-' + tienda.replace(/[^a-zA-Z0-9]/g, '_');
+      h += `<div class="store-section" style="margin:4px 0">
+        <div class="store-section-header" onclick="toggleStore('${safeId}')">
+          <h3>${tienda}</h3>
+          <span class="store-toggle-icon" id="store-ico-${safeId}">▼</span>
+        </div>
+        <div class="store-section-body" id="${safeId}" style="display:none">`;
       h += '<div class="table-wrap"><table class="sc-table"><thead><tr>';
       h += '<th style="text-align:left;min-width:140px">Motivo</th><th style="text-align:left;min-width:100px">Fallo</th>';
       for (const p of availClaims) h += '<th>'+(labelMap[p]||p)+'</th>';
@@ -1614,7 +1630,9 @@ function renderCX(periods, labelMap, opsMap) {
         h += '</tr>';
       }
       h += '</tbody></table></div>';
+      h += '</div></div>';
     }
+    h += '</div></div>'; // cierra casuistica-body y store-section wrapper
   }
 
   // ── BPP (Buyer Protection Program) ────────────────────────────────────────
@@ -2051,9 +2069,12 @@ function switchTab(t) {
 function toggleStore(id) {
   const el = document.getElementById(id);
   if (!el) return;
-  el.classList.toggle('open');
-  const ico = document.getElementById(id.replace('store-body-', 'store-ico-'));
-  if (ico) ico.style.transform = el.classList.contains('open') ? 'rotate(180deg)' : '';
+  const opening = el.style.display === 'none' || el.style.display === '';
+  el.style.display = opening ? 'block' : 'none';
+  el.classList.toggle('open', opening);
+  const icoId = 'store-ico-' + id.replace('store-body-', '');
+  const ico = document.getElementById(icoId);
+  if (ico) ico.style.transform = opening ? 'rotate(180deg)' : '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
