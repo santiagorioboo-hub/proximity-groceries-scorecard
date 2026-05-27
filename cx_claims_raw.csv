@@ -1,625 +1,311 @@
-mes,Tienda,fallo,tipo_devolucion,motivo,claims,gmv_reclamado_usd
-2025-10-01,Scalabrini,null,Sin Devolucion,missing_item,8,18.92
-2025-10-01,Scalabrini,Ambos,Sin Devolucion,sup_broken_item,4,16.39
-2025-10-01,Scalabrini,Comprador,Sin Devolucion,undelivered_repentant_buyer,3,11.07
-2025-10-01,Scalabrini,Ambos,Sin Devolucion,different_item_other,2,31.32
-2025-10-01,Scalabrini,Ambos,Sin Devolucion,missing_item,2,4.86
-2025-10-01,Scalabrini,Comprador,Sin Devolucion,undelivered_other,2,18.18
-2025-10-01,Scalabrini,Ambos,Sin Devolucion,empty_box,1,0.83
-2025-10-01,Scalabrini,Ambos,Devolucion Cancelada,sup_different_taste_or_size,1,41.0
-2025-10-01,Scalabrini,Comprador,Devolucion Realizada,sup_broken_item,1,18.09
-2025-10-01,Scalabrini,Comprador,Sin Devolucion,missing_item,1,5.76
-2025-10-01,Scalabrini,Comprador,Devolucion Realizada,sup_different_taste_or_size,1,19.38
-2025-10-01,Scalabrini,Comprador,Sin Devolucion,out_of_stock,1,13.8
-2025-10-01,Scalabrini,Comprador,Sin Devolucion,change_receiver_address,1,5.82
-2025-10-01,Scalabrini,Comprador,Sin Devolucion,delivered_but_not_receive_package,1,1.38
-2025-11-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_repentant_buyer,6,94.38
-2025-11-01,Vicente Lopez,Ambos,Sin Devolucion,sup_broken_item,5,78.33
-2025-11-01,Scalabrini,Comprador,Sin Devolucion,undelivered_repentant_buyer,3,9.79
-2025-11-01,Scalabrini,null,Sin Devolucion,missing_item,3,30.05
-2025-11-01,Vicente Lopez,Ambos,Sin Devolucion,missing_item,3,15.96
-2025-11-01,Vicente Lopez,Comprador,Sin Devolucion,out_of_stock,3,16.43
-2025-11-01,Scalabrini,Comprador,Sin Devolucion,undelivered_other,3,20.74
-2025-11-01,Scalabrini,Comprador,Sin Devolucion,estimated_delivery_out_of_time,2,10.62
-2025-11-01,Scalabrini,Ambos,Sin Devolucion,different_than_published,2,9.17
-2025-11-01,Scalabrini,Ambos,Sin Devolucion,missing_invoice,2,8.74
-2025-11-01,Vicente Lopez,Comprador,Sin Devolucion,estimated_delivery_out_of_time,2,40.92
-2025-11-01,Scalabrini,Comprador,Sin Devolucion,out_of_stock,2,18.47
-2025-11-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_other,2,8.76
-2025-11-01,Scalabrini,null,Sin Devolucion,undelivered_other,1,20.07
-2025-11-01,Vicente Lopez,null,Sin Devolucion,out_of_stock,1,7.11
-2025-11-01,Vicente Lopez,Ambos,Sin Devolucion,sup_different_color_or_size,1,4.62
-2025-11-01,Scalabrini,null,Sin Devolucion,change_receiver_address,1,7.44
-2025-11-01,Scalabrini,Ambos,Sin Devolucion,unauthorized_purchase,1,1.51
-2025-11-01,Vicente Lopez,Vendedor,Sin Devolucion,missing_item,1,18.94
-2025-11-01,Vicente Lopez,Vendedor,Sin Devolucion,missing_invoice,1,13.2
-2025-11-01,Vicente Lopez,Comprador,Sin Devolucion,respondent_unanswered,1,15.84
-2025-11-01,Vicente Lopez,Ambos,Sin Devolucion,different_than_published,1,18.45
-2025-11-01,Scalabrini,Vendedor,Sin Devolucion,missing_item,1,5.0
-2025-11-01,Scalabrini,Comprador,Devolucion Realizada,different_item_other,1,18.3
-2025-11-01,Vicente Lopez,Vendedor,Sin Devolucion,sup_damaged_package_broken_item,1,8.52
-2025-11-01,Scalabrini,Comprador,Sin Devolucion,missing_item,1,2.01
-2025-11-01,Scalabrini,Vendedor,Sin Devolucion,missing_invoice,1,54.72
-2025-11-01,Scalabrini,Ambos,Sin Devolucion,different_item_other,1,9.96
-2025-11-01,Vicente Lopez,Comprador,Sin Devolucion,missing_item,1,11.1
-2025-11-01,Scalabrini,Vendedor,Devolucion Cancelada,different_item_other,1,45.42
-2025-11-01,Scalabrini,Comprador,Sin Devolucion,repentant_buyer,1,1.54
-2025-11-01,Scalabrini,Comprador,Sin Devolucion,sup_broken_item,1,14.88
-2025-12-01,Scalabrini,Ambos,Sin Devolucion,missing_invoice,41,164.69
-2025-12-01,Caballito,Comprador,Sin Devolucion,undelivered_repentant_buyer,15,228.84
-2025-12-01,Caballito,Ambos,Sin Devolucion,missing_item,14,201.89
-2025-12-01,Scalabrini,Vendedor,Sin Devolucion,missing_invoice,13,99.45
-2025-12-01,Scalabrini,Comprador,Sin Devolucion,undelivered_repentant_buyer,12,335.56
-2025-12-01,Vicente Lopez,Comprador,Sin Devolucion,out_of_stock,11,49.49
-2025-12-01,Scalabrini,Comprador,Sin Devolucion,estimated_delivery_out_of_time,11,244.95
-2025-12-01,Caballito,Comprador,Sin Devolucion,out_of_stock,10,49.52
-2025-12-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_repentant_buyer,10,182.14
-2025-12-01,Caballito,Comprador,Sin Devolucion,undelivered_other,9,88.27
-2025-12-01,Vicente Lopez,Comprador,Sin Devolucion,estimated_delivery_out_of_time,9,140.32
-2025-12-01,Vicente Lopez,null,Sin Devolucion,missing_item,8,17.07
-2025-12-01,Villa Urquiza,Comprador,Sin Devolucion,out_of_stock,7,34.72
-2025-12-01,Villa Urquiza,Comprador,Sin Devolucion,undelivered_repentant_buyer,7,123.57
-2025-12-01,Scalabrini,Comprador,Sin Devolucion,undelivered_other,6,38.85
-2025-12-01,Caballito,null,Sin Devolucion,undelivered_repentant_buyer,5,49.87
-2025-12-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_other,5,46.35
-2025-12-01,Villa Urquiza,Ambos,Sin Devolucion,missing_item,5,54.34
-2025-12-01,Villa Urquiza,Ambos,Sin Devolucion,empty_box,5,23.89
-2025-12-01,Scalabrini,Comprador,Sin Devolucion,respondent_unanswered,4,31.9
-2025-12-01,Vicente Lopez,Comprador,Sin Devolucion,missing_item,4,15.39
-2025-12-01,Scalabrini,Comprador,Sin Devolucion,out_of_stock,4,8.69
-2025-12-01,Caballito,null,Sin Devolucion,out_of_stock,4,30.22
-2025-12-01,Vicente Lopez,Vendedor,Sin Devolucion,missing_invoice,3,58.42
-2025-12-01,Caballito,Ambos,Sin Devolucion,different_than_published,3,22.14
-2025-12-01,Caballito,Comprador,Sin Devolucion,missing_item,3,47.11
-2025-12-01,Villa Urquiza,null,Sin Devolucion,out_of_stock,2,7.72
-2025-12-01,Villa Urquiza,null,Sin Devolucion,undelivered_other,2,23.38
-2025-12-01,Caballito,Comprador,Sin Devolucion,estimated_delivery_out_of_time,2,34.43
-2025-12-01,Vicente Lopez,null,Sin Devolucion,out_of_stock,2,12.18
-2025-12-01,Scalabrini,Ambos,Sin Devolucion,missing_item,2,28.44
-2025-12-01,Vicente Lopez,Comprador,Devolucion Realizada,different_color_or_size,2,38.55
-2025-12-01,Scalabrini,Ambos,Sin Devolucion,sup_broken_item,2,28.03
-2025-12-01,Caballito,Comprador,Devolucion Realizada,repentant_buyer,2,25.23
-2025-12-01,Scalabrini,Ambos,Sin Devolucion,different_item_other,2,26.63
-2025-12-01,Scalabrini,Comprador,Sin Devolucion,missing_invoice,2,8.63
-2025-12-01,Scalabrini,Ambos,Sin Devolucion,damaged_package_empty_box,2,16.1
-2025-12-01,Villa Urquiza,Comprador,Sin Devolucion,undelivered_other,2,10.77
-2025-12-01,Caballito,Comprador,Devolucion Realizada,different_item_other,2,12.48
-2025-12-01,Caballito,null,Sin Devolucion,estimated_delivery_out_of_time,2,6.29
-2025-12-01,Villa Urquiza,Ambos,Sin Devolucion,repentant_buyer,2,9.38
-2025-12-01,Scalabrini,Comprador,Sin Devolucion,change_receiver_address,2,29.02
-2025-12-01,Villa Urquiza,null,Sin Devolucion,undelivered_repentant_buyer,2,27.0
-2025-12-01,Scalabrini,null,Sin Devolucion,undelivered_repentant_buyer,2,7.22
-2025-12-01,Vicente Lopez,Ambos,Sin Devolucion,different_item_other,2,42.02
-2025-12-01,Villa Urquiza,Comprador,Devolucion Realizada,repentant_buyer,2,33.4
-2025-12-01,Scalabrini,Comprador,Sin Devolucion,missing_item,2,9.6
-2025-12-01,Caballito,Ambos,Sin Devolucion,sup_broken_item,2,12.75
-2025-12-01,Vicente Lopez,Ambos,Sin Devolucion,missing_invoice,1,6.31
-2025-12-01,Villa Urquiza,Ambos,Sin Devolucion,different_item_other,1,3.19
-2025-12-01,Scalabrini,Comprador,Sin Devolucion,damaged_package_missing_item,1,3.72
-2025-12-01,Vicente Lopez,Vendedor,Sin Devolucion,repentant_buyer,1,23.6
-2025-12-01,Vicente Lopez,Vendedor,Devolucion Expirada,different_than_published,1,29.58
-2025-12-01,Scalabrini,null,Sin Devolucion,delivered_but_not_receive_package,1,1.63
-2025-12-01,Villa Urquiza,Comprador,Devolucion Realizada,different_color_or_size,1,5.34
-2025-12-01,Vicente Lopez,Ambos,Sin Devolucion,sup_different_color_or_size,1,10.48
-2025-12-01,Caballito,Ambos,Sin Devolucion,repentant_buyer,1,2.33
-2025-12-01,Caballito,Vendedor,Sin Devolucion,missing_item,1,18.24
-2025-12-01,Caballito,Comprador,Sin Devolucion,damaged_package_missing_item,1,1.39
-2025-12-01,Villa Urquiza,Comprador,Sin Devolucion,change_receiver_address,1,25.2
-2025-12-01,Vicente Lopez,Comprador,Sin Devolucion,respondent_unanswered,1,20.9
-2025-12-01,Scalabrini,Ambos,Sin Devolucion,sup_damaged_package_broken_item,1,2.5
-2025-12-01,Caballito,Ambos,Sin Devolucion,damaged_package_missing_item,1,2.9
-2025-12-01,Scalabrini,Comprador,Sin Devolucion,delivered_but_not_receive_package,1,8.12
-2025-12-01,Vicente Lopez,Comprador,Sin Devolucion,delivered_but_not_receive_package,1,9.84
-2025-12-01,Vicente Lopez,Ambos,Sin Devolucion,sup_broken_item,1,3.08
-2025-12-01,Vicente Lopez,null,Sin Devolucion,undelivered_repentant_buyer,1,2.44
-2025-12-01,Caballito,Ambos,Sin Devolucion,delivered_but_not_receive_package,1,3.09
-2025-12-01,Vicente Lopez,Ambos,Devolucion Cancelada,damaged_package_missing_item,1,15.84
-2025-12-01,Villa Urquiza,Ambos,Sin Devolucion,sup_damaged_package_broken_item,1,10.06
-2025-12-01,Caballito,Comprador,Devolucion Realizada,different_color_or_size,1,20.64
-2025-12-01,Vicente Lopez,Comprador,Sin Devolucion,missing_accessories,1,16.32
-2025-12-01,Caballito,Vendedor,Sin Devolucion,different_than_published,1,3.21
-2025-12-01,Scalabrini,Vendedor,Sin Devolucion,sup_damaged_package_broken_item,1,20.73
-2025-12-01,Vicente Lopez,Vendedor,Sin Devolucion,delivered_but_not_receive_package,1,4.02
-2025-12-01,Scalabrini,null,Devolucion Cancelada,missing_invoice,1,28.44
-2025-12-01,Villa Urquiza,Comprador,Sin Devolucion,missing_item,1,15.71
-2025-12-01,Scalabrini,null,Sin Devolucion,sup_different_taste_or_size,1,16.6
-2025-12-01,Caballito,Comprador,Devolucion Realizada,different_than_published,1,34.68
-2025-12-01,Vicente Lopez,null,Devolucion Expirada,repentant_buyer,1,17.23
-2025-12-01,Scalabrini,Ambos,Sin Devolucion,empty_box,1,2.96
-2025-12-01,Scalabrini,Ambos,Sin Devolucion,damaged_package_missing_item,1,34.9
-2025-12-01,Caballito,Ambos,Sin Devolucion,sup_different_taste_or_size,1,1.65
-2025-12-01,Caballito,Ambos,Sin Devolucion,sup_damaged_package_broken_item,1,3.34
-2025-12-01,Vicente Lopez,Comprador,Devolucion Realizada,repentant_buyer,1,30.88
-2025-12-01,Villa Urquiza,Vendedor,Devolucion Expirada,different_color_or_size,1,10.62
-2025-12-01,Caballito,Comprador,Sin Devolucion,unauthorized_purchase,1,21.36
-2025-12-01,Caballito,Comprador,Sin Devolucion,delivery_date_was_not_met,1,0.84
-2025-12-01,Vicente Lopez,Ambos,Sin Devolucion,missing_item,1,8.34
-2025-12-01,Vicente Lopez,Comprador,Devolucion Expirada,missing_invoice,1,262.44
-2025-12-01,Caballito,null,Sin Devolucion,different_item_other,1,6.24
-2025-12-01,Caballito,null,Devolucion Cancelada,different_color_or_size,1,11.01
-2025-12-01,Vicente Lopez,Ambos,Sin Devolucion,delivered_but_not_receive_package,1,7.07
-2025-12-01,Scalabrini,Ambos,Devolucion Cancelada,sup_different_taste_or_size,1,10.76
-2025-12-01,Scalabrini,Ambos,Sin Devolucion,different_color_or_size,1,11.62
-2025-12-01,Vicente Lopez,Comprador,Sin Devolucion,change_receiver_address,1,48.54
-2026-01-01,Caballito,Comprador,Sin Devolucion,undelivered_repentant_buyer,18,198.34
-2026-01-01,Villa Urquiza,null,Devolucion Expirada,repentant_buyer,10,45.08
-2026-01-01,Vicente Lopez,Ambos,Sin Devolucion,missing_invoice,9,58.7
-2026-01-01,Caballito,Comprador,Sin Devolucion,undelivered_other,8,35.56
-2026-01-01,Caballito,Vendedor,Sin Devolucion,missing_invoice,8,90.58
-2026-01-01,Vicente Lopez,Ambos,Sin Devolucion,missing_item,7,22.46
-2026-01-01,Scalabrini,Comprador,Sin Devolucion,undelivered_repentant_buyer,6,91.9
-2026-01-01,Scalabrini,Comprador,Sin Devolucion,missing_item,6,84.84
-2026-01-01,Vicente Lopez,Ambos,Sin Devolucion,repentant_buyer,6,32.43
-2026-01-01,Scalabrini,Comprador,Sin Devolucion,undelivered_other,5,41.73
-2026-01-01,Caballito,Comprador,Sin Devolucion,out_of_stock,5,30.73
-2026-01-01,Scalabrini,Ambos,Sin Devolucion,missing_item,5,29.4
-2026-01-01,Villa Urquiza,Comprador,Sin Devolucion,undelivered_repentant_buyer,4,62.63
-2026-01-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_other,4,60.79
-2026-01-01,Villa Urquiza,null,Sin Devolucion,out_of_stock,4,56.57
-2026-01-01,Villa Urquiza,Ambos,Sin Devolucion,missing_item,4,36.97
-2026-01-01,Vicente Lopez,null,Sin Devolucion,missing_item,4,48.76
-2026-01-01,Vicente Lopez,Vendedor,Sin Devolucion,missing_invoice,4,53.94
-2026-01-01,Vicente Lopez,Comprador,Sin Devolucion,out_of_stock,4,13.86
-2026-01-01,Scalabrini,Ambos,Sin Devolucion,sup_broken_item,3,20.52
-2026-01-01,Caballito,Ambos,Sin Devolucion,missing_invoice,3,9.41
-2026-01-01,Vicente Lopez,Ambos,Sin Devolucion,sup_damaged_package_broken_item,3,62.36
-2026-01-01,Caballito,null,Sin Devolucion,missing_item,3,9.23
-2026-01-01,Vicente Lopez,Comprador,Sin Devolucion,missing_item,3,22.63
-2026-01-01,Caballito,null,Sin Devolucion,out_of_stock,3,17.19
-2026-01-01,Villa Urquiza,Comprador,Sin Devolucion,estimated_delivery_out_of_time,3,13.39
-2026-01-01,Villa Urquiza,Comprador,Sin Devolucion,undelivered_other,3,15.58
-2026-01-01,Villa Urquiza,Comprador,Sin Devolucion,out_of_stock,3,18.75
-2026-01-01,Caballito,Comprador,Sin Devolucion,missing_item,3,21.19
-2026-01-01,Vicente Lopez,Comprador,Sin Devolucion,estimated_delivery_out_of_time,2,26.59
-2026-01-01,Caballito,Ambos,Sin Devolucion,missing_item,2,34.62
-2026-01-01,Villa Urquiza,Comprador,Sin Devolucion,unauthorized_purchase,2,39.34
-2026-01-01,Vicente Lopez,Comprador,Devolucion Realizada,different_than_published,2,55.04
-2026-01-01,Vicente Lopez,Comprador,Sin Devolucion,respondent_unanswered,2,19.85
-2026-01-01,Vicente Lopez,Comprador,Sin Devolucion,change_receiver_address,2,8.51
-2026-01-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_repentant_buyer,2,38.51
-2026-01-01,Villa Urquiza,null,Sin Devolucion,undelivered_other,2,12.94
-2026-01-01,Villa Urquiza,Comprador,Sin Devolucion,damaged_package_missing_item,2,6.63
-2026-01-01,Villa Urquiza,Comprador,Sin Devolucion,missing_item,2,46.46
-2026-01-01,Scalabrini,Comprador,Sin Devolucion,out_of_stock,2,11.42
-2026-01-01,Villa Urquiza,null,Sin Devolucion,undelivered_repentant_buyer,2,25.28
-2026-01-01,Caballito,Comprador,Sin Devolucion,estimated_delivery_out_of_time,2,12.52
-2026-01-01,Caballito,null,Devolucion Expirada,different_color_or_size,2,22.02
-2026-01-01,Villa Urquiza,Ambos,Sin Devolucion,repentant_buyer,2,4.92
-2026-01-01,Vicente Lopez,Comprador,Sin Devolucion,different_item_other,2,25.85
-2026-01-01,Villa Urquiza,null,Sin Devolucion,missing_item,2,2.53
-2026-01-01,Caballito,Comprador,Sin Devolucion,respondent_unanswered,2,10.29
-2026-01-01,Vicente Lopez,null,Sin Devolucion,repentant_buyer,2,6.79
-2026-01-01,Scalabrini,Comprador,Sin Devolucion,damaged_package_missing_item,2,149.76
-2026-01-01,Scalabrini,Comprador,Devolucion Realizada,different_than_published,2,28.48
-2026-01-01,Caballito,Comprador,Sin Devolucion,repentant_buyer,2,18.69
-2026-01-01,Scalabrini,Ambos,Sin Devolucion,missing_invoice,2,9.04
-2026-01-01,Caballito,Comprador,Devolucion Realizada,repentant_buyer,2,14.78
-2026-01-01,Villa Urquiza,Comprador,Devolucion Realizada,repentant_buyer,2,80.74
-2026-01-01,Villa Urquiza,null,Sin Devolucion,repentant_buyer,1,6.88
-2026-01-01,Caballito,null,Devolucion Cancelada,missing_invoice,1,31.2
-2026-01-01,Scalabrini,null,Sin Devolucion,missing_item,1,30.64
-2026-01-01,Vicente Lopez,Ambos,Sin Devolucion,different_item_other,1,0.93
-2026-01-01,Scalabrini,Comprador,Sin Devolucion,unauthorized_purchase,1,6.72
-2026-01-01,Scalabrini,Comprador,Sin Devolucion,estimated_delivery_out_of_time,1,27.9
-2026-01-01,Scalabrini,null,Sin Devolucion,estimated_delivery_out_of_time,1,5.4
-2026-01-01,Scalabrini,Comprador,Sin Devolucion,delivered_but_not_receive_package,1,0.82
-2026-01-01,Vicente Lopez,null,Sin Devolucion,delivered_but_not_receive_package,1,13.46
-2026-01-01,Scalabrini,Vendedor,Sin Devolucion,missing_invoice,1,19.6
-2026-01-01,Caballito,null,Sin Devolucion,estimated_delivery_out_of_time,1,3.95
-2026-01-01,Villa Urquiza,Ambos,Devolucion Realizada,sup_different_taste_or_size,1,4.36
-2026-01-01,Caballito,Comprador,Sin Devolucion,sup_different_taste_or_size,1,3.48
-2026-01-01,Villa Urquiza,Vendedor,Sin Devolucion,missing_invoice,1,42.87
-2026-01-01,Scalabrini,null,Sin Devolucion,undelivered_other,1,3.35
-2026-01-01,Scalabrini,null,Sin Devolucion,undelivered_repentant_buyer,1,1.04
-2026-01-01,Vicente Lopez,Comprador,Devolucion Realizada,repentant_buyer,1,17.23
-2026-01-01,Caballito,null,Sin Devolucion,different_item_other,1,6.78
-2026-01-01,Villa Urquiza,Ambos,Sin Devolucion,missing_invoice,1,9.18
-2026-01-01,Caballito,Comprador,Sin Devolucion,change_receiver_address,1,16.52
-2026-01-01,Scalabrini,null,Sin Devolucion,repentant_buyer,1,4.56
-2026-01-01,Vicente Lopez,null,Sin Devolucion,change_receiver_address,1,0.68
-2026-01-01,Villa Urquiza,Ambos,Sin Devolucion,sup_broken_item,1,0.76
-2026-01-01,Caballito,null,Sin Devolucion,change_receiver_address,1,17.66
-2026-01-01,Caballito,null,Sin Devolucion,repentant_buyer,1,92.88
-2026-01-01,Caballito,Vendedor,Sin Devolucion,damaged_package_missing_item,1,22.94
-2026-01-01,Villa Urquiza,null,Sin Devolucion,delivered_but_not_receive_package,1,6.14
-2026-01-01,Scalabrini,Comprador,Sin Devolucion,respondent_unanswered,1,0.91
-2026-01-01,Scalabrini,Comprador,Sin Devolucion,damaged_package_missing_accessories,1,14.68
-2026-01-01,Scalabrini,Vendedor,Sin Devolucion,sup_broken_item,1,2.2
-2026-01-01,Caballito,Ambos,Sin Devolucion,sup_broken_item,1,2.06
-2026-01-01,Vicente Lopez,Comprador,Devolucion Realizada,missing_item,1,3.69
-2026-01-01,Villa Urquiza,null,Sin Devolucion,estimated_delivery_out_of_time,1,1.56
-2026-01-01,Caballito,Comprador,Sin Devolucion,damaged_package_missing_accessories,1,0.97
-2026-01-01,Scalabrini,null,Sin Devolucion,different_item_other,1,5.22
-2026-01-01,Vicente Lopez,Ambos,Sin Devolucion,sup_different_color_or_size,1,8.8
-2026-01-01,Villa Urquiza,Comprador,Devolucion Realizada,different_than_published,1,9.06
-2026-01-01,Vicente Lopez,Comprador,Devolucion Realizada,different_color_or_size,1,30.61
-2026-01-01,Villa Urquiza,null,Devolucion Expirada,sup_different_taste_or_size,1,4.12
-2026-01-01,Vicente Lopez,Comprador,Sin Devolucion,delivered_but_not_receive_package,1,13.76
-2026-02-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_repentant_buyer,15,214.07
-2026-02-01,Caballito,Comprador,Sin Devolucion,undelivered_repentant_buyer,15,299.96
-2026-02-01,Villa Urquiza,Ambos,Sin Devolucion,missing_item,15,46.49
-2026-02-01,Caballito,Comprador,Sin Devolucion,out_of_stock,13,72.86
-2026-02-01,Caballito,Comprador,Sin Devolucion,missing_item,11,101.43
-2026-02-01,Caballito,Comprador,Sin Devolucion,undelivered_other,10,82.41
-2026-02-01,Scalabrini,Ambos,Sin Devolucion,missing_item,9,45.27
-2026-02-01,Scalabrini,Comprador,Sin Devolucion,estimated_delivery_out_of_time,9,143.28
-2026-02-01,Vicente Lopez,Ambos,Sin Devolucion,missing_item,8,63.13
-2026-02-01,Scalabrini,Comprador,Sin Devolucion,missing_item,8,161.1
-2026-02-01,Scalabrini,Comprador,Sin Devolucion,out_of_stock,7,44.89
-2026-02-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_other,7,132.21
-2026-02-01,Vicente Lopez,Comprador,Sin Devolucion,missing_item,7,43.64
-2026-02-01,Vicente Lopez,null,Sin Devolucion,missing_item,7,42.09
-2026-02-01,Scalabrini,Ambos,Sin Devolucion,sup_broken_item,6,33.46
-2026-02-01,Villa Urquiza,Comprador,Sin Devolucion,undelivered_other,6,81.3
-2026-02-01,Scalabrini,Vendedor,Sin Devolucion,missing_item,6,75.0
-2026-02-01,Scalabrini,Comprador,Sin Devolucion,undelivered_repentant_buyer,6,98.54
-2026-02-01,Villa Urquiza,Comprador,Sin Devolucion,undelivered_repentant_buyer,6,58.55
-2026-02-01,Villa Urquiza,Comprador,Sin Devolucion,out_of_stock,6,69.14
-2026-02-01,Vicente Lopez,Ambos,Sin Devolucion,sup_damaged_package_broken_item,5,19.42
-2026-02-01,Scalabrini,Comprador,Sin Devolucion,undelivered_other,5,27.89
-2026-02-01,Vicente Lopez,Vendedor,Sin Devolucion,missing_item,5,60.94
-2026-02-01,Vicente Lopez,Comprador,Sin Devolucion,out_of_stock,5,30.6
-2026-02-01,Vicente Lopez,Comprador,Devolucion Realizada,different_color_or_size,5,132.17
-2026-02-01,Caballito,Comprador,Sin Devolucion,estimated_delivery_out_of_time,4,79.46
-2026-02-01,Caballito,null,Sin Devolucion,missing_item,4,48.52
-2026-02-01,Villa Urquiza,Comprador,Sin Devolucion,missing_item,4,18.49
-2026-02-01,Caballito,Ambos,Sin Devolucion,damaged_package_missing_item,3,20.36
-2026-02-01,Villa Urquiza,Ambos,Sin Devolucion,different_than_published,3,10.91
-2026-02-01,Scalabrini,null,Sin Devolucion,estimated_delivery_out_of_time,3,62.94
-2026-02-01,Vicente Lopez,Comprador,Sin Devolucion,delivered_but_not_receive_package,3,87.94
-2026-02-01,Villa Urquiza,Comprador,Sin Devolucion,estimated_delivery_out_of_time,3,36.17
-2026-02-01,Vicente Lopez,Ambos,Sin Devolucion,sup_broken_item,3,29.06
-2026-02-01,Villa Urquiza,Comprador,Devolucion Realizada,repentant_buyer,3,60.56
-2026-02-01,Scalabrini,Comprador,Sin Devolucion,sup_damaged_package_broken_item,3,151.71
-2026-02-01,Caballito,Vendedor,Sin Devolucion,missing_invoice,3,170.02
-2026-02-01,Vicente Lopez,Comprador,Devolucion Realizada,repentant_buyer,2,53.94
-2026-02-01,Vicente Lopez,Comprador,Sin Devolucion,estimated_delivery_out_of_time,2,26.29
-2026-02-01,Villa Urquiza,null,Sin Devolucion,delivered_but_not_receive_package,2,22.14
-2026-02-01,Scalabrini,Vendedor,Sin Devolucion,missing_invoice,2,87.55
-2026-02-01,Scalabrini,Ambos,Sin Devolucion,damaged_package_missing_item,2,8.45
-2026-02-01,Scalabrini,Comprador,Sin Devolucion,respondent_unanswered,2,2.52
-2026-02-01,Scalabrini,null,Sin Devolucion,undelivered_other,2,12.76
-2026-02-01,Caballito,Ambos,Sin Devolucion,missing_item,2,15.19
-2026-02-01,Scalabrini,null,Sin Devolucion,delivered_but_not_receive_package,2,25.92
-2026-02-01,Caballito,Comprador,Sin Devolucion,respondent_unanswered,2,2.14
-2026-02-01,Caballito,null,Sin Devolucion,repentant_buyer,2,36.72
-2026-02-01,Caballito,null,Sin Devolucion,out_of_stock,2,9.38
-2026-02-01,Villa Urquiza,Comprador,Sin Devolucion,respondent_unanswered,2,11.71
-2026-02-01,Caballito,Ambos,Sin Devolucion,sup_broken_item,2,15.89
-2026-02-01,Villa Urquiza,null,Sin Devolucion,undelivered_repentant_buyer,2,5.35
-2026-02-01,Villa Urquiza,Ambos,Sin Devolucion,sup_different_taste_or_size,1,2.07
-2026-02-01,Vicente Lopez,null,Sin Devolucion,out_of_stock,1,13.53
-2026-02-01,Scalabrini,Vendedor,Sin Devolucion,sup_broken_item,1,6.36
-2026-02-01,Scalabrini,Vendedor,Devolucion Expirada,different_item_other,1,57.6
-2026-02-01,Vicente Lopez,null,Devolucion Expirada,sup_different_taste_or_size,1,4.44
-2026-02-01,Vicente Lopez,null,Sin Devolucion,delivered_but_not_receive_package,1,54.24
-2026-02-01,Caballito,Comprador,Sin Devolucion,unauthorized_purchase,1,1.1
-2026-02-01,Scalabrini,Comprador,Devolucion Realizada,different_than_published,1,34.29
-2026-02-01,Caballito,Comprador,Sin Devolucion,change_receiver_address,1,2.08
-2026-02-01,Villa Urquiza,Ambos,Sin Devolucion,missing_accessories,1,5.0
-2026-02-01,Scalabrini,null,Sin Devolucion,out_of_stock,1,0.55
-2026-02-01,Vicente Lopez,null,Sin Devolucion,missing_invoice,1,5.26
-2026-02-01,Scalabrini,Vendedor,Devolucion Expirada,missing_item,1,12.46
-2026-02-01,Caballito,Comprador,Devolucion Realizada,sup_damaged_package_broken_item,1,14.76
-2026-02-01,Villa Urquiza,null,Sin Devolucion,undelivered_other,1,0.5
-2026-02-01,Vicente Lopez,Vendedor,Devolucion Cancelada,sup_damaged_package_broken_item,1,37.68
-2026-02-01,Scalabrini,Comprador,Sin Devolucion,delivered_but_not_receive_package,1,25.8
-2026-02-01,Vicente Lopez,null,Sin Devolucion,repentant_buyer,1,1.3
-2026-02-01,Caballito,Comprador,Devolucion Realizada,different_than_published,1,5.04
-2026-02-01,Caballito,null,Sin Devolucion,undelivered_repentant_buyer,1,9.24
-2026-02-01,Caballito,null,Sin Devolucion,undelivered_other,1,21.48
-2026-02-01,Vicente Lopez,Vendedor,Devolucion Expirada,different_than_published,1,94.56
-2026-02-01,Scalabrini,Vendedor,Sin Devolucion,delivered_but_not_receive_package,1,0.24
-2026-02-01,Villa Urquiza,Vendedor,Sin Devolucion,broken_item,1,1.22
-2026-02-01,Scalabrini,Ambos,Sin Devolucion,repentant_buyer,1,7.92
-2026-02-01,Villa Urquiza,Ambos,Sin Devolucion,different_item_other,1,3.68
-2026-02-01,Villa Urquiza,null,Sin Devolucion,missing_invoice,1,4.54
-2026-02-01,Vicente Lopez,Comprador,Devolucion Realizada,different_than_published,1,1.2
-2026-02-01,Caballito,Ambos,Sin Devolucion,missing_invoice,1,18.3
-2026-02-01,Vicente Lopez,Comprador,Sin Devolucion,sup_broken_item,1,13.08
-2026-02-01,Scalabrini,Ambos,Sin Devolucion,sup_damaged_package_broken_item,1,7.97
-2026-02-01,Vicente Lopez,Comprador,Sin Devolucion,change_receiver_address,1,8.31
-2026-02-01,Caballito,Vendedor,Sin Devolucion,damaged_package_missing_item,1,4.56
-2026-02-01,Scalabrini,Comprador,Devolucion Realizada,repentant_buyer,1,20.53
-2026-02-01,Scalabrini,Vendedor,Devolucion Cancelada,missing_item,1,13.75
-2026-02-01,Caballito,Vendedor,Sin Devolucion,missing_item,1,19.11
-2026-02-01,Caballito,Ambos,Sin Devolucion,sup_damaged_package_broken_item,1,2.72
-2026-02-01,Scalabrini,null,Sin Devolucion,missing_item,1,12.46
-2026-02-01,Scalabrini,null,Sin Devolucion,repentant_buyer,1,24.01
-2026-02-01,Vicente Lopez,null,Sin Devolucion,delivery_date_was_not_met,1,13.72
-2026-02-01,Vicente Lopez,Vendedor,Sin Devolucion,missing_invoice,1,29.92
-2026-02-01,Caballito,Vendedor,Sin Devolucion,delivered_but_not_receive_package,1,9.92
-2026-02-01,Vicente Lopez,Ambos,Sin Devolucion,missing_invoice,1,1.33
-2026-02-01,Vicente Lopez,null,Sin Devolucion,damaged_package_broken_item,1,21.72
-2026-02-01,Caballito,Comprador,Sin Devolucion,damaged_package_missing_item,1,14.19
-2026-02-01,Caballito,Comprador,Devolucion Realizada,repentant_buyer,1,5.1
-2026-02-01,Villa Urquiza,null,Devolucion Expirada,different_item_other,1,2.99
-2026-02-01,Scalabrini,Ambos,Sin Devolucion,different_item_other,1,11.98
-2026-02-01,Caballito,Vendedor,Devolucion Cancelada,missing_item,1,13.08
-2026-02-01,Villa Urquiza,Ambos,Sin Devolucion,damaged_package_empty_box,1,6.42
-2026-02-01,Vicente Lopez,Comprador,Sin Devolucion,unauthorized_purchase,1,19.71
-2026-02-01,Villa Urquiza,Ambos,Sin Devolucion,sup_damaged_package_broken_item,1,36.8
-2026-02-01,Caballito,Vendedor,Devolucion Expirada,repentant_buyer,1,7.72
-2026-02-01,Scalabrini,Ambos,Sin Devolucion,missing_invoice,1,9.56
-2026-02-01,Vicente Lopez,Ambos,Sin Devolucion,damaged_package_missing_item,1,12.4
-2026-02-01,Vicente Lopez,Vendedor,Sin Devolucion,damaged_package_missing_item,1,24.6
-2026-02-01,Scalabrini,null,Devolucion Cancelada,different_item_other,1,11.43
-2026-02-01,Caballito,null,Sin Devolucion,different_item_other,1,7.38
-2026-02-01,Caballito,Ambos,Sin Devolucion,sup_different_taste_or_size,1,5.37
-2026-02-01,Scalabrini,Comprador,Sin Devolucion,change_receiver_address,1,0.36
-2026-02-01,Villa Urquiza,null,Sin Devolucion,missing_item,1,37.44
-2026-02-01,Vicente Lopez,Vendedor,Sin Devolucion,different_than_published,1,12.46
-2026-02-01,Scalabrini,Comprador,Sin Devolucion,damaged_package_missing_item,1,27.84
-2026-02-01,Caballito,null,Sin Devolucion,different_than_published,1,1.07
-2026-02-01,Caballito,Comprador,Devolucion Realizada,missing_item,1,3.93
-2026-02-01,Vicente Lopez,null,Sin Devolucion,different_item_other,1,8.39
-2026-02-01,Villa Urquiza,null,Sin Devolucion,estimated_delivery_out_of_time,1,30.42
-2026-02-01,Vicente Lopez,Comprador,Sin Devolucion,different_than_published,1,5.52
-2026-02-01,Vicente Lopez,null,Sin Devolucion,estimated_delivery_out_of_time,1,8.6
-2026-02-01,Villa Urquiza,null,Sin Devolucion,out_of_stock,1,56.58
-2026-02-01,Caballito,Vendedor,Sin Devolucion,out_of_stock,1,9.84
-2026-02-01,Caballito,Comprador,Devolucion Realizada,different_color_or_size,1,4.54
-2026-02-01,Villa Urquiza,Ambos,Sin Devolucion,not_working_item,1,5.0
-2026-02-01,Scalabrini,Ambos,Sin Devolucion,different_than_published,1,9.88
-2026-03-01,Scalabrini,Ambos,Sin Devolucion,missing_item,26,101.72
-2026-03-01,Caballito,Comprador,Sin Devolucion,undelivered_repentant_buyer,20,245.74
-2026-03-01,Vicente Lopez,Comprador,Sin Devolucion,missing_item,19,149.06
-2026-03-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_repentant_buyer,16,312.12
-2026-03-01,Caballito,Comprador,Sin Devolucion,out_of_stock,15,91.85
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,out_of_stock,14,80.39
-2026-03-01,Caballito,Ambos,Sin Devolucion,missing_item,14,85.75
-2026-03-01,Vicente Lopez,Ambos,Sin Devolucion,missing_item,14,66.83
-2026-03-01,Villa Urquiza,Ambos,Sin Devolucion,missing_item,13,47.14
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,missing_item,12,254.35
-2026-03-01,Scalabrini,Ambos,Sin Devolucion,missing_invoice,12,65.88
-2026-03-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_other,11,120.08
-2026-03-01,Villa Urquiza,Comprador,Sin Devolucion,undelivered_other,9,69.3
-2026-03-01,Villa Urquiza,Vendedor,Sin Devolucion,missing_item,9,93.09
-2026-03-01,Caballito,Ambos,Sin Devolucion,sup_damaged_package_broken_item,9,47.2
-2026-03-01,Villa Urquiza,Comprador,Sin Devolucion,undelivered_repentant_buyer,9,94.12
-2026-03-01,Caballito,Comprador,Sin Devolucion,missing_item,8,136.78
-2026-03-01,Caballito,Comprador,Sin Devolucion,undelivered_other,8,57.06
-2026-03-01,Villa Urquiza,Comprador,Sin Devolucion,out_of_stock,8,63.91
-2026-03-01,Scalabrini,null,Sin Devolucion,out_of_stock,8,61.55
-2026-03-01,Caballito,Comprador,Sin Devolucion,estimated_delivery_out_of_time,8,43.0
-2026-03-01,Villa Urquiza,Comprador,Sin Devolucion,missing_item,7,91.04
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,estimated_delivery_out_of_time,7,191.25
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,undelivered_repentant_buyer,7,182.87
-2026-03-01,Vicente Lopez,Comprador,Sin Devolucion,out_of_stock,6,24.36
-2026-03-01,Caballito,null,Sin Devolucion,out_of_stock,6,51.14
-2026-03-01,Caballito,Ambos,Sin Devolucion,sup_broken_item,6,20.63
-2026-03-01,Villa Urquiza,Comprador,Sin Devolucion,estimated_delivery_out_of_time,6,106.85
-2026-03-01,Vicente Lopez,Ambos,Sin Devolucion,sup_broken_item,6,33.15
-2026-03-01,Villa Urquiza,Ambos,Sin Devolucion,missing_invoice,6,33.91
-2026-03-01,Vicente Lopez,Comprador,Sin Devolucion,estimated_delivery_out_of_time,5,28.71
-2026-03-01,Vicente Lopez,Comprador,Sin Devolucion,respondent_unanswered,5,38.92
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,undelivered_other,5,57.43
-2026-03-01,Villa Urquiza,Ambos,Sin Devolucion,sup_broken_item,4,12.27
-2026-03-01,Scalabrini,Ambos,Sin Devolucion,sup_broken_item,4,53.07
-2026-03-01,Scalabrini,null,Sin Devolucion,missing_invoice,4,146.5
-2026-03-01,Scalabrini,Vendedor,Sin Devolucion,damaged_package_empty_box,4,21.36
-2026-03-01,Villa Urquiza,Ambos,Sin Devolucion,different_than_published,4,16.82
-2026-03-01,Villa Urquiza,null,Sin Devolucion,out_of_stock,4,94.52
-2026-03-01,Caballito,Ambos,Sin Devolucion,different_item_other,4,19.05
-2026-03-01,Vicente Lopez,null,Sin Devolucion,missing_item,3,24.2
-2026-03-01,Vicente Lopez,Ambos,Sin Devolucion,delivered_but_not_receive_package,3,17.37
-2026-03-01,Vicente Lopez,Comprador,Sin Devolucion,different_item_other,3,17.72
-2026-03-01,Vicente Lopez,null,Sin Devolucion,undelivered_repentant_buyer,3,54.64
-2026-03-01,Villa Urquiza,Ambos,Sin Devolucion,sup_damaged_package_broken_item,3,23.05
-2026-03-01,Scalabrini,null,Sin Devolucion,missing_item,3,8.95
-2026-03-01,Caballito,Vendedor,Sin Devolucion,missing_item,3,45.29
-2026-03-01,Villa Urquiza,Vendedor,Sin Devolucion,missing_invoice,3,61.52
-2026-03-01,Scalabrini,Vendedor,Sin Devolucion,missing_invoice,3,142.44
-2026-03-01,Vicente Lopez,Ambos,Sin Devolucion,repentant_buyer,2,9.44
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,change_receiver_address,2,70.59
-2026-03-01,Scalabrini,null,Sin Devolucion,undelivered_repentant_buyer,2,359.93
-2026-03-01,Vicente Lopez,Vendedor,Sin Devolucion,missing_item,2,69.84
-2026-03-01,Villa Urquiza,null,Sin Devolucion,estimated_delivery_out_of_time,2,12.09
-2026-03-01,Caballito,Comprador,Sin Devolucion,respondent_unanswered,2,116.06
-2026-03-01,Caballito,null,Sin Devolucion,missing_item,2,13.22
-2026-03-01,Vicente Lopez,Comprador,Sin Devolucion,change_receiver_address,2,30.86
-2026-03-01,Caballito,Comprador,Sin Devolucion,different_item_other,2,20.19
-2026-03-01,Caballito,Ambos,Sin Devolucion,damaged_package_missing_accessories,2,13.0
-2026-03-01,Caballito,null,Sin Devolucion,undelivered_repentant_buyer,2,36.32
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,respondent_unanswered,2,8.22
-2026-03-01,Scalabrini,null,Sin Devolucion,delivered_but_not_receive_package,2,55.25
-2026-03-01,Vicente Lopez,null,Sin Devolucion,delivered_but_not_receive_package,2,22.29
-2026-03-01,Caballito,Comprador,Sin Devolucion,repentant_buyer,2,55.19
-2026-03-01,Caballito,Comprador,Sin Devolucion,change_receiver_address,2,4.05
-2026-03-01,Vicente Lopez,Ambos,Sin Devolucion,different_color_or_size,2,8.14
-2026-03-01,Caballito,Vendedor,Sin Devolucion,missing_invoice,2,13.4
-2026-03-01,Caballito,Ambos,Sin Devolucion,damaged_package_broken_item,2,20.2
-2026-03-01,Scalabrini,Vendedor,Sin Devolucion,missing_item,2,197.7
-2026-03-01,Villa Urquiza,null,Sin Devolucion,undelivered_repentant_buyer,2,9.74
-2026-03-01,Villa Urquiza,Comprador,Devolucion Realizada,repentant_buyer,2,22.5
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,unauthorized_purchase,2,40.15
-2026-03-01,Villa Urquiza,Comprador,Sin Devolucion,different_than_published,2,6.93
-2026-03-01,Caballito,Ambos,Sin Devolucion,delivered_but_not_receive_package,2,16.87
-2026-03-01,Vicente Lopez,null,Sin Devolucion,out_of_stock,2,12.88
-2026-03-01,Villa Urquiza,Ambos,Sin Devolucion,fake_different,1,6.83
-2026-03-01,Vicente Lopez,Comprador,Devolucion Realizada,broken_item,1,8.47
-2026-03-01,Villa Urquiza,Ambos,Sin Devolucion,not_working_item,1,26.65
-2026-03-01,Vicente Lopez,Comprador,Sin Devolucion,sup_damaged_package_broken_item,1,29.88
-2026-03-01,Caballito,Vendedor,Sin Devolucion,different_than_published,1,9.05
-2026-03-01,Scalabrini,Vendedor,Sin Devolucion,sup_damaged_package_broken_item,1,10.65
-2026-03-01,Scalabrini,Vendedor,Devolucion Expirada,repentant_buyer,1,47.12
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,delivered_but_not_receive_package,1,1.32
-2026-03-01,Scalabrini,null,Sin Devolucion,undelivered_other,1,9.69
-2026-03-01,Vicente Lopez,null,Sin Devolucion,estimated_delivery_out_of_time,1,3.76
-2026-03-01,Villa Urquiza,null,Sin Devolucion,undelivered_other,1,1.62
-2026-03-01,Villa Urquiza,null,Sin Devolucion,different_item_other,1,7.56
-2026-03-01,Vicente Lopez,null,Sin Devolucion,respondent_unanswered,1,3.44
-2026-03-01,Villa Urquiza,null,Sin Devolucion,missing_item,1,13.35
-2026-03-01,Scalabrini,Comprador,Devolucion Realizada,sup_broken_item,1,26.81
-2026-03-01,Caballito,Comprador,Devolucion Realizada,missing_accessories,1,43.0
-2026-03-01,Caballito,Ambos,Sin Devolucion,damaged_package_empty_box,1,7.2
-2026-03-01,Caballito,Comprador,Devolucion Realizada,sup_different_taste_or_size,1,21.76
-2026-03-01,Villa Urquiza,Comprador,Devolucion Realizada,different_item_other,1,2.17
-2026-03-01,Scalabrini,Ambos,Sin Devolucion,sup_damaged_package_broken_item,1,17.04
-2026-03-01,Vicente Lopez,Ambos,Sin Devolucion,sup_damaged_package_broken_item,1,7.89
-2026-03-01,Villa Urquiza,Vendedor,Devolucion Cancelada,missing_item,1,59.64
-2026-03-01,Vicente Lopez,Vendedor,Sin Devolucion,missing_invoice,1,14.34
-2026-03-01,Caballito,null,Sin Devolucion,delivered_but_not_receive_package,1,16.26
-2026-03-01,Caballito,null,Sin Devolucion,different_than_published,1,12.32
-2026-03-01,Villa Urquiza,null,Sin Devolucion,missing_invoice,1,32.64
-2026-03-01,Villa Urquiza,Comprador,Sin Devolucion,delivered_but_not_receive_package,1,1.77
-2026-03-01,Villa Urquiza,Ambos,Devolucion Expirada,missing_item,1,18.6
-2026-03-01,Vicente Lopez,Vendedor,Devolucion Expirada,different_than_published,1,16.04
-2026-03-01,Caballito,Ambos,Sin Devolucion,different_than_published,1,3.44
-2026-03-01,Vicente Lopez,Comprador,Devolucion Realizada,sup_different_taste_or_size,1,14.47
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,tried_deliver_purchase_but_could_not,1,82.32
-2026-03-01,Scalabrini,Vendedor,Sin Devolucion,repentant_buyer,1,31.59
-2026-03-01,Scalabrini,Vendedor,Devolucion Expirada,different_item_other,1,14.2
-2026-03-01,Caballito,Comprador,Devolucion Realizada,damaged_package_not_working_item,1,38.8
-2026-03-01,Scalabrini,Ambos,Sin Devolucion,damaged_package_missing_item,1,2.63
-2026-03-01,Caballito,Comprador,Sin Devolucion,sup_broken_item,1,45.66
-2026-03-01,Villa Urquiza,Comprador,Sin Devolucion,sup_different_taste_or_size,1,2.51
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,sup_different_color_or_size,1,26.52
-2026-03-01,Scalabrini,Comprador,Devolucion Realizada,repentant_buyer,1,43.14
-2026-03-01,Vicente Lopez,Comprador,Devolucion Realizada,missing_item,1,4.4
-2026-03-01,Scalabrini,null,Sin Devolucion,estimated_delivery_out_of_time,1,4.6
-2026-03-01,Caballito,null,Sin Devolucion,different_color_or_size,1,33.52
-2026-03-01,Caballito,null,Sin Devolucion,sup_different_taste_or_size,1,9.44
-2026-03-01,Vicente Lopez,Comprador,Sin Devolucion,delivered_but_not_receive_package,1,0.93
-2026-03-01,Caballito,Comprador,Devolucion Realizada,repentant_buyer,1,20.56
-2026-03-01,Villa Urquiza,Comprador,Sin Devolucion,respondent_unanswered,1,20.55
-2026-03-01,Caballito,Comprador,Sin Devolucion,damaged_package_missing_item,1,23.84
-2026-03-01,Caballito,null,Devolucion Expirada,missing_accessories,1,43.0
-2026-03-01,Villa Urquiza,Vendedor,Sin Devolucion,sup_damaged_package_broken_item,1,15.48
-2026-03-01,Caballito,null,Sin Devolucion,undelivered_other,1,7.95
-2026-03-01,Villa Urquiza,null,Devolucion Expirada,sup_different_taste_or_size,1,13.38
-2026-03-01,Caballito,null,Sin Devolucion,change_receiver_address,1,2.82
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,damaged_package_missing_item,1,90.24
-2026-03-01,Scalabrini,Vendedor,Sin Devolucion,delivered_but_not_receive_package,1,2.94
-2026-03-01,Vicente Lopez,Vendedor,Sin Devolucion,sup_damaged_package_broken_item,1,1.43
-2026-03-01,Scalabrini,Comprador,Devolucion Realizada,different_than_published,1,8.69
-2026-03-01,Scalabrini,null,Sin Devolucion,sup_different_taste_or_size,1,3.06
-2026-03-01,Caballito,null,Sin Devolucion,damaged_package_missing_item,1,2.63
-2026-03-01,Vicente Lopez,Comprador,Sin Devolucion,sup_broken_item,1,12.88
-2026-03-01,Scalabrini,Ambos,Devolucion Realizada,different_than_published,1,46.68
-2026-03-01,Vicente Lopez,null,Devolucion Cancelada,empty_box,1,25.76
-2026-03-01,Caballito,null,Sin Devolucion,respondent_unanswered,1,0.93
-2026-03-01,Vicente Lopez,Ambos,Sin Devolucion,sup_different_taste_or_size,1,4.06
-2026-03-01,Villa Urquiza,null,Sin Devolucion,tried_deliver_purchase_but_could_not,1,21.24
-2026-03-01,Caballito,null,Devolucion Expirada,repentant_buyer,1,2.8
-2026-03-01,Scalabrini,Comprador,Sin Devolucion,delivery_date_was_not_met,1,2.06
-2026-03-01,Scalabrini,Ambos,Devolucion Cancelada,different_item_other,1,17.16
-2026-03-01,Vicente Lopez,Ambos,Sin Devolucion,different_item_other,1,4.02
-2026-03-01,Vicente Lopez,Vendedor,Devolucion Cancelada,missing_invoice,1,135.12
-2026-03-01,Vicente Lopez,Ambos,Sin Devolucion,missing_invoice,1,2.95
-2026-03-01,Caballito,Comprador,Sin Devolucion,delivered_but_not_receive_package,1,4.4
-2026-03-01,Scalabrini,Ambos,Sin Devolucion,different_item_other,1,3.76
-2026-03-01,Vicente Lopez,Comprador,Devolucion Realizada,repentant_buyer,1,52.86
-2026-04-01,Scalabrini,Comprador,Sin Devolucion,missing_item,23,144.77
-2026-04-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_repentant_buyer,15,354.25
-2026-04-01,Villa Urquiza,null,Sin Devolucion,missing_item,14,61.86
-2026-04-01,Villa Urquiza,Comprador,Sin Devolucion,undelivered_repentant_buyer,11,112.96
-2026-04-01,Vicente Lopez,Comprador,Sin Devolucion,missing_item,10,88.94
-2026-04-01,Caballito,Comprador,Sin Devolucion,missing_item,10,56.52
-2026-04-01,Caballito,Comprador,Sin Devolucion,undelivered_repentant_buyer,10,162.97
-2026-04-01,Scalabrini,Comprador,Sin Devolucion,undelivered_repentant_buyer,10,120.63
-2026-04-01,Villa Urquiza,Comprador,Sin Devolucion,out_of_stock,9,69.7
-2026-04-01,Vicente Lopez,Ambos,Sin Devolucion,missing_item,8,51.35
-2026-04-01,Caballito,Comprador,Sin Devolucion,out_of_stock,8,64.72
-2026-04-01,Villa Urquiza,Ambos,Sin Devolucion,missing_item,7,47.44
-2026-04-01,Caballito,Comprador,Sin Devolucion,undelivered_other,7,54.83
-2026-04-01,Villa Urquiza,Comprador,Sin Devolucion,undelivered_other,6,61.99
-2026-04-01,Scalabrini,Ambos,Sin Devolucion,damaged_package_missing_item,6,17.51
-2026-04-01,Vicente Lopez,Comprador,Sin Devolucion,out_of_stock,6,126.22
-2026-04-01,Caballito,Ambos,Sin Devolucion,sup_broken_item,4,42.09
-2026-04-01,Scalabrini,Comprador,Sin Devolucion,undelivered_other,4,14.89
-2026-04-01,Villa Urquiza,null,Sin Devolucion,out_of_stock,4,17.24
-2026-04-01,Caballito,Comprador,Sin Devolucion,estimated_delivery_out_of_time,4,16.67
-2026-04-01,Scalabrini,Comprador,Devolucion Realizada,repentant_buyer,4,80.94
-2026-04-01,Vicente Lopez,Comprador,Sin Devolucion,undelivered_other,4,49.79
-2026-04-01,Villa Urquiza,Comprador,Sin Devolucion,missing_item,4,27.49
-2026-04-01,Villa Urquiza,Comprador,Sin Devolucion,estimated_delivery_out_of_time,4,29.86
-2026-04-01,Scalabrini,Ambos,Sin Devolucion,missing_invoice,4,29.54
-2026-04-01,Villa Urquiza,Ambos,Sin Devolucion,sup_broken_item,3,10.16
-2026-04-01,Vicente Lopez,null,Devolucion Expirada,missing_item,3,52.74
-2026-04-01,Caballito,Ambos,Sin Devolucion,missing_item,3,11.71
-2026-04-01,Scalabrini,Comprador,Sin Devolucion,estimated_delivery_out_of_time,3,8.62
-2026-04-01,Caballito,Ambos,Sin Devolucion,missing_invoice,3,27.88
-2026-04-01,Vicente Lopez,Ambos,Sin Devolucion,empty_box,3,5.79
-2026-04-01,Vicente Lopez,null,Sin Devolucion,missing_item,3,45.69
-2026-04-01,Scalabrini,Ambos,Sin Devolucion,sup_damaged_package_broken_item,3,14.65
-2026-04-01,Caballito,Comprador,Sin Devolucion,change_receiver_address,2,4.91
-2026-04-01,Vicente Lopez,Comprador,Devolucion Realizada,missing_item,2,25.91
-2026-04-01,Vicente Lopez,Comprador,Sin Devolucion,damaged_package_missing_item,2,26.73
-2026-04-01,Scalabrini,Comprador,Sin Devolucion,delivered_but_not_receive_package,2,15.8
-2026-04-01,Scalabrini,null,Sin Devolucion,different_item_other,2,27.54
-2026-04-01,Scalabrini,Comprador,Sin Devolucion,damaged_package_missing_item,2,3.65
-2026-04-01,Scalabrini,Ambos,Sin Devolucion,missing_item,2,5.99
-2026-04-01,Vicente Lopez,Vendedor,Sin Devolucion,missing_item,2,38.97
-2026-04-01,Caballito,null,Sin Devolucion,out_of_stock,2,12.79
-2026-04-01,Caballito,null,Sin Devolucion,missing_item,2,9.05
-2026-04-01,Caballito,null,Sin Devolucion,undelivered_other,2,16.57
-2026-04-01,Scalabrini,Comprador,Sin Devolucion,out_of_stock,2,7.96
-2026-04-01,Scalabrini,null,Sin Devolucion,undelivered_repentant_buyer,2,19.54
-2026-04-01,Scalabrini,null,Devolucion No Despachada,missing_invoice,2,33.6
-2026-04-01,Scalabrini,null,Devolucion Cancelada,different_item_other,2,28.7
-2026-04-01,Scalabrini,Vendedor,Sin Devolucion,missing_invoice,2,30.78
-2026-04-01,Vicente Lopez,null,Sin Devolucion,delivered_but_not_receive_package,2,24.1
-2026-04-01,Vicente Lopez,Ambos,Sin Devolucion,missing_invoice,2,4.52
-2026-04-01,Villa Urquiza,Comprador,Sin Devolucion,change_receiver_address,2,17.92
-2026-04-01,Vicente Lopez,Ambos,Sin Devolucion,sup_damaged_package_broken_item,2,20.03
-2026-04-01,Villa Urquiza,null,Sin Devolucion,undelivered_other,2,9.66
-2026-04-01,Vicente Lopez,Comprador,Sin Devolucion,delivered_but_not_receive_package,2,16.06
-2026-04-01,Villa Urquiza,null,Sin Devolucion,repentant_buyer,1,26.76
-2026-04-01,Vicente Lopez,Comprador,Devolucion Realizada,repentant_buyer,1,24.9
-2026-04-01,Vicente Lopez,Comprador,Sin Devolucion,empty_box,1,19.54
-2026-04-01,Scalabrini,Ambos,Sin Devolucion,sup_broken_item,1,10.92
-2026-04-01,Caballito,Comprador,Sin Devolucion,different_item_other,1,18.12
-2026-04-01,Scalabrini,Comprador,Sin Devolucion,different_item_other,1,0.72
-2026-04-01,Caballito,null,Sin Devolucion,undelivered_repentant_buyer,1,3.3
-2026-04-01,Scalabrini,null,Sin Devolucion,repentant_buyer,1,50.16
-2026-04-01,Villa Urquiza,Ambos,Sin Devolucion,repentant_buyer,1,5.88
-2026-04-01,Caballito,Ambos,Sin Devolucion,repentant_buyer,1,1.96
-2026-04-01,Vicente Lopez,Comprador,Sin Devolucion,different_item_other,1,28.32
-2026-04-01,Caballito,null,Sin Devolucion,missing_invoice,1,7.95
-2026-04-01,Scalabrini,Vendedor,Sin Devolucion,empty_box,1,1.3
-2026-04-01,Villa Urquiza,null,Sin Devolucion,broken_item,1,8.62
-2026-04-01,Scalabrini,null,Sin Devolucion,missing_item,1,25.13
-2026-04-01,Scalabrini,Comprador,Sin Devolucion,change_receiver_address,1,6.98
-2026-04-01,Caballito,Comprador,Sin Devolucion,broken_item,1,41.52
-2026-04-01,Caballito,Comprador,Sin Devolucion,respondent_unanswered,1,11.32
-2026-04-01,Caballito,Vendedor,Devolucion Cancelada,different_than_published,1,12.32
-2026-04-01,Caballito,Comprador,Sin Devolucion,delivered_but_not_receive_package,1,16.26
-2026-04-01,Vicente Lopez,null,Devolucion Realizada,repentant_buyer,1,13.32
-2026-04-01,Villa Urquiza,null,Sin Devolucion,different_than_published,1,17.9
-2026-04-01,Scalabrini,Comprador,Sin Devolucion,broken_item,1,4.78
-2026-04-01,Caballito,Comprador,Devolucion Realizada,repentant_buyer,1,5.36
-2026-04-01,Scalabrini,Ambos,Sin Devolucion,repentant_buyer,1,5.4
-2026-04-01,Caballito,Comprador,Sin Devolucion,sup_damaged_package_broken_item,1,19.44
-2026-04-01,Scalabrini,null,Sin Devolucion,out_of_stock,1,30.38
-2026-04-01,Vicente Lopez,Vendedor,Sin Devolucion,sup_broken_item,1,17.88
-2026-04-01,Villa Urquiza,null,Sin Devolucion,missing_invoice,1,37.94
-2026-04-01,Vicente Lopez,null,Sin Devolucion,repentant_buyer,1,2.44
-2026-04-01,Scalabrini,Vendedor,Sin Devolucion,delivered_but_not_receive_package,1,2.95
-2026-04-01,Caballito,Vendedor,Sin Devolucion,missing_item,1,13.76
-2026-04-01,Villa Urquiza,Comprador,Sin Devolucion,damaged_package_missing_item,1,4.26
-2026-04-01,Villa Urquiza,Ambos,Sin Devolucion,different_item_other,1,0.9
-2026-04-01,Vicente Lopez,Comprador,Sin Devolucion,estimated_delivery_out_of_time,1,11.22
-2026-04-01,Caballito,Comprador,Sin Devolucion,repentant_buyer,1,2.48
-2026-04-01,Vicente Lopez,null,Sin Devolucion,out_of_stock,1,18.24
-2026-04-01,Scalabrini,null,Sin Devolucion,different_than_published,1,10.92
-2026-04-01,Vicente Lopez,null,Sin Devolucion,undelivered_other,1,4.3
-2026-04-01,Villa Urquiza,Vendedor,Sin Devolucion,missing_invoice,1,12.6
-2026-04-01,Villa Urquiza,Vendedor,Sin Devolucion,empty_box,1,2.59
-2026-04-01,Villa Urquiza,Vendedor,Sin Devolucion,sup_broken_item,1,7.43
-2026-04-01,Caballito,null,Sin Devolucion,change_receiver_address,1,8.68
-2026-04-01,Vicente Lopez,Ambos,Sin Devolucion,sup_broken_item,1,2.72
-2026-04-01,Caballito,Vendedor,Sin Devolucion,missing_invoice,1,19.6
-2026-04-01,Vicente Lopez,null,Sin Devolucion,sup_different_taste_or_size,1,4.01
-2026-04-01,Villa Urquiza,Ambos,Sin Devolucion,sup_damaged_package_broken_item,1,3.08
-2026-04-01,Villa Urquiza,Comprador,Sin Devolucion,different_item_other,1,1.1
-2026-04-01,Villa Urquiza,Comprador,Sin Devolucion,respondent_unanswered,1,5.62
-2026-04-01,Caballito,Vendedor,Sin Devolucion,sup_broken_item,1,7.65
-2026-04-01,Vicente Lopez,Ambos,Sin Devolucion,different_than_published,1,27.11
-2026-04-01,Scalabrini,null,Sin Devolucion,undelivered_other,1,8.72
-2026-04-01,Caballito,Comprador,Sin Devolucion,damaged_package_missing_item,1,5.74
-2026-04-01,Scalabrini,Vendedor,Sin Devolucion,damaged_package_empty_box,1,3.13
-2026-04-01,Villa Urquiza,null,Sin Devolucion,sup_different_taste_or_size,1,10.8
-2026-04-01,Caballito,Comprador,Sin Devolucion,sup_different_taste_or_size,1,7.43
-2026-04-01,Vicente Lopez,Comprador,Devolucion Realizada,different_than_published,1,9.14
-2026-04-01,Caballito,Ambos,Sin Devolucion,different_item_other,1,12.75
+mes,Tienda,fallo,reason_claim,solu_final,claims
+,Caballito,Comprador,PNR,Sin solución,297
+,Vicente Lopez,Comprador,PNR,Sin solución,221
+,Scalabrini,Comprador,PNR,Sin solución,218
+,Villa Urquiza,Comprador,PNR,Sin solución,158
+,Vicente Lopez,Comprador,PDD,Sin solución,89
+,Caballito,Comprador,PDD,Sin solución,79
+,Scalabrini,Comprador,PDD,Sin solución,77
+,Caballito,null,PNR,Sin solución,51
+,Villa Urquiza,null,PNR,Sin solución,49
+,Vicente Lopez,null,PDD,Sin solución,47
+,Caballito,null,PDD,Sin solución,44
+,Scalabrini,null,PDD,Sin solución,40
+,Scalabrini,null,PNR,Sin solución,40
+,Villa Urquiza,Comprador,PDD,Sin solución,37
+,Villa Urquiza,null,PDD,Sin solución,31
+,Vicente Lopez,null,PNR,Sin solución,29
+,Villa Urquiza,null,PDD,Pedimos al V que resuelva - V debe adjuntar factura,2
+,Vicente Lopez,Ambos,PDD,Sin solución,2
+,Scalabrini,null,PDD,Pedimos al C que indique preferencia - devolución o dinero parcial,1
+,Caballito,null,PNR,Informamos que la factura no es obligatoria: preguntamos preferencia,1
+,Vicente Lopez,null,PDD,Pedimos confirmación - C debe indicar si la factura es correcta,1
+,Caballito,Ambos,PDD,Sin solución,1
+,Vicente Lopez,null,PDD,Pedimos al V que resuelva - V debe adjuntar factura,1
+,Villa Urquiza,null,PDD,PDD Fotos: Pedimos fotos - C debe contactarnos - Paquete dañado,1
+,Caballito,null,PDD,Informamos que la factura no es obligatoria: preguntamos preferencia,1
+,Scalabrini,null,PDD,Extendemos plazo - C debe indicar ítems faltantes,1
+,Scalabrini,null,PDD,Informamos que la factura no es obligatoria: preguntamos preferencia,1
+,Caballito,null,PDD,Pedimos confirmación - C debe indicar si la factura es correcta,1
+,Villa Urquiza,null,PDD,Vendedor informa recolección/cambio proactivo del producto,1
+2025-10-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),6
+2025-10-01,Scalabrini,Ambos,PDD,PDD Fotos: pedimos fotos - C debe contactarnos (CP no disponible: condiciones),2
+2025-10-01,Scalabrini,Ambos,PDD,Generamos etiqueta de devolución,1
+2025-10-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
+2025-11-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),6
+2025-11-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),4
+2025-11-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),3
+2025-11-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),2
+2025-11-01,Scalabrini,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2025-11-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2025-11-01,Scalabrini,Ambos,PNR,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),1
+2025-11-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2025-11-01,Scalabrini,Vendedor,PDD,Fallamos al V - C no confirma devolución sin ME,1
+2025-11-01,Scalabrini,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),35
+2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),11
+2025-12-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),11
+2025-12-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),9
+2025-12-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),5
+2025-12-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),4
+2025-12-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),4
+2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,2
+2025-12-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),2
+2025-12-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
+2025-12-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),2
+2025-12-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,2
+2025-12-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),2
+2025-12-01,Vicente Lopez,Vendedor,PNR,Respuestas Ágiles - Fallamos al V - C no responde - PNR C Flex (Auto) (V),1
+2025-12-01,Vicente Lopez,Ambos,PDD,Generamos etiqueta de devolución,1
+2025-12-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2025-12-01,Caballito,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2025-12-01,Scalabrini,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2025-12-01,Vicente Lopez,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2025-12-01,Scalabrini,Comprador,PDD,PDD Fotos: Fallamos al C por producto defectuoso - embalaje (Auto) (V),1
+2025-12-01,Scalabrini,Ambos,PDD,Pedimos al V que resuelva - V debe adjuntar factura,1
+2025-12-01,Caballito,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
+2025-12-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2025-12-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
+2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - Cubrimos al comprador por ítems faltantes,1
+2025-12-01,Vicente Lopez,Ambos,PNR,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),1
+2025-12-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2025-12-01,Scalabrini,Ambos,PDD,Sin solución,1
+2025-12-01,Vicente Lopez,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2025-12-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2025-12-01,Vicente Lopez,Ambos,PDD,Fallo a ambos: Producto menor a 19 USD,1
+2025-12-01,Scalabrini,Vendedor,PDD,PDD Fotos: Fallamos al V - C no adjunta fotos (Auto) (V),1
+2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - reembolso parcial al C (responsabilidad V),1
+2025-12-01,Caballito,Ambos,PNR,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
+2025-12-01,Caballito,Ambos,PDD,Fallamos a ambos - reembolso parcial al C (responsabilidad V),1
+2025-12-01,Scalabrini,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),1
+2026-01-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),10
+2026-01-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),8
+2026-01-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),7
+2026-01-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),6
+2026-01-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),5
+2026-01-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,5
+2026-01-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),5
+2026-01-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),3
+2026-01-01,Scalabrini,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),2
+2026-01-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
+2026-01-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
+2026-01-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),2
+2026-01-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
+2026-01-01,Caballito,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
+2026-01-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
+2026-01-01,Vicente Lopez,Comprador,PDD,Fallamos al C: V no retira de sucursal,1
+2026-01-01,Scalabrini,Ambos,PDD,Fallo a ambos - General KYC (V) (AUTO),1
+2026-01-01,Caballito,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-01-01,Scalabrini,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
+2026-01-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),1
+2026-01-01,Scalabrini,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-01-01,Caballito,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,1
+2026-01-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - reembolso parcial al C (responsabilidad V),1
+2026-01-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2026-01-01,Villa Urquiza,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2026-01-01,Vicente Lopez,Comprador,PDD,Respuestas Ágiles: Fallamos al C - C devolvió y V no informa problemas con producto/envío (Auto),1
+2026-02-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),19
+2026-02-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),9
+2026-02-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),9
+2026-02-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),7
+2026-02-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),4
+2026-02-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),3
+2026-02-01,Scalabrini,Comprador,PDD,Fallamos al C - producto irrecuperable,3
+2026-02-01,Vicente Lopez,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),3
+2026-02-01,Vicente Lopez,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),3
+2026-02-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),3
+2026-02-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,3
+2026-02-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),3
+2026-02-01,Caballito,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,3
+2026-02-01,Caballito,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,2
+2026-02-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
+2026-02-01,Scalabrini,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),2
+2026-02-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,2
+2026-02-01,Vicente Lopez,Ambos,PDD,Devoluciones: Fallamos a ambos,1
+2026-02-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2026-02-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2026-02-01,Villa Urquiza,Ambos,PDD,Devoluciones: Fallamos a ambos,1
+2026-02-01,Scalabrini,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-02-01,Vicente Lopez,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2026-02-01,Caballito,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-02-01,Vicente Lopez,Vendedor,PDD,Fallamos al V  - Pagamos bonus track al  C - no pudo/no quiso hacer la devolución,1
+2026-02-01,Scalabrini,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,1
+2026-02-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2026-02-01,Caballito,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2026-02-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
+2026-02-01,Caballito,Comprador,PDD,Fallamos al C - Producto llegó vencido o en mal estado,1
+2026-02-01,Villa Urquiza,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
+2026-02-01,Scalabrini,Vendedor,PDD,Informamos que la factura no es obligatoria: preguntamos preferencia,1
+2026-02-01,Scalabrini,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
+2026-02-01,Caballito,Vendedor,PNR,Pedimos al C que indique preferencia - devolución o dinero parcial,1
+2026-02-01,Villa Urquiza,Ambos,PDD,Sin solución,1
+2026-02-01,Vicente Lopez,Comprador,PDD,Generamos etiqueta de devolución,1
+2026-02-01,Scalabrini,Comprador,PDD,Dudas en devolución con ME: reembolso del dinero (C),1
+2026-02-01,Vicente Lopez,Comprador,PDD,Fallamos al C - producto irrecuperable,1
+2026-02-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C quiere que fallemos proactivamente por PDD,1
+2026-02-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
+2026-02-01,Caballito,Vendedor,PNR,Fallamos al V - Comprador confirma que recibe el artículo (PNR),1
+2026-02-01,Scalabrini,Comprador,PDD,Fallamos al C - C no recibe segundo envío,1
+2026-02-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-02-01,Caballito,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
+2026-03-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),32
+2026-03-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),29
+2026-03-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),21
+2026-03-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),16
+2026-03-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),8
+2026-03-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),6
+2026-03-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),5
+2026-03-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),5
+2026-03-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),4
+2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),4
+2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),3
+2026-03-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,3
+2026-03-01,Caballito,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,3
+2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,3
+2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - Recibió caja vacía y es riesgo bajo,2
+2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - C no recibe segundo envío,2
+2026-03-01,Vicente Lopez,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),2
+2026-03-01,Vicente Lopez,Comprador,PDD,Fallamos al C - producto irrecuperable,2
+2026-03-01,Scalabrini,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),2
+2026-03-01,Caballito,Ambos,PNR,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),2
+2026-03-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),2
+2026-03-01,Scalabrini,Vendedor,PNR,Respuestas Ágiles - Fallamos al V - C no responde - PNR C Flex (Auto) (V),2
+2026-03-01,Caballito,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,2
+2026-03-01,Vicente Lopez,Ambos,PNR,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),2
+2026-03-01,Scalabrini,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),2
+2026-03-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,2
+2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),2
+2026-03-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),2
+2026-03-01,Scalabrini,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),2
+2026-03-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-03-01,Vicente Lopez,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-03-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),1
+2026-03-01,Caballito,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2026-03-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
+2026-03-01,Vicente Lopez,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
+2026-03-01,Villa Urquiza,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2026-03-01,Caballito,Comprador,PDD,Fallamos al C - producto irrecuperable,1
+2026-03-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-03-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
+2026-03-01,Vicente Lopez,Ambos,PNR,Mediación cerrada tras reapertura para gestión (V),1
+2026-03-01,Villa Urquiza,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
+2026-03-01,Caballito,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
+2026-03-01,Scalabrini,Vendedor,PDD,PDD Fotos: Fallamos al V - C no adjunta fotos (Auto) (V),1
+2026-03-01,Scalabrini,Comprador,PNR,Fallamos al C - Vendedor quiere que fallemos proactivamente por PNR,1
+2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - Vendedor no responde - pagamos CP,1
+2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2026-03-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-03-01,Scalabrini,Comprador,PDD,Generamos etiqueta de devolución,1
+2026-03-01,Scalabrini,Ambos,PDD,Generamos etiqueta de devolución,1
+2026-03-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost - OneTask (Auto),1
+2026-03-01,Caballito,Comprador,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-03-01,Caballito,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
+2026-03-01,Caballito,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-03-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-03-01,Caballito,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
+2026-03-01,Villa Urquiza,Vendedor,PDD,Informamos que la factura no es obligatoria: preguntamos preferencia,1
+2026-03-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - Reclamo por producto incorrecto - carrito,1
+2026-03-01,Villa Urquiza,Comprador,PDD,Fallamos al C - V quiere que fallemos proactivamente por PDD,1
+2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),22
+2026-04-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),21
+2026-04-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),13
+2026-04-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),12
+2026-04-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),8
+2026-04-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),7
+2026-04-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),5
+2026-04-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,3
+2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),3
+2026-04-01,Scalabrini,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),2
+2026-04-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,2
+2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,2
+2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,2
+2026-04-01,Vicente Lopez,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,2
+2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
+2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),2
+2026-04-01,Scalabrini,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),2
+2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),2
+2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - V no adjuntó dirección de envío,1
+2026-04-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),1
+2026-04-01,Caballito,Comprador,PDD,Fallamos al C - V no adjuntó dirección de envío,1
+2026-04-01,Scalabrini,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-04-01,Caballito,Ambos,PDD,Devoluciones: Fallamos a ambos,1
+2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - Recibió caja vacía y es riesgo bajo,1
+2026-04-01,Scalabrini,Vendedor,PNR,Respuestas Ágiles - Fallamos al V - C no responde - PNR C Flex (Auto) (V),1
+2026-04-01,Caballito,Comprador,PDD,Fallamos al C - producto irrecuperable,1
+2026-04-01,Caballito,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2026-04-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
+2026-04-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
+2026-04-01,Vicente Lopez,Comprador,PDD,Fallamos al C - Caja vacía - OneTask (Auto),1
+2026-04-01,Scalabrini,Vendedor,PDD,[Excepción] Fallamos al V - C prefiere no devolver por factura,1
+2026-04-01,Vicente Lopez,Vendedor,PDD,Fallamos al V: Devolución expirada,1
+2026-04-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-04-01,Scalabrini,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
+2026-04-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-04-01,Vicente Lopez,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2026-04-01,Scalabrini,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-04-01,Scalabrini,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
+2026-04-01,Vicente Lopez,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-04-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),1
+2026-04-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),1
+2026-04-01,Vicente Lopez,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost - OneTask (Auto),1
+2026-04-01,Scalabrini,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
+2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),1
+2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - C recibe caja vacía por ME,1
+2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - Vendedor no responde - pagamos CP,1
+2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,20
+2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,17
+2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,13
+2026-05-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,11
+2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),10
+2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),7
+2026-05-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),7
+2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),4
+2026-05-01,Caballito,Comprador,PDD,Fallamos al C - Recibió caja vacía y es riesgo bajo,3
+2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),3
+2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,2
+2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,2
+2026-05-01,Vicente Lopez,Comprador,PDD,Fallamos al C - producto irrecuperable,2
+2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),2
+2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
+2026-05-01,Scalabrini,Vendedor,PDD,Fallamos al V: Devolución expirada,2
+2026-05-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,2
+2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-05-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
+2026-05-01,Vicente Lopez,Ambos,PDD,OPL Recontacto: caso cerrado - reembolso parcial al C (C),1
+2026-05-01,Vicente Lopez,Comprador,PDD,Fallamos al C - Recibió caja vacía y es riesgo bajo,1
+2026-05-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - Comprador no indica ítems faltantes,1
+2026-05-01,Scalabrini,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-05-01,Villa Urquiza,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
+2026-05-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
+2026-05-01,Vicente Lopez,Ambos,PDD,Dudas en devolución sin ME: reembolso del dinero (C),1
+2026-05-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
+2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring (PDD),1
+2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
+2026-05-01,Vicente Lopez,Vendedor,PNR,Respuestas Ágiles - Fallamos al V - C no responde - PNR C Flex (Auto) (V),1
+2026-05-01,Scalabrini,Comprador,PDD,Fallamos al C - no cubrimos al vendedor por devolución fallida,1
+2026-05-01,Scalabrini,Vendedor,PDD,Fallamos al V - C quiere que fallemos proactivamente por PDD,1
+2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost (V) (Auto),1
+2026-05-01,Scalabrini,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2026-05-01,Scalabrini,Ambos,PDD,Devoluciones: Fallamos a ambos,1
+2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-05-01,Caballito,Comprador,PDD,Fallamos al C - producto irrecuperable,1
+2026-05-01,Vicente Lopez,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,1
+2026-05-01,Scalabrini,Vendedor,PNR,Fallamos al V - Comprador no responde nuestro pedido de confirmación de recepción,1
+2026-05-01,Villa Urquiza,Vendedor,PDD,[Excepción] Fallamos al V - C prefiere no devolver por factura,1
+2026-05-01,Villa Urquiza,Comprador,PDD,Fallamos al C - producto irrecuperable,1
+2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),1
+2026-05-01,Caballito,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,1
+2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-05-01,Caballito,Vendedor,PDD,Fallamos al V - Reclamo por producto incorrecto - carrito,1
+2026-05-01,Caballito,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost - OneTask (Auto),1
+2026-05-01,Vicente Lopez,Vendedor,PNR,Fallamos al V - comprador riesgo alto por scoring - con ME (Auto) (V),1
+2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
+2026-05-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - Reclamo por producto incorrecto - carrito,1
+2026-05-01,Caballito,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
