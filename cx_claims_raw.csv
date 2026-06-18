@@ -1,33 +1,25 @@
 mes,Tienda,fallo,reason_claim,solu_final,claims
-,Caballito,Comprador,PNR,Sin solución,301
-,Vicente Lopez,Comprador,PNR,Sin solución,224
-,Scalabrini,Comprador,PNR,Sin solución,219
-,Villa Urquiza,Comprador,PNR,Sin solución,159
-,Vicente Lopez,Comprador,PDD,Sin solución,89
-,Caballito,Comprador,PDD,Sin solución,79
-,Scalabrini,Comprador,PDD,Sin solución,77
-,Caballito,null,PNR,Sin solución,51
-,Villa Urquiza,null,PNR,Sin solución,50
-,Caballito,null,PDD,Sin solución,47
-,Vicente Lopez,null,PDD,Sin solución,46
-,Scalabrini,null,PNR,Sin solución,40
-,Scalabrini,null,PDD,Sin solución,39
-,Villa Urquiza,Comprador,PDD,Sin solución,37
-,Villa Urquiza,null,PDD,Sin solución,32
-,Vicente Lopez,null,PNR,Sin solución,28
-,Vicente Lopez,Ambos,PDD,Sin solución,2
-,Villa Urquiza,null,PDD,Pedimos al V que resuelva - V debe adjuntar factura,2
-,Caballito,null,PDD,Pedimos confirmación - C debe indicar si la factura es correcta,1
-,Scalabrini,null,PDD,Informamos que la factura no es obligatoria: preguntamos preferencia,1
-,Scalabrini,null,PDD,Pedimos al C que indique preferencia - devolución o dinero parcial,1
-,Villa Urquiza,null,PDD,Vendedor informa recolección/cambio proactivo del producto,1
-,Vicente Lopez,null,PDD,Pedimos confirmación - C debe indicar si la factura es correcta,1
-,Caballito,null,PDD,Informamos que la factura no es obligatoria: preguntamos preferencia,1
-,Caballito,null,PNR,Informamos que la factura no es obligatoria: preguntamos preferencia,1
-,Scalabrini,null,PDD,Extendemos el plazo - C debe adjuntar fotos,1
+,Caballito,Comprador,PNR,Sin solución,323
+,Vicente Lopez,Comprador,PNR,Sin solución,241
+,Scalabrini,Comprador,PNR,Sin solución,236
+,Villa Urquiza,Comprador,PNR,Sin solución,180
+,Vicente Lopez,Comprador,PDD,Sin solución,99
+,Caballito,Comprador,PDD,Sin solución,94
+,Scalabrini,Comprador,PDD,Sin solución,85
+,Caballito,null,PNR,Sin solución,60
+,Villa Urquiza,Comprador,PDD,Sin solución,55
+,Villa Urquiza,null,PNR,Sin solución,54
+,Vicente Lopez,null,PDD,Sin solución,50
+,Scalabrini,null,PDD,Sin solución,50
+,Caballito,null,PDD,Sin solución,45
+,Scalabrini,null,PNR,Sin solución,45
+,Villa Urquiza,null,PDD,Sin solución,37
+,Vicente Lopez,null,PNR,Sin solución,32
+,Vicente Lopez,Ambos,PDD,Sin solución,3
 ,Caballito,Ambos,PDD,Sin solución,1
-,Scalabrini,null,PDD,Extendemos plazo - C debe indicar ítems faltantes,1
-,Vicente Lopez,null,PDD,Pedimos al V que resuelva - V debe adjuntar factura,1
+,Villa Urquiza,null,PDD,Generamos etiqueta de devolución,1
+,Scalabrini,null,PDD,Pedimos confirmación - C debe indicar si la factura es correcta,1
+,Scalabrini,null,PDD,Generamos etiqueta de devolución,1
 2025-10-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),6
 2025-10-01,Scalabrini,Ambos,PDD,PDD Fotos: pedimos fotos - C debe contactarnos (CP no disponible: condiciones),2
 2025-10-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
@@ -36,118 +28,118 @@ mes,Tienda,fallo,reason_claim,solu_final,claims
 2025-11-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),4
 2025-11-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),3
 2025-11-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),2
-2025-11-01,Scalabrini,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
 2025-11-01,Scalabrini,Ambos,PNR,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),1
-2025-11-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
 2025-11-01,Scalabrini,Vendedor,PDD,Fallamos al V - C no confirma devolución sin ME,1
 2025-11-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2025-11-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2025-11-01,Scalabrini,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
 2025-11-01,Scalabrini,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
 2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),35
 2025-12-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),11
 2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),11
 2025-12-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),9
 2025-12-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),5
-2025-12-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),4
 2025-12-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),4
-2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,2
-2025-12-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),2
+2025-12-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),4
+2025-12-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),2
 2025-12-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
+2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,2
 2025-12-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,2
 2025-12-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),2
-2025-12-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),2
-2025-12-01,Scalabrini,Ambos,PDD,Sin solución,1
-2025-12-01,Caballito,Ambos,PNR,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
-2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - Cubrimos al comprador por ítems faltantes,1
-2025-12-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
-2025-12-01,Caballito,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
-2025-12-01,Scalabrini,Comprador,PDD,PDD Fotos: Fallamos al C por producto defectuoso - embalaje (Auto) (V),1
-2025-12-01,Caballito,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
-2025-12-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2025-12-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),2
 2025-12-01,Scalabrini,Ambos,PDD,Pedimos al V que resuelva - V debe adjuntar factura,1
-2025-12-01,Vicente Lopez,Ambos,PDD,Fallo a ambos: Producto menor a 19 USD,1
-2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - reembolso parcial al C (responsabilidad V),1
-2025-12-01,Caballito,Ambos,PDD,Fallamos a ambos - reembolso parcial al C (responsabilidad V),1
-2025-12-01,Scalabrini,Vendedor,PDD,PDD Fotos: Fallamos al V - C no adjunta fotos (Auto) (V),1
-2025-12-01,Vicente Lopez,Ambos,PNR,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),1
-2025-12-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
-2025-12-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
-2025-12-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
 2025-12-01,Vicente Lopez,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
-2025-12-01,Scalabrini,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
-2025-12-01,Vicente Lopez,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2025-12-01,Vicente Lopez,Ambos,PNR,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),1
+2025-12-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
+2025-12-01,Scalabrini,Comprador,PDD,PDD Fotos: Fallamos al C por producto defectuoso - embalaje (Auto) (V),1
+2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - Cubrimos al comprador por ítems faltantes,1
 2025-12-01,Vicente Lopez,Vendedor,PNR,Respuestas Ágiles - Fallamos al V - C no responde - PNR C Flex (Auto) (V),1
+2025-12-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2025-12-01,Caballito,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
+2025-12-01,Scalabrini,Vendedor,PDD,PDD Fotos: Fallamos al V - C no adjunta fotos (Auto) (V),1
 2025-12-01,Scalabrini,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),1
+2025-12-01,Scalabrini,Ambos,PDD,Sin solución,1
 2025-12-01,Vicente Lopez,Ambos,PDD,Generamos etiqueta de devolución,1
+2025-12-01,Caballito,Ambos,PNR,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
+2025-12-01,Scalabrini,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2025-12-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2025-12-01,Caballito,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2025-12-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2025-12-01,Vicente Lopez,Ambos,PDD,Fallo a ambos: Producto menor a 19 USD,1
+2025-12-01,Caballito,Ambos,PDD,Fallamos a ambos - reembolso parcial al C (responsabilidad V),1
+2025-12-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2025-12-01,Scalabrini,Ambos,PDD,Fallamos a ambos - reembolso parcial al C (responsabilidad V),1
+2025-12-01,Vicente Lopez,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
 2026-01-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),10
 2026-01-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),8
 2026-01-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),7
 2026-01-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),6
-2026-01-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),5
-2026-01-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,5
 2026-01-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),5
+2026-01-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,5
+2026-01-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),5
 2026-01-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),3
+2026-01-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
 2026-01-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
+2026-01-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),2
 2026-01-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
 2026-01-01,Scalabrini,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),2
-2026-01-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),2
-2026-01-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
-2026-01-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - reembolso parcial al C (responsabilidad V),1
-2026-01-01,Vicente Lopez,Comprador,PDD,Respuestas Ágiles: Fallamos al C - C devolvió y V no informa problemas con producto/envío (Auto),1
-2026-01-01,Caballito,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
+2026-01-01,Scalabrini,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
 2026-01-01,Scalabrini,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
 2026-01-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),1
-2026-01-01,Caballito,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-01-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
 2026-01-01,Caballito,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,1
 2026-01-01,Villa Urquiza,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
-2026-01-01,Scalabrini,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
-2026-01-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
-2026-01-01,Scalabrini,Ambos,PDD,Fallo a ambos - General KYC (V) (AUTO),1
+2026-01-01,Caballito,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
 2026-01-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2026-01-01,Vicente Lopez,Comprador,PDD,Respuestas Ágiles: Fallamos al C - C devolvió y V no informa problemas con producto/envío (Auto),1
+2026-01-01,Caballito,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-01-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - reembolso parcial al C (responsabilidad V),1
+2026-01-01,Scalabrini,Ambos,PDD,Fallo a ambos - General KYC (V) (AUTO),1
 2026-01-01,Vicente Lopez,Comprador,PDD,Fallamos al C: V no retira de sucursal,1
 2026-02-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),19
 2026-02-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),9
 2026-02-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),9
 2026-02-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),7
 2026-02-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),4
-2026-02-01,Caballito,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,3
-2026-02-01,Scalabrini,Comprador,PDD,Fallamos al C - producto irrecuperable,3
-2026-02-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),3
 2026-02-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),3
+2026-02-01,Scalabrini,Comprador,PDD,Fallamos al C - producto irrecuperable,3
 2026-02-01,Vicente Lopez,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),3
 2026-02-01,Vicente Lopez,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),3
+2026-02-01,Caballito,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,3
 2026-02-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),3
+2026-02-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),3
 2026-02-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,3
-2026-02-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
-2026-02-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,2
 2026-02-01,Scalabrini,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),2
+2026-02-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
 2026-02-01,Caballito,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,2
-2026-02-01,Villa Urquiza,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
-2026-02-01,Caballito,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
-2026-02-01,Caballito,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
-2026-02-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
-2026-02-01,Caballito,Comprador,PDD,Fallamos al C - Producto llegó vencido o en mal estado,1
-2026-02-01,Vicente Lopez,Ambos,PDD,Devoluciones: Fallamos a ambos,1
-2026-02-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
-2026-02-01,Scalabrini,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
-2026-02-01,Caballito,Vendedor,PNR,Pedimos al C que indique preferencia - devolución o dinero parcial,1
-2026-02-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
-2026-02-01,Vicente Lopez,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
-2026-02-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C quiere que fallemos proactivamente por PDD,1
-2026-02-01,Scalabrini,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
-2026-02-01,Vicente Lopez,Vendedor,PDD,Fallamos al V  - Pagamos bonus track al  C - no pudo/no quiso hacer la devolución,1
-2026-02-01,Scalabrini,Comprador,PDD,Dudas en devolución con ME: reembolso del dinero (C),1
-2026-02-01,Villa Urquiza,Ambos,PDD,Sin solución,1
-2026-02-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
+2026-02-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,2
 2026-02-01,Scalabrini,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,1
+2026-02-01,Villa Urquiza,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
 2026-02-01,Scalabrini,Vendedor,PDD,Informamos que la factura no es obligatoria: preguntamos preferencia,1
-2026-02-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
 2026-02-01,Caballito,Vendedor,PNR,Fallamos al V - Comprador confirma que recibe el artículo (PNR),1
-2026-02-01,Caballito,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
-2026-02-01,Vicente Lopez,Comprador,PDD,Fallamos al C - producto irrecuperable,1
+2026-02-01,Villa Urquiza,Ambos,PDD,Sin solución,1
+2026-02-01,Scalabrini,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
 2026-02-01,Scalabrini,Comprador,PDD,Fallamos al C - C no recibe segundo envío,1
+2026-02-01,Vicente Lopez,Vendedor,PDD,Fallamos al V  - Pagamos bonus track al  C - no pudo/no quiso hacer la devolución,1
+2026-02-01,Caballito,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
+2026-02-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
+2026-02-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2026-02-01,Scalabrini,Comprador,PDD,Dudas en devolución con ME: reembolso del dinero (C),1
+2026-02-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
 2026-02-01,Vicente Lopez,Comprador,PDD,Generamos etiqueta de devolución,1
 2026-02-01,Villa Urquiza,Ambos,PDD,Devoluciones: Fallamos a ambos,1
-2026-02-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
+2026-02-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
+2026-02-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-02-01,Caballito,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2026-02-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C quiere que fallemos proactivamente por PDD,1
+2026-02-01,Caballito,Vendedor,PNR,Pedimos al C que indique preferencia - devolución o dinero parcial,1
+2026-02-01,Caballito,Comprador,PDD,Fallamos al C - Producto llegó vencido o en mal estado,1
+2026-02-01,Vicente Lopez,Comprador,PDD,Fallamos al C - producto irrecuperable,1
+2026-02-01,Vicente Lopez,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2026-02-01,Caballito,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-02-01,Scalabrini,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
+2026-02-01,Vicente Lopez,Ambos,PDD,Devoluciones: Fallamos a ambos,1
+2026-02-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
 2026-03-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),32
 2026-03-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),29
 2026-03-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),21
@@ -158,56 +150,56 @@ mes,Tienda,fallo,reason_claim,solu_final,claims
 2026-03-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),5
 2026-03-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),4
 2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),4
-2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,3
-2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),3
 2026-03-01,Caballito,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,3
 2026-03-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,3
-2026-03-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),2
+2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,3
+2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),3
 2026-03-01,Vicente Lopez,Comprador,PDD,Fallamos al C - producto irrecuperable,2
-2026-03-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,2
-2026-03-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),2
-2026-03-01,Vicente Lopez,Ambos,PNR,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),2
-2026-03-01,Vicente Lopez,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),2
 2026-03-01,Scalabrini,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),2
-2026-03-01,Caballito,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,2
-2026-03-01,Caballito,Ambos,PNR,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),2
-2026-03-01,Scalabrini,Vendedor,PNR,Respuestas Ágiles - Fallamos al V - C no responde - PNR C Flex (Auto) (V),2
-2026-03-01,Scalabrini,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),2
-2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - Recibió caja vacía y es riesgo bajo,2
-2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),2
-2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - C no recibe segundo envío,2
+2026-03-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,2
 2026-03-01,Scalabrini,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),2
-2026-03-01,Scalabrini,Ambos,PDD,Generamos etiqueta de devolución,1
-2026-03-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
-2026-03-01,Villa Urquiza,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
-2026-03-01,Caballito,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
-2026-03-01,Caballito,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
-2026-03-01,Caballito,Comprador,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
-2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - Vendedor no responde - pagamos CP,1
-2026-03-01,Vicente Lopez,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
-2026-03-01,Caballito,Comprador,PDD,Fallamos al C - producto irrecuperable,1
-2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
-2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
-2026-03-01,Villa Urquiza,Vendedor,PDD,Informamos que la factura no es obligatoria: preguntamos preferencia,1
-2026-03-01,Villa Urquiza,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
-2026-03-01,Caballito,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
-2026-03-01,Vicente Lopez,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
-2026-03-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
-2026-03-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
-2026-03-01,Caballito,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
-2026-03-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost - OneTask (Auto),1
+2026-03-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),2
+2026-03-01,Caballito,Ambos,PNR,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),2
+2026-03-01,Caballito,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,2
+2026-03-01,Vicente Lopez,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),2
+2026-03-01,Scalabrini,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),2
+2026-03-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),2
+2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),2
+2026-03-01,Vicente Lopez,Ambos,PNR,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),2
+2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - C no recibe segundo envío,2
+2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - Recibió caja vacía y es riesgo bajo,2
+2026-03-01,Scalabrini,Vendedor,PNR,Respuestas Ágiles - Fallamos al V - C no responde - PNR C Flex (Auto) (V),2
 2026-03-01,Scalabrini,Vendedor,PDD,PDD Fotos: Fallamos al V - C no adjunta fotos (Auto) (V),1
-2026-03-01,Caballito,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
-2026-03-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - Reclamo por producto incorrecto - carrito,1
-2026-03-01,Vicente Lopez,Ambos,PNR,Mediación cerrada tras reapertura para gestión (V),1
-2026-03-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
-2026-03-01,Scalabrini,Comprador,PNR,Fallamos al C - Vendedor quiere que fallemos proactivamente por PNR,1
-2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - Vendedor no responde - pagamos CP,1
 2026-03-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),1
-2026-03-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
-2026-03-01,Scalabrini,Comprador,PDD,Generamos etiqueta de devolución,1
-2026-03-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
+2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2026-03-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Dry - OneTask (Auto),1
+2026-03-01,Vicente Lopez,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
+2026-03-01,Scalabrini,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
 2026-03-01,Villa Urquiza,Comprador,PDD,Fallamos al C - V quiere que fallemos proactivamente por PDD,1
+2026-03-01,Caballito,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
+2026-03-01,Caballito,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2026-03-01,Scalabrini,Ambos,PDD,Generamos etiqueta de devolución,1
+2026-03-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - Reclamo PNR por producto incorrecto - carrito,1
+2026-03-01,Scalabrini,Comprador,PDD,Generamos etiqueta de devolución,1
+2026-03-01,Caballito,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
+2026-03-01,Vicente Lopez,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-03-01,Scalabrini,Comprador,PNR,Fallamos al C - Vendedor quiere que fallemos proactivamente por PNR,1
+2026-03-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-03-01,Caballito,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-03-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-03-01,Caballito,Comprador,PDD,Fallamos al C - producto irrecuperable,1
+2026-03-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
+2026-03-01,Caballito,Comprador,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-03-01,Villa Urquiza,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
+2026-03-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-03-01,Villa Urquiza,Vendedor,PDD,Informamos que la factura no es obligatoria: preguntamos preferencia,1
+2026-03-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost - OneTask (Auto),1
+2026-03-01,Villa Urquiza,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2026-03-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-03-01,Caballito,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-03-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
+2026-03-01,Vicente Lopez,Ambos,PNR,Mediación cerrada tras reapertura para gestión PNR (V),1
 2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),22
 2026-04-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),21
 2026-04-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),13
@@ -215,98 +207,129 @@ mes,Tienda,fallo,reason_claim,solu_final,claims
 2026-04-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),8
 2026-04-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),7
 2026-04-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),5
-2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),3
 2026-04-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,3
-2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,2
+2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),3
+2026-04-01,Scalabrini,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),2
 2026-04-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,2
-2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,2
 2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
 2026-04-01,Vicente Lopez,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,2
-2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),2
 2026-04-01,Scalabrini,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),2
 2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),2
-2026-04-01,Scalabrini,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),2
-2026-04-01,Caballito,Comprador,PDD,Fallamos al C - producto irrecuperable,1
-2026-04-01,Caballito,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
-2026-04-01,Scalabrini,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
-2026-04-01,Scalabrini,Vendedor,PDD,[Excepción] Fallamos al V - C prefiere no devolver por factura,1
-2026-04-01,Vicente Lopez,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
-2026-04-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
-2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
-2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - Vendedor no responde - pagamos CP,1
-2026-04-01,Caballito,Ambos,PDD,Devoluciones: Fallamos a ambos,1
-2026-04-01,Scalabrini,Vendedor,PNR,Respuestas Ágiles - Fallamos al V - C no responde - PNR C Flex (Auto) (V),1
-2026-04-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
-2026-04-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),1
-2026-04-01,Vicente Lopez,Comprador,PDD,Fallamos al C - Caja vacía - OneTask (Auto),1
-2026-04-01,Vicente Lopez,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
-2026-04-01,Scalabrini,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
-2026-04-01,Vicente Lopez,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
-2026-04-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),1
-2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),1
-2026-04-01,Scalabrini,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
-2026-04-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),2
+2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,2
+2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,2
 2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost - OneTask (Auto),1
-2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
-2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - C recibe caja vacía por ME,1
+2026-04-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
+2026-04-01,Scalabrini,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
 2026-04-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
-2026-04-01,Scalabrini,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
-2026-04-01,Scalabrini,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),1
+2026-04-01,Vicente Lopez,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2026-04-01,Caballito,Ambos,PDD,Devoluciones: Fallamos a ambos,1
+2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
 2026-04-01,Caballito,Comprador,PDD,Fallamos al C - V no adjuntó dirección de envío,1
-2026-04-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),1
-2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
 2026-04-01,Vicente Lopez,Vendedor,PDD,Fallamos al V: Devolución expirada,1
-2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - V no adjuntó dirección de envío,1
+2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - Vendedor no responde - pagamos CP,1
+2026-04-01,Scalabrini,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-04-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),1
+2026-04-01,Scalabrini,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-04-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-04-01,Vicente Lopez,Comprador,PDD,Fallamos al C - Caja vacía - OneTask (Auto),1
+2026-04-01,Caballito,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),1
+2026-04-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost Fresh - OneTask (Auto),1
+2026-04-01,Scalabrini,Vendedor,PNR,Respuestas Ágiles - Fallamos al V - C no responde - PNR C Flex (Auto) (V),1
+2026-04-01,Scalabrini,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2026-04-01,Caballito,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2026-04-01,Scalabrini,Vendedor,PDD,[Excepción] Fallamos al V - C prefiere no devolver por factura,1
 2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - Recibió caja vacía y es riesgo bajo,1
-2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,20
+2026-04-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - C recibe caja vacía por ME,1
+2026-04-01,Caballito,Comprador,PDD,Fallamos al C - producto irrecuperable,1
+2026-04-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-04-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),1
+2026-04-01,Vicente Lopez,Ambos,PDD,Fallamos ambos - Low Cost 16 USD (arrepentimiento),1
+2026-04-01,Vicente Lopez,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2026-04-01,Scalabrini,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
+2026-04-01,Scalabrini,Comprador,PDD,Fallamos al C - V no adjuntó dirección de envío,1
+2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,21
 2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,17
-2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,13
-2026-05-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,11
+2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,14
+2026-05-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,12
 2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),10
-2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),7
+2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),8
 2026-05-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),7
+2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),4
 2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),4
 2026-05-01,Caballito,Comprador,PDD,Fallamos al C - Recibió caja vacía y es riesgo bajo,3
-2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),3
+2026-05-01,Vicente Lopez,Comprador,PDD,Fallamos al C - producto irrecuperable,3
 2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),3
-2026-05-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
-2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,2
-2026-05-01,Scalabrini,Vendedor,PDD,Fallamos al V: Devolución expirada,2
-2026-05-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,2
-2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,2
 2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost (V) (Auto),2
-2026-05-01,Vicente Lopez,Comprador,PDD,Fallamos al C - producto irrecuperable,2
-2026-05-01,Scalabrini,Ambos,PDD,Devoluciones: Fallamos a ambos,1
-2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
-2026-05-01,Vicente Lopez,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,1
-2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring (PDD),1
+2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,2
+2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,2
+2026-05-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,2
+2026-05-01,Scalabrini,Vendedor,PDD,Fallamos al V: Devolución expirada,2
+2026-05-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),2
+2026-05-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,2
+2026-05-01,Villa Urquiza,Comprador,PDD,Fallamos al C - Ambos usuarios riesgo bajo (Flex),1
+2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),1
+2026-05-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - Reclamo PNR por producto incorrecto - carrito,1
 2026-05-01,Villa Urquiza,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
-2026-05-01,Caballito,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,1
+2026-05-01,Caballito,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),1
 2026-05-01,Scalabrini,Vendedor,PNR,Fallamos al V - Comprador no responde nuestro pedido de confirmación de recepción,1
-2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost - OneTask (Auto),1
-2026-05-01,Scalabrini,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
-2026-05-01,Vicente Lopez,Vendedor,PNR,Respuestas Ágiles - Fallamos al V - C no responde - PNR C Flex (Auto) (V),1
-2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-05-01,Villa Urquiza,Vendedor,PDD,[Excepción] Fallamos al V - C prefiere no devolver por factura,1
+2026-05-01,Caballito,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
+2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
 2026-05-01,Caballito,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
+2026-05-01,Vicente Lopez,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
+2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring (PDD),1
+2026-05-01,Scalabrini,Ambos,PDD,Devoluciones: Fallamos a ambos,1
+2026-05-01,Vicente Lopez,Ambos,PDD,Dudas en devolución sin ME: reembolso del dinero (C),1
 2026-05-01,Scalabrini,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
-2026-05-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - Reclamo por producto incorrecto - carrito,1
-2026-05-01,Scalabrini,Vendedor,PDD,Fallamos al V - C quiere que fallemos proactivamente por PDD,1
+2026-05-01,Caballito,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,1
+2026-05-01,Vicente Lopez,Vendedor,PNR,Fallamos al V - comprador riesgo alto por scoring - con ME (Auto) (V),1
+2026-05-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost - OneTask (Auto),1
+2026-05-01,Villa Urquiza,Comprador,PDD,Fallamos al C - V no cambió el producto,1
+2026-05-01,Vicente Lopez,Vendedor,PNR,Respuestas Ágiles - Fallamos al V - C no responde - PNR C Flex (Auto) (V),1
+2026-05-01,Vicente Lopez,Comprador,PDD,Fallamos al C - Recibió caja vacía y es riesgo bajo,1
+2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - costo de etiqueta de devolución es mayor al costo del producto,1
 2026-05-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - Comprador no indica ítems faltantes,1
 2026-05-01,Villa Urquiza,Comprador,PDD,Fallamos al C - producto irrecuperable,1
-2026-05-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
-2026-05-01,Vicente Lopez,Vendedor,PNR,Fallamos al V - comprador riesgo alto por scoring - con ME (Auto) (V),1
+2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost - OneTask (Auto),1
+2026-05-01,Scalabrini,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
 2026-05-01,Caballito,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),1
-2026-05-01,Caballito,Vendedor,PDD,Modulares: Fallamos al V: Devolución expirada (Auto) (V),1
-2026-05-01,Vicente Lopez,Ambos,PDD,OPL Recontacto: caso cerrado - reembolso parcial al C (C),1
-2026-05-01,Villa Urquiza,Comprador,PDD,Fallamos al C - Ambos usuarios riesgo bajo (Flex),1
-2026-05-01,Scalabrini,Comprador,PDD,Fallamos al C - no cubrimos al vendedor por devolución fallida,1
-2026-05-01,Vicente Lopez,Comprador,PDD,Fallamos al C - Recibió caja vacía y es riesgo bajo,1
-2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),1
 2026-05-01,Caballito,Comprador,PDD,Fallamos al C - producto irrecuperable,1
-2026-05-01,Vicente Lopez,Ambos,PDD,Dudas en devolución sin ME: reembolso del dinero (C),1
+2026-05-01,Scalabrini,Comprador,PDD,Fallamos al C - no cubrimos al vendedor por devolución fallida,1
+2026-05-01,Caballito,Vendedor,PDD,Fallamos al V - Reclamo PNR por producto incorrecto - carrito,1
+2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost (V) (Auto),1
 2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
 2026-05-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
-2026-05-01,Vicente Lopez,Vendedor,PDD,Fallamos al V - C prefiere no devolver por factura,1
-2026-05-01,Villa Urquiza,Vendedor,PDD,[Excepción] Fallamos al V - C prefiere no devolver por factura,1
-2026-05-01,Caballito,Vendedor,PDD,Fallamos al V - Reclamo por producto incorrecto - carrito,1
-2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - PDD Low Cost (V) (Auto),1
+2026-05-01,Scalabrini,Vendedor,PDD,Fallamos al V - C quiere que fallemos proactivamente por PDD,1
+2026-05-01,Scalabrini,Comprador,PDD,Fallamos al C - C devolvió el producto - CP disponible (Auto),1
+2026-05-01,Vicente Lopez,Ambos,PDD,OPL Recontacto: caso cerrado - reembolso parcial al C (C),1
+2026-05-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-05-01,Vicente Lopez,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,1
+2026-06-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),9
+2026-06-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),6
+2026-06-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),6
+2026-06-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),5
+2026-06-01,Caballito,Vendedor,PDD,Fallamos al V - comprador riesgo alto por scoring - PDD (Auto) (V),4
+2026-06-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Dry - OneTask (Auto),3
+2026-06-01,Caballito,Comprador,PNR,Respuestas Ágiles - Fallamos al C - Ambos usuarios riesgo bajo PNR C Flex (Auto) (V),2
+2026-06-01,Caballito,Vendedor,PDD,[Excepción] Fallamos al V - C prefiere no devolver por factura,1
+2026-06-01,Scalabrini,Comprador,PDD,Fallamos al V - producto entregado (PDD),1
+2026-06-01,Caballito,Vendedor,PNR,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-06-01,Caballito,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-06-01,Caballito,Comprador,PDD,Cerramos caso - V no responde (V),1
+2026-06-01,Villa Urquiza,Ambos,PDD,Fallamos a ambos - Low Cost cubrimos por riesgo bajo,1
+2026-06-01,Vicente Lopez,Comprador,PDD,Fallamos al C - Recibió caja vacía y es riesgo bajo,1
+2026-06-01,Scalabrini,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
+2026-06-01,Scalabrini,Comprador,PDD,Fallamos al C - No recibe producto por responsabilidad del vendedor,1
+2026-06-01,Scalabrini,Ambos,PNR,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
+2026-06-01,Scalabrini,Vendedor,PDD,Fallamos al V - V adjunta factura / factura corregida (PDD),1
+2026-06-01,Caballito,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
+2026-06-01,Scalabrini,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-06-01,Caballito,null,PDD,Fallamos al V - comprador cierra el reclamo porque V resolvió - Con MP (Auto) (V),1
+2026-06-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - pagamos regalo parcial al C - no retiramos del V,1
+2026-06-01,Vicente Lopez,Ambos,PDD,Devoluciones: Fallamos a ambos,1
+2026-06-01,Villa Urquiza,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-06-01,Caballito,Vendedor,PDD,Fallamos al V - reembolso parcial al C retirando del V,1
+2026-06-01,Vicente Lopez,Ambos,PDD,Fallamos a ambos - PDD Low Cost Fresh - OneTask (Auto),1
