@@ -26,8 +26,8 @@ mes,CLAIM_TYPE,bpp_meli_lc,bpp_recovery_lc,casos
 202603,Incompleto,87677,0,8
 202603,Devolucion Fallida,73097.25,82238,5
 202603,Damaged,27482.37,12919.98,4
-202603,PDD sin Devoluciones,27939.33,0,2
 202603,Caja Vacia,0,62020,2
+202603,PDD sin Devoluciones,27939.33,0,2
 202603,Diferente,27999,0,1
 202603,No Funciona,0,58344,1
 202604,Otros,83979,6807921.42,678
@@ -44,8 +44,8 @@ mes,CLAIM_TYPE,bpp_meli_lc,bpp_recovery_lc,casos
 202605,Lowcost,887660.47,0,101
 202605,PNR Contradictorio,0,264536.75,44
 202605,Bonificador,254791.17,85022.34,21
-202605,Damaged,78998.75,0,8
 202605,Devolucion Fallida,30096,247923.01,8
+202605,Damaged,78998.75,0,8
 202605,Caja Vacia,0,102110,4
 202605,PDD sin Devoluciones,45143,0,3
 202605,Incompleto,34866,0,2
@@ -60,10 +60,11 @@ mes,CLAIM_TYPE,bpp_meli_lc,bpp_recovery_lc,casos
 202606,Caja Vacia,9393,14014,2
 202606,Extravios,27489,0,1
 202606,PDD sin Devoluciones,2778.65,0,1
-202607,Otros,43989,5741248.83,596
-202607,Lowcost,266241.92,0,28
+202607,Otros,43989,6187609.33,610
+202607,Lowcost,308847.92,0,33
 202607,Bonificador,45917.77,21862.23,5
-202607,Damaged,53077.4,0,2
-202607,Devolucion Fallida,0,9208.75,2
-202607,Incompleto,3999,45249,1
+202607,Damaged,67567.4,0,3
 202607,PDD sin Devoluciones,18049,0,1
+202607,Incompleto,3999,45249,1
+202607,Deuda,20300,0,1
+202607,Devolucion Fallida,0,9208.75,1
