@@ -69,7 +69,7 @@ mes,CLAIM_TYPE,bpp_meli_lc,bpp_recovery_lc,casos
 202607,PNR Contradictorio,0,44217,1
 202607,PDD sin Devoluciones,18049,0,1
 202607,Caja Vacia,0,29847,1
-202608,Otros,87978,15187195.31,1388
+202608,Otros,87978,15992469.44,1496
 202608,Lowcost,431583.85,0,55
 202608,PNR Contradictorio,0,333890.31,31
 202608,Caja Vacia,41037.1,21357,13
@@ -79,3 +79,4 @@ mes,CLAIM_TYPE,bpp_meli_lc,bpp_recovery_lc,casos
 202608,Incompleto,22588,33819,2
 202608,PDD sin Devoluciones,40436,0,2
 202608,Diferente,65712,0,1
+202609,Bonificador,43638.49,0,5
