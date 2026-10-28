@@ -13,12 +13,12 @@ mes,CLAIM_TYPE,bpp_meli_lc,bpp_recovery_lc,casos
 202602,Bonificador,48027.87,44525.43,8
 202602,Devolucion Fallida,15697,138916,7
 202602,Incompleto,94393.98,0,6
-202602,PNR Contradictorio,0,68527.4,4
 202602,Damaged,62188.79,4054.15,4
+202602,PNR Contradictorio,0,68527.4,4
 202602,Extravios,0,54158,3
+202602,Diferente,17999,0,1
 202602,PDD sin Devoluciones,22565,0,1
 202602,Etiquetas Return sin ME,5758.46,12781.54,1
-202602,Diferente,17999,0,1
 202603,Otros,111572.1,12546578.2,1228
 202603,PNR Contradictorio,461065.85,389114.18,159
 202603,Lowcost,823129.61,76141,133
@@ -28,8 +28,8 @@ mes,CLAIM_TYPE,bpp_meli_lc,bpp_recovery_lc,casos
 202603,Damaged,27482.37,12919.98,4
 202603,Caja Vacia,0,62020,2
 202603,PDD sin Devoluciones,27939.33,0,2
-202603,No Funciona,0,58344,1
 202603,Diferente,27999,0,1
+202603,No Funciona,0,58344,1
 202604,Otros,83979,6807921.42,678
 202604,Lowcost,634038.56,0,89
 202604,PNR Contradictorio,0,224747.95,17
@@ -44,8 +44,8 @@ mes,CLAIM_TYPE,bpp_meli_lc,bpp_recovery_lc,casos
 202605,Lowcost,887660.47,0,101
 202605,PNR Contradictorio,0,264536.75,44
 202605,Bonificador,254791.17,85022.34,21
-202605,Devolucion Fallida,30096,247923.01,8
 202605,Damaged,78998.75,0,8
+202605,Devolucion Fallida,30096,247923.01,8
 202605,Caja Vacia,0,102110,4
 202605,PDD sin Devoluciones,45143,0,3
 202605,Incompleto,34866,0,2
@@ -66,8 +66,8 @@ mes,CLAIM_TYPE,bpp_meli_lc,bpp_recovery_lc,casos
 202607,Damaged,90786.2,0,5
 202607,Devolucion Fallida,0,38437.75,3
 202607,Incompleto,9478,45249,2
-202607,Caja Vacia,0,29847,1
 202607,PNR Contradictorio,0,44217,1
+202607,Caja Vacia,0,29847,1
 202607,PDD sin Devoluciones,18049,0,1
 202608,Otros,87978,15992469.44,1496
 202608,Lowcost,420270.85,0,54
@@ -75,25 +75,28 @@ mes,CLAIM_TYPE,bpp_meli_lc,bpp_recovery_lc,casos
 202608,Caja Vacia,41037.1,21357,13
 202608,Bonificador,93360.26,32939.62,9
 202608,Devolucion Fallida,7998,176363.02,6
-202608,Incompleto,33901,33819,3
 202608,Damaged,13769,0,3
+202608,Incompleto,33901,33819,3
 202608,PDD sin Devoluciones,40436,0,2
 202608,Diferente,65712,0,1
 202609,Otros,59985,15455584.46,1562
 202609,Lowcost,709887.22,0,73
 202609,PNR Contradictorio,0,133966.78,18
-202609,Deuda,0,28259.85,11
 202609,Incompleto,108131.86,0,11
+202609,Deuda,0,28259.85,11
 202609,Devolucion Fallida,11997,322339.1,10
 202609,Bonificador,192336.49,11987.01,9
 202609,Caja Vacia,4890,30598,2
 202609,Etiquetas Return sin ME,5203.5,9785.5,1
 202609,PDD sin Devoluciones,19764,0,1
 202609,Damaged,23389.8,0,1
-202610,Otros,15996,3133127.52,343
-202610,Extravios,0,134295.6,9
-202610,Lowcost,70745.45,0,7
-202610,Bonificador,49397.6,0,5
+202610,Otros,680320.55,5098237.37,622
+202610,Extravios,3328607.6,55686.9,256
+202610,Lowcost,627440.29,37090.61,106
+202610,Caja Vacia,194390.05,0,26
+202610,Incompleto,121031.3,0,12
+202610,Bonificador,72968.77,30762.55,10
 202610,Deuda,0,42560.7,4
-202610,Caja Vacia,3100,0,1
-202610,Devolucion Fallida,0,18289,1
+202610,Devolucion Fallida,3999,93469,4
+202610,PDD sin Devoluciones,49047,0,2
+202610,Damaged,3303.3,17696.7,1
